@@ -145,22 +145,9 @@ function DemoPage() {
         )}
         {tab === "contacts" && <ContactsPanel contacts={contacts} />}
         {tab === "history" && <HistoryPanel />}
+        {tab === "sos" && <SosPanel me={me} onTriggerSos={triggerSos} sosActive={!!sos} />}
         {tab === "admin" && <AdminPanel contactsCount={contacts.length} sosActive={!!sos} />}
       </div>
-
-      {/* SOS button */}
-      {tab === "map" && (
-        <button
-          onClick={triggerSos}
-          className="fixed right-5 bottom-24 z-40 w-16 h-16 rounded-full flex items-center justify-center text-white font-bold"
-          style={{
-            background: "oklch(0.6 0.24 25)",
-            boxShadow: "0 10px 30px -8px oklch(0.6 0.24 25 / 0.6)",
-          }}
-        >
-          <Siren className="w-7 h-7" />
-        </button>
-      )}
 
       {/* Bottom Nav (demo) */}
       <nav
