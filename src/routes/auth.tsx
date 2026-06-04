@@ -122,6 +122,15 @@ function AuthPage() {
             </TabsContent>
           </Tabs>
         </div>
+
+        <Link
+          to="/demo"
+          className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl bg-card border border-border text-sm font-medium hover:bg-accent transition-colors"
+          style={{ boxShadow: "var(--shadow-card)" }}
+        >
+          <PlayCircle className="w-4 h-4 text-primary" />
+          Ver demo sin registrarse
+        </Link>
       </div>
     </div>
   );
