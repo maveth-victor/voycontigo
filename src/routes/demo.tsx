@@ -159,6 +159,7 @@ function DemoPage() {
             { id: "map" as Tab, icon: MapIcon, label: "Mapa" },
             { id: "contacts" as Tab, icon: Users, label: "Contactos" },
             { id: "history" as Tab, icon: HistoryIcon, label: "Historial" },
+            { id: "sos" as Tab, icon: Siren, label: "SOS" },
             { id: "admin" as Tab, icon: ShieldCheck, label: "Admin" },
           ].map(({ id, icon: Icon, label }) => {
             const active = tab === id;
@@ -166,7 +167,7 @@ function DemoPage() {
               <button
                 key={id}
                 onClick={() => setTab(id)}
-                className={`flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl transition-colors ${
+                className={`flex flex-col items-center gap-1 px-2 py-1.5 rounded-xl transition-colors ${
                   active ? "text-primary" : "text-muted-foreground"
                 }`}
               >
