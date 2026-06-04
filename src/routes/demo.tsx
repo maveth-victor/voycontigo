@@ -12,6 +12,11 @@ import {
   Siren,
   CheckCircle2,
   Clock,
+  Phone,
+  MessageCircle,
+  AlertTriangle,
+  HeartPulse,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -26,7 +31,7 @@ export const Route = createFileRoute("/demo")({
   component: DemoPage,
 });
 
-type Tab = "map" | "contacts" | "history" | "admin";
+type Tab = "map" | "contacts" | "history" | "sos" | "admin";
 
 const baseContacts: DemoMarker[] = [
   { id: "c1", name: "María López", kind: "contact", lat: 19.4339, lng: -99.1410, updated: "hace 12 s" },
@@ -140,22 +145,9 @@ function DemoPage() {
         )}
         {tab === "contacts" && <ContactsPanel contacts={contacts} />}
         {tab === "history" && <HistoryPanel />}
+        {tab === "sos" && <SosPanel me={me} onTriggerSos={triggerSos} sosActive={!!sos} />}
         {tab === "admin" && <AdminPanel contactsCount={contacts.length} sosActive={!!sos} />}
       </div>
-
-      {/* SOS button */}
-      {tab === "map" && (
-        <button
-          onClick={triggerSos}
-          className="fixed right-5 bottom-24 z-40 w-16 h-16 rounded-full flex items-center justify-center text-white font-bold"
-          style={{
-            background: "oklch(0.6 0.24 25)",
-            boxShadow: "0 10px 30px -8px oklch(0.6 0.24 25 / 0.6)",
-          }}
-        >
-          <Siren className="w-7 h-7" />
-        </button>
-      )}
 
       {/* Bottom Nav (demo) */}
       <nav
@@ -167,6 +159,7 @@ function DemoPage() {
             { id: "map" as Tab, icon: MapIcon, label: "Mapa" },
             { id: "contacts" as Tab, icon: Users, label: "Contactos" },
             { id: "history" as Tab, icon: HistoryIcon, label: "Historial" },
+            { id: "sos" as Tab, icon: Siren, label: "SOS" },
             { id: "admin" as Tab, icon: ShieldCheck, label: "Admin" },
           ].map(({ id, icon: Icon, label }) => {
             const active = tab === id;
@@ -174,7 +167,7 @@ function DemoPage() {
               <button
                 key={id}
                 onClick={() => setTab(id)}
-                className={`flex flex-col items-center gap-1 px-3 py-1.5 rounded-xl transition-colors ${
+                className={`flex flex-col items-center gap-1 px-2 py-1.5 rounded-xl transition-colors ${
                   active ? "text-primary" : "text-muted-foreground"
                 }`}
               >
@@ -303,6 +296,148 @@ function AdminPanel({
             </div>
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+function SosPanel({
+  me,
+  onTriggerSos,
+  sosActive,
+}: {
+  me: { lat: number; lng: number };
+  onTriggerSos: () => void;
+  sosActive: boolean;
+}) {
+  const [sent, setSent] = useState(false);
+
+  const handleSos = () => {
+    onTriggerSos();
+    setSent(true);
+    setTimeout(() => setSent(false), 6000);
+  };
+
+  return (
+    <div className="h-full overflow-y-auto px-4 py-4">
+      <div className="max-w-md mx-auto space-y-4">
+        <div className="text-center space-y-1">
+          <h2 className="text-xl font-bold">Pedir ayuda</h2>
+          <p className="text-sm text-muted-foreground">
+            En una emergencia, presiona el botón para alertar a tus contactos.
+          </p>
+        </div>
+
+        <button
+          onClick={handleSos}
+          disabled={sent}
+          className="w-full py-6 rounded-3xl flex flex-col items-center gap-2 text-white font-bold transition-all active:scale-[0.98] disabled:opacity-70"
+          style={{
+            background: sent
+              ? "oklch(0.55 0.18 145)"
+              : "oklch(0.6 0.24 25)",
+            boxShadow: sent
+              ? "0 10px 30px -8px oklch(0.55 0.18 145 / 0.5)"
+              : "0 10px 30px -8px oklch(0.6 0.24 25 / 0.6)",
+          }}
+        >
+          {sent ? (
+            <CheckCircle2 className="w-10 h-10" />
+          ) : (
+            <Siren className="w-10 h-10" />
+          )}
+          <span className="text-lg">
+            {sent ? "Alerta enviada" : "BOTÓN DE EMERGENCIA"}
+          </span>
+          <span className="text-xs font-normal opacity-90">
+            {sent
+              ? "Tus contactos han sido notificados"
+              : "Mantén presionado 3 segundos en la app real"}
+          </span>
+        </button>
+
+        {sosActive && (
+          <div className="p-4 rounded-2xl border border-destructive/40 bg-destructive/5 space-y-2">
+            <div className="flex items-center gap-2 text-destructive font-semibold">
+              <AlertTriangle className="w-5 h-5" /> Alerta SOS activa
+            </div>
+            <div className="text-sm text-muted-foreground">
+              Ubicación: {me.lat.toFixed(4)}, {me.lng.toFixed(4)}
+            </div>
+            <div className="text-xs text-muted-foreground">
+              Enviada a {baseContacts.length} contactos
+            </div>
+          </div>
+        )}
+
+        <div className="space-y-2">
+          <h3 className="text-sm font-semibold text-muted-foreground">
+            Contactos de emergencia
+          </h3>
+          {baseContacts.map((c) => (
+            <div
+              key={c.id}
+              className="flex items-center gap-3 p-3 rounded-2xl bg-card border border-border"
+            >
+              <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center">
+                <Phone className="w-4 h-4" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-medium truncate">{c.name}</div>
+                <div className="text-xs text-muted-foreground">
+                  Contacto autorizado
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  className="w-9 h-9 rounded-xl bg-primary text-primary-foreground flex items-center justify-center"
+                  onClick={() => toast.info(`Llamando a ${c.name} (demo)` )}
+                >
+                  <Phone className="w-4 h-4" />
+                </button>
+                <button
+                  className="w-9 h-9 rounded-xl bg-muted text-muted-foreground flex items-center justify-center"
+                  onClick={() => toast.info(`Mensaje a ${c.name} (demo)` )}
+                >
+                  <MessageCircle className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="p-4 rounded-2xl bg-card border border-border space-y-3">
+          <h3 className="text-sm font-semibold flex items-center gap-2">
+            <HeartPulse className="w-4 h-4 text-primary" />
+            Líneas de emergencia
+          </h3>
+          {[
+            { name: "Emergencias", num: "911", desc: "Policía, bomberos, ambulancia" },
+            { name: "Cruz Roja", num: "065", desc: "Atención médica de emergencia" },
+            { name: "Denuncia anónima", num: "089", desc: "Denuncia segura y anónima" },
+          ].map((line) => (
+            <div
+              key={line.num}
+              className="flex items-center justify-between p-3 rounded-xl bg-muted/50"
+            >
+              <div>
+                <div className="font-medium text-sm">{line.name}</div>
+                <div className="text-xs text-muted-foreground">{line.desc}</div>
+              </div>
+              <button
+                className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium"
+                onClick={() => toast.info(`Llamando al ${line.num} (demo)` )}
+              >
+                {line.num}
+                <ChevronRight className="w-3 h-3" />
+              </button>
+            </div>
+          ))}
+        </div>
+
+        <div className="text-xs text-muted-foreground text-center">
+          Esta es una demostración. En la app real, la alerta comparte tu ubicación en tiempo real con tus contactos de confianza.
+        </div>
       </div>
     </div>
   );
