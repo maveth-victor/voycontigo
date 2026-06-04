@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Shield } from "lucide-react";
+import { Shield, PlayCircle } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
@@ -121,6 +122,15 @@ function AuthPage() {
             </TabsContent>
           </Tabs>
         </div>
+
+        <Link
+          to="/demo"
+          className="flex items-center justify-center gap-2 w-full py-3 rounded-2xl bg-card border border-border text-sm font-medium hover:bg-accent transition-colors"
+          style={{ boxShadow: "var(--shadow-card)" }}
+        >
+          <PlayCircle className="w-4 h-4 text-primary" />
+          Ver demo sin registrarse
+        </Link>
       </div>
     </div>
   );
