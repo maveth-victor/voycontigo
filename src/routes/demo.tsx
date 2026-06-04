@@ -12,6 +12,11 @@ import {
   Siren,
   CheckCircle2,
   Clock,
+  Phone,
+  MessageCircle,
+  AlertTriangle,
+  HeartPulse,
+  ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
