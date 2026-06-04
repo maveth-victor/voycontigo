@@ -1,9 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { lazy, Suspense } from "react";
+import { ClientOnly } from "@tanstack/react-router";
 import { useLocationTracker } from "@/hooks/use-location-tracker";
-import { MapView } from "@/components/MapView";
 import { BottomNav } from "@/components/BottomNav";
 import { SosButton } from "@/components/SosButton";
 import { Shield, MapPin } from "lucide-react";
+
+const MapView = lazy(() =>
+  import("@/components/MapView").then((m) => ({ default: m.MapView })),
+);
 
 export const Route = createFileRoute("/_authenticated/map")({
   component: MapPage,
@@ -46,7 +51,11 @@ function MapPage() {
       </header>
 
       <div className="absolute inset-0 pb-20">
-        <MapView center={center} />
+        <ClientOnly fallback={<div className="h-full w-full bg-muted" />}>
+          <Suspense fallback={<div className="h-full w-full bg-muted" />}>
+            <MapView center={center} />
+          </Suspense>
+        </ClientOnly>
       </div>
 
       <SosButton coords={coords} />
