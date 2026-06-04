@@ -31,7 +31,7 @@ export const Route = createFileRoute("/demo")({
   component: DemoPage,
 });
 
-type Tab = "map" | "contacts" | "history" | "admin";
+type Tab = "map" | "contacts" | "history" | "sos" | "admin";
 
 const baseContacts: DemoMarker[] = [
   { id: "c1", name: "María López", kind: "contact", lat: 19.4339, lng: -99.1410, updated: "hace 12 s" },
