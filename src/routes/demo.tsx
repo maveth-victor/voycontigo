@@ -104,6 +104,11 @@ function DemoPage() {
   const [contacts, setContacts] = useState(baseContacts);
   const [sos, setSos] = useState<DemoMarker | null>(null);
   const [tick, setTick] = useState(0);
+  const [permsGranted, setPermsGranted] = useState(false);
+
+  if (!permsGranted) {
+    return <PermissionsGate onGranted={() => setPermsGranted(true)} />;
+  }
 
   // Simulate live movement every 2s
   useEffect(() => {
