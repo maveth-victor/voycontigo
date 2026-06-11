@@ -17,6 +17,11 @@ import {
   AlertTriangle,
   HeartPulse,
   ChevronRight,
+  Star,
+  MessageSquare,
+  Camera,
+  Send,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -31,7 +36,47 @@ export const Route = createFileRoute("/demo")({
   component: DemoPage,
 });
 
-type Tab = "map" | "contacts" | "history" | "sos" | "admin";
+type Tab = "map" | "contacts" | "history" | "sos" | "forum" | "admin";
+
+type Review = {
+  id: string;
+  author: string;
+  place: string;
+  rating: number;
+  text: string;
+  photos: string[];
+  when: string;
+};
+
+const seedReviews: Review[] = [
+  {
+    id: "r1",
+    author: "María López",
+    place: "Parque México, Condesa",
+    rating: 5,
+    text: "Lugar muy seguro de día, bien iluminado y con vigilancia. Ideal para caminar.",
+    photos: [],
+    when: "Hoy 13:20",
+  },
+  {
+    id: "r2",
+    author: "Carlos Pérez",
+    place: "Av. Reforma 222, CDMX",
+    rating: 4,
+    text: "Mucha gente y cámaras. Por la noche prefiero ir acompañado.",
+    photos: [],
+    when: "Ayer 20:05",
+  },
+  {
+    id: "r3",
+    author: "Ana Torres",
+    place: "Coyoacán, CDMX",
+    rating: 5,
+    text: "Ambiente familiar, me sentí muy tranquila. Recomendado 100%.",
+    photos: [],
+    when: "Lun 18:40",
+  },
+];
 
 const baseContacts: DemoMarker[] = [
   { id: "c1", name: "María López", kind: "contact", lat: 19.4339, lng: -99.1410, updated: "hace 12 s" },
@@ -146,6 +191,7 @@ function DemoPage() {
         {tab === "contacts" && <ContactsPanel contacts={contacts} />}
         {tab === "history" && <HistoryPanel />}
         {tab === "sos" && <SosPanel me={me} onTriggerSos={triggerSos} sosActive={!!sos} />}
+        {tab === "forum" && <ForumPanel />}
         {tab === "admin" && <AdminPanel contactsCount={contacts.length} sosActive={!!sos} />}
       </div>
 
@@ -158,8 +204,9 @@ function DemoPage() {
           {[
             { id: "map" as Tab, icon: MapIcon, label: "Mapa" },
             { id: "contacts" as Tab, icon: Users, label: "Contactos" },
-            { id: "history" as Tab, icon: HistoryIcon, label: "Historial" },
             { id: "sos" as Tab, icon: Siren, label: "SOS" },
+            { id: "forum" as Tab, icon: MessageSquare, label: "Foro" },
+            { id: "history" as Tab, icon: HistoryIcon, label: "Historial" },
             { id: "admin" as Tab, icon: ShieldCheck, label: "Admin" },
           ].map(({ id, icon: Icon, label }) => {
             const active = tab === id;
