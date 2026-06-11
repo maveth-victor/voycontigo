@@ -199,7 +199,9 @@ function DemoPage() {
             </Suspense>
           </ClientOnly>
         )}
-        {tab === "contacts" && <ContactsPanel contacts={contacts} />}
+        {tab === "contacts" && (
+          <ContactsPanel contacts={contacts} setContacts={setContacts} />
+        )}
         {tab === "history" && <HistoryPanel />}
         {tab === "sos" && <SosPanel me={me} onTriggerSos={triggerSos} sosActive={!!sos} />}
         {tab === "forum" && <ForumPanel />}
