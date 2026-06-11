@@ -22,8 +22,14 @@ import {
   Camera,
   Send,
   X,
+  UserPlus,
+  Wifi,
+  WifiOff,
+  RefreshCw,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import type { DemoMarker } from "@/components/DemoMap";
 
