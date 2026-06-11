@@ -17,6 +17,11 @@ import {
   AlertTriangle,
   HeartPulse,
   ChevronRight,
+  Star,
+  MessageSquare,
+  Camera,
+  Send,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -31,7 +36,47 @@ export const Route = createFileRoute("/demo")({
   component: DemoPage,
 });
 
-type Tab = "map" | "contacts" | "history" | "sos" | "admin";
+type Tab = "map" | "contacts" | "history" | "sos" | "forum" | "admin";
+
+type Review = {
+  id: string;
+  author: string;
+  place: string;
+  rating: number;
+  text: string;
+  photos: string[];
+  when: string;
+};
+
+const seedReviews: Review[] = [
+  {
+    id: "r1",
+    author: "María López",
+    place: "Parque México, Condesa",
+    rating: 5,
+    text: "Lugar muy seguro de día, bien iluminado y con vigilancia. Ideal para caminar.",
+    photos: [],
+    when: "Hoy 13:20",
+  },
+  {
+    id: "r2",
+    author: "Carlos Pérez",
+    place: "Av. Reforma 222, CDMX",
+    rating: 4,
+    text: "Mucha gente y cámaras. Por la noche prefiero ir acompañado.",
+    photos: [],
+    when: "Ayer 20:05",
+  },
+  {
+    id: "r3",
+    author: "Ana Torres",
+    place: "Coyoacán, CDMX",
+    rating: 5,
+    text: "Ambiente familiar, me sentí muy tranquila. Recomendado 100%.",
+    photos: [],
+    when: "Lun 18:40",
+  },
+];
 
 const baseContacts: DemoMarker[] = [
   { id: "c1", name: "María López", kind: "contact", lat: 19.4339, lng: -99.1410, updated: "hace 12 s" },
@@ -146,6 +191,7 @@ function DemoPage() {
         {tab === "contacts" && <ContactsPanel contacts={contacts} />}
         {tab === "history" && <HistoryPanel />}
         {tab === "sos" && <SosPanel me={me} onTriggerSos={triggerSos} sosActive={!!sos} />}
+        {tab === "forum" && <ForumPanel />}
         {tab === "admin" && <AdminPanel contactsCount={contacts.length} sosActive={!!sos} />}
       </div>
 
@@ -158,8 +204,9 @@ function DemoPage() {
           {[
             { id: "map" as Tab, icon: MapIcon, label: "Mapa" },
             { id: "contacts" as Tab, icon: Users, label: "Contactos" },
-            { id: "history" as Tab, icon: HistoryIcon, label: "Historial" },
             { id: "sos" as Tab, icon: Siren, label: "SOS" },
+            { id: "forum" as Tab, icon: MessageSquare, label: "Foro" },
+            { id: "history" as Tab, icon: HistoryIcon, label: "Historial" },
             { id: "admin" as Tab, icon: ShieldCheck, label: "Admin" },
           ].map(({ id, icon: Icon, label }) => {
             const active = tab === id;
@@ -437,6 +484,195 @@ function SosPanel({
 
         <div className="text-xs text-muted-foreground text-center">
           Esta es una demostración. En la app real, la alerta comparte tu ubicación en tiempo real con tus contactos de confianza.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Stars({
+  value,
+  onChange,
+  size = 18,
+}: {
+  value: number;
+  onChange?: (n: number) => void;
+  size?: number;
+}) {
+  return (
+    <div className="flex items-center gap-0.5">
+      {[1, 2, 3, 4, 5].map((n) => {
+        const filled = n <= value;
+        const Comp = onChange ? "button" : "span";
+        return (
+          <Comp
+            key={n}
+            type="button"
+            onClick={onChange ? () => onChange(n) : undefined}
+            className={onChange ? "cursor-pointer" : ""}
+            aria-label={`${n} estrellas`}
+          >
+            <Star
+              style={{ width: size, height: size }}
+              className={filled ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}
+            />
+          </Comp>
+        );
+      })}
+    </div>
+  );
+}
+
+function ForumPanel() {
+  const [reviews, setReviews] = useState<Review[]>(seedReviews);
+  const [place, setPlace] = useState("");
+  const [text, setText] = useState("");
+  const [rating, setRating] = useState(5);
+  const [photos, setPhotos] = useState<string[]>([]);
+
+  const onFiles = (files: FileList | null) => {
+    if (!files) return;
+    Array.from(files)
+      .slice(0, 4 - photos.length)
+      .forEach((file) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          setPhotos((p) => [...p, reader.result as string]);
+        };
+        reader.readAsDataURL(file);
+      });
+  };
+
+  const submit = () => {
+    if (!place.trim() || !text.trim()) {
+      toast.error("Agrega el lugar y tu reseña");
+      return;
+    }
+    const r: Review = {
+      id: `r${Date.now()}`,
+      author: "Tú (Demo)",
+      place: place.trim(),
+      rating,
+      text: text.trim(),
+      photos,
+      when: "Ahora",
+    };
+    setReviews((rs) => [r, ...rs]);
+    setPlace("");
+    setText("");
+    setRating(5);
+    setPhotos([]);
+    toast.success("Reseña publicada");
+  };
+
+  const avg =
+    reviews.length === 0
+      ? 0
+      : reviews.reduce((s, r) => s + r.rating, 0) / reviews.length;
+
+  return (
+    <div className="h-full overflow-y-auto px-4 py-4">
+      <div className="max-w-md mx-auto space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Foro de reseñas</h2>
+          <div className="flex items-center gap-1 text-sm">
+            <Stars value={Math.round(avg)} />
+            <span className="text-muted-foreground">({reviews.length})</span>
+          </div>
+        </div>
+
+        <div className="p-3 rounded-2xl bg-card border border-border space-y-3">
+          <div className="text-sm font-semibold">Califica un lugar</div>
+          <input
+            value={place}
+            onChange={(e) => setPlace(e.target.value)}
+            placeholder="Nombre del lugar (p. ej. Parque México)"
+            className="w-full px-3 py-2 rounded-xl bg-muted/50 border border-border text-sm outline-none focus:ring-2 focus:ring-primary/40"
+          />
+          <div className="flex items-center justify-between">
+            <span className="text-xs text-muted-foreground">Tu calificación</span>
+            <Stars value={rating} onChange={setRating} size={22} />
+          </div>
+          <textarea
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="¿Cómo fue tu experiencia? ¿Te sentiste seguro?"
+            rows={3}
+            className="w-full px-3 py-2 rounded-xl bg-muted/50 border border-border text-sm outline-none focus:ring-2 focus:ring-primary/40 resize-none"
+          />
+
+          {photos.length > 0 && (
+            <div className="grid grid-cols-4 gap-2">
+              {photos.map((src, i) => (
+                <div key={i} className="relative aspect-square rounded-lg overflow-hidden bg-muted">
+                  <img src={src} alt="foto" className="w-full h-full object-cover" />
+                  <button
+                    onClick={() => setPhotos((p) => p.filter((_, j) => j !== i))}
+                    className="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/60 text-white flex items-center justify-center"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="flex items-center gap-2">
+            <label className="flex-1 cursor-pointer">
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={(e) => {
+                  onFiles(e.target.files);
+                  e.target.value = "";
+                }}
+              />
+              <div className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-muted text-sm font-medium">
+                <Camera className="w-4 h-4" /> Subir fotos
+              </div>
+            </label>
+            <Button onClick={submit} className="gap-2">
+              <Send className="w-4 h-4" /> Publicar
+            </Button>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          {reviews.map((r) => (
+            <div key={r.id} className="p-3 rounded-2xl bg-card border border-border space-y-2">
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-9 h-9 rounded-full flex items-center justify-center text-white font-semibold"
+                  style={{ background: "var(--gradient-brand)" }}
+                >
+                  {r.author[0]}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium truncate">{r.author}</div>
+                  <div className="text-[11px] text-muted-foreground">{r.when}</div>
+                </div>
+                <Stars value={r.rating} />
+              </div>
+              <div className="text-xs text-primary font-semibold flex items-center gap-1">
+                <MapPin className="w-3 h-3" /> {r.place}
+              </div>
+              <p className="text-sm text-foreground/90">{r.text}</p>
+              {r.photos.length > 0 && (
+                <div className="grid grid-cols-3 gap-2 pt-1">
+                  {r.photos.map((src, i) => (
+                    <img
+                      key={i}
+                      src={src}
+                      alt={`foto ${i + 1}`}
+                      className="w-full aspect-square object-cover rounded-lg"
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
         </div>
       </div>
     </div>
