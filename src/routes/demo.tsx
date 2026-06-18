@@ -23,6 +23,11 @@ import {
   Send,
   X,
   UserPlus,
+  User as UserIcon,
+  Navigation,
+  Route as RouteIcon,
+  Settings,
+  Save,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -94,12 +99,71 @@ const historyLog = [
   { t: "Lun 18:20", place: "Coyoacán, CDMX", lat: 19.3467, lng: -99.1618 },
 ];
 
+type DemoProfile = {
+  fullName: string;
+  phone: string;
+  email: string;
+  address: string;
+  bloodType: string;
+  birthdate: string;
+  emergencyNote: string;
+  avatar: string | null;
+};
+
+const defaultProfile: DemoProfile = {
+  fullName: "Tú (Demo)",
+  phone: "+52 55 1234 5678",
+  email: "demo@safetrack.app",
+  address: "Av. Reforma 222, CDMX",
+  bloodType: "O+",
+  birthdate: "1995-08-12",
+  emergencyNote: "Alergia a la penicilina. Contactar a María López.",
+  avatar: null,
+};
+
+function haversineMeters(
+  a: { lat: number; lng: number },
+  b: { lat: number; lng: number },
+) {
+  const R = 6371000;
+  const toRad = (d: number) => (d * Math.PI) / 180;
+  const dLat = toRad(b.lat - a.lat);
+  const dLng = toRad(b.lng - a.lng);
+  const s =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(a.lat)) * Math.cos(toRad(b.lat)) * Math.sin(dLng / 2) ** 2;
+  return Math.round(2 * R * Math.asin(Math.sqrt(s)));
+}
+
+function bearingLabel(a: { lat: number; lng: number }, b: { lat: number; lng: number }) {
+  const dy = b.lat - a.lat;
+  const dx = b.lng - a.lng;
+  const deg = (Math.atan2(dx, dy) * 180) / Math.PI;
+  const dirs = ["N", "NE", "E", "SE", "S", "SO", "O", "NO"];
+  return dirs[Math.round(((deg + 360) % 360) / 45) % 8];
+}
+
+const streetSets: Record<string, string[]> = {
+  c1: ["Av. Insurgentes Sur", "Av. Álvaro Obregón", "Calle Orizaba"],
+  c2: ["Paseo de la Reforma", "Av. Juárez", "Eje Central"],
+  c3: ["Av. México", "Parque México", "Av. Michoacán"],
+};
+
+function streetsFor(id: string): string[] {
+  return (
+    streetSets[id] ?? ["Av. Reforma", "Av. Insurgentes", "Calle Génova"]
+  );
+}
+
 function DemoPage() {
   const [tab, setTab] = useState<Tab>("map");
   const [me, setMe] = useState({ lat: 19.4326, lng: -99.1332 });
   const [contacts, setContacts] = useState(baseContacts);
   const [sos, setSos] = useState<DemoMarker | null>(null);
   const [tick, setTick] = useState(0);
+  const [selectedUser, setSelectedUser] = useState<DemoMarker | null>(null);
+  const [showProfileEditor, setShowProfileEditor] = useState(false);
+  const [profile, setProfile] = useState<DemoProfile>(defaultProfile);
 
   // Simulate live movement every 2s
   useEffect(() => {
@@ -184,19 +248,39 @@ function DemoPage() {
       {/* Content */}
       <div className="absolute inset-0 pt-[88px] pb-20">
         {tab === "map" && (
-          <ClientOnly fallback={<div className="h-full w-full bg-muted" />}>
-            <Suspense fallback={<div className="h-full w-full bg-muted" />}>
-              <DemoMap markers={markers} />
-            </Suspense>
-          </ClientOnly>
+          <div className="relative h-full w-full">
+            <ClientOnly fallback={<div className="h-full w-full bg-muted" />}>
+              <Suspense fallback={<div className="h-full w-full bg-muted" />}>
+                <DemoMap markers={markers} />
+              </Suspense>
+            </ClientOnly>
+            <MapLegend
+              markers={markers}
+              me={me}
+              onSelect={(m) => setSelectedUser(m)}
+            />
+          </div>
         )}
         {tab === "contacts" && (
-          <ContactsPanel contacts={contacts} setContacts={setContacts} />
+          <ContactsPanel
+            contacts={contacts}
+            setContacts={setContacts}
+            onOpen={(c) => setSelectedUser(c)}
+          />
         )}
         {tab === "history" && <HistoryPanel />}
         {tab === "sos" && <SosPanel me={me} onTriggerSos={triggerSos} sosActive={!!sos} />}
         {tab === "forum" && <ForumPanel />}
-        {tab === "admin" && <AdminPanel contactsCount={contacts.length} sosActive={!!sos} />}
+        {tab === "admin" && (
+          <AdminPanel
+            contactsCount={contacts.length}
+            sosActive={!!sos}
+            contacts={contacts}
+            onOpenUser={(c) => setSelectedUser(c)}
+            onConfigureProfile={() => setShowProfileEditor(true)}
+            profile={profile}
+          />
+        )}
       </div>
 
       {/* Bottom Nav (demo) */}
@@ -229,6 +313,266 @@ function DemoPage() {
           })}
         </div>
       </nav>
+
+      {selectedUser && (
+        <UserProfileSheet
+          user={selectedUser}
+          me={me}
+          onClose={() => setSelectedUser(null)}
+        />
+      )}
+      {showProfileEditor && (
+        <ProfileEditorSheet
+          profile={profile}
+          onSave={(p) => {
+            setProfile(p);
+            setShowProfileEditor(false);
+            toast.success("Perfil actualizado");
+          }}
+          onClose={() => setShowProfileEditor(false)}
+        />
+      )}
+    </div>
+  );
+}
+
+function MapLegend({
+  markers,
+  me,
+  onSelect,
+}: {
+  markers: DemoMarker[];
+  me: { lat: number; lng: number };
+  onSelect: (m: DemoMarker) => void;
+}) {
+  const items = markers.filter((m) => m.kind !== "me");
+  return (
+    <div className="absolute left-3 bottom-3 z-[400] max-w-[15rem] rounded-2xl bg-card/95 backdrop-blur border border-border p-3 space-y-2"
+      style={{ boxShadow: "var(--shadow-card)" }}>
+      <div className="text-[11px] font-semibold uppercase text-muted-foreground">
+        Leyenda
+      </div>
+      <div className="space-y-1 text-xs">
+        <div className="flex items-center gap-2">
+          <span className="w-3 h-3 rounded-full bg-blue-500 border-2 border-white shadow" />
+          Tú
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="w-3 h-3 rounded-full bg-emerald-500 border-2 border-white shadow" />
+          Contactos
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="w-3 h-3 rounded-full bg-red-500 border-2 border-white shadow" />
+          Alerta SOS
+        </div>
+      </div>
+      {items.length > 0 && (
+        <div className="pt-1 border-t border-border space-y-1 max-h-32 overflow-y-auto">
+          {items.map((m) => (
+            <button
+              key={m.id}
+              onClick={() => onSelect(m)}
+              className="w-full flex items-center justify-between gap-2 px-2 py-1 rounded-lg hover:bg-muted text-left"
+            >
+              <span className="flex items-center gap-2 min-w-0">
+                <span
+                  className={`w-2 h-2 rounded-full shrink-0 ${
+                    m.kind === "sos" ? "bg-red-500" : "bg-emerald-500"
+                  }`}
+                />
+                <span className="text-xs truncate">{m.name}</span>
+              </span>
+              <span className="text-[10px] text-muted-foreground shrink-0">
+                {haversineMeters(me, m)} m
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function UserProfileSheet({
+  user,
+  me,
+  onClose,
+}: {
+  user: DemoMarker;
+  me: { lat: number; lng: number };
+  onClose: () => void;
+}) {
+  const dist = haversineMeters(me, user);
+  const dir = bearingLabel(me, user);
+  const streets = streetsFor(user.id);
+  return (
+    <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm" onClick={onClose}>
+      <div
+        className="w-full max-w-md bg-card border border-border rounded-t-3xl sm:rounded-3xl p-5 space-y-4"
+        style={{ boxShadow: "var(--shadow-card)" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center gap-3">
+          <div
+            className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-lg"
+            style={{ background: "var(--gradient-brand)" }}
+          >
+            {user.name[0]}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="font-semibold truncate">{user.name}</div>
+            <div className="text-xs text-muted-foreground capitalize">
+              {user.kind === "sos" ? "Alerta de emergencia" : "Contacto autorizado"}
+            </div>
+          </div>
+          <button onClick={onClose} className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2">
+          <div className="p-3 rounded-xl bg-muted/50 text-center">
+            <div className="text-[10px] uppercase text-muted-foreground">Distancia</div>
+            <div className="text-lg font-bold text-primary">{dist} m</div>
+          </div>
+          <div className="p-3 rounded-xl bg-muted/50 text-center">
+            <div className="text-[10px] uppercase text-muted-foreground">Dirección</div>
+            <div className="text-lg font-bold text-primary flex items-center justify-center gap-1">
+              <Navigation className="w-4 h-4" /> {dir}
+            </div>
+          </div>
+        </div>
+
+        <div className="p-3 rounded-xl bg-muted/50 space-y-1">
+          <div className="text-[10px] uppercase text-muted-foreground">Coordenadas</div>
+          <div className="text-sm font-mono">
+            Lat {user.lat.toFixed(5)} · Lng {user.lng.toFixed(5)}
+          </div>
+          <div className="text-[11px] text-muted-foreground">
+            Actualizado: {user.updated}
+          </div>
+        </div>
+
+        <div className="p-3 rounded-xl bg-muted/50 space-y-2">
+          <div className="text-[10px] uppercase text-muted-foreground flex items-center gap-1">
+            <RouteIcon className="w-3 h-3" /> Recorrido estimado
+          </div>
+          <ol className="space-y-1 text-sm">
+            {streets.map((s, i) => (
+              <li key={s} className="flex items-center gap-2">
+                <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center">
+                  {i + 1}
+                </span>
+                {s}
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        <div className="flex gap-2">
+          <Button variant="outline" className="flex-1 gap-2" onClick={() => toast.info(`Llamando a ${user.name} (demo)`)}>
+            <Phone className="w-4 h-4" /> Llamar
+          </Button>
+          <Button className="flex-1 gap-2" onClick={() => toast.info(`Mensaje a ${user.name} (demo)`)}>
+            <MessageCircle className="w-4 h-4" /> Mensaje
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProfileEditorSheet({
+  profile,
+  onSave,
+  onClose,
+}: {
+  profile: DemoProfile;
+  onSave: (p: DemoProfile) => void;
+  onClose: () => void;
+}) {
+  const [form, setForm] = useState<DemoProfile>(profile);
+  const set = <K extends keyof DemoProfile>(k: K, v: DemoProfile[K]) =>
+    setForm((f) => ({ ...f, [k]: v }));
+
+  const onAvatar = (files: FileList | null) => {
+    const f = files?.[0];
+    if (!f) return;
+    const r = new FileReader();
+    r.onload = () => set("avatar", r.result as string);
+    r.readAsDataURL(f);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm" onClick={onClose}>
+      <div
+        className="w-full max-w-md max-h-[90vh] overflow-y-auto bg-card border border-border rounded-t-3xl sm:rounded-3xl p-5 space-y-3"
+        style={{ boxShadow: "var(--shadow-card)" }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between">
+          <h3 className="font-semibold flex items-center gap-2">
+            <Settings className="w-4 h-4" /> Configurar perfil
+          </h3>
+          <button onClick={onClose} className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <label className="cursor-pointer relative">
+            <input type="file" accept="image/*" className="hidden" onChange={(e) => onAvatar(e.target.files)} />
+            {form.avatar ? (
+              <img src={form.avatar} alt="avatar" className="w-16 h-16 rounded-full object-cover" />
+            ) : (
+              <div
+                className="w-16 h-16 rounded-full flex items-center justify-center text-white font-bold text-xl"
+                style={{ background: "var(--gradient-brand)" }}
+              >
+                {form.fullName[0]}
+              </div>
+            )}
+            <span className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center">
+              <Camera className="w-3 h-3" />
+            </span>
+          </label>
+          <div className="text-xs text-muted-foreground">
+            Toca la foto para cambiarla
+          </div>
+        </div>
+
+        {[
+          { k: "fullName" as const, label: "Nombre completo" },
+          { k: "phone" as const, label: "Teléfono", type: "tel" },
+          { k: "email" as const, label: "Correo", type: "email" },
+          { k: "address" as const, label: "Dirección" },
+          { k: "birthdate" as const, label: "Fecha de nacimiento", type: "date" },
+          { k: "bloodType" as const, label: "Tipo de sangre" },
+        ].map((f) => (
+          <div key={f.k} className="space-y-1">
+            <label className="text-xs text-muted-foreground">{f.label}</label>
+            <Input
+              type={f.type ?? "text"}
+              value={form[f.k]}
+              onChange={(e) => set(f.k, e.target.value)}
+            />
+          </div>
+        ))}
+
+        <div className="space-y-1">
+          <label className="text-xs text-muted-foreground">Notas médicas / emergencia</label>
+          <textarea
+            value={form.emergencyNote}
+            onChange={(e) => set("emergencyNote", e.target.value)}
+            rows={3}
+            className="w-full px-3 py-2 rounded-xl bg-muted/50 border border-border text-sm outline-none focus:ring-2 focus:ring-primary/40 resize-none"
+          />
+        </div>
+
+        <Button onClick={() => onSave(form)} className="w-full gap-2">
+          <Save className="w-4 h-4" /> Guardar perfil
+        </Button>
+      </div>
     </div>
   );
 }
@@ -236,9 +580,11 @@ function DemoPage() {
 function ContactsPanel({
   contacts,
   setContacts,
+  onOpen,
 }: {
   contacts: DemoMarker[];
   setContacts: React.Dispatch<React.SetStateAction<DemoMarker[]>>;
+  onOpen: (c: DemoMarker) => void;
 }) {
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState("");
@@ -315,9 +661,10 @@ function ContactsPanel({
         )}
 
         {contacts.map((c) => (
-          <div
+          <button
             key={c.id}
-            className="flex items-center gap-3 p-3 rounded-2xl bg-card border border-border"
+            onClick={() => onOpen(c)}
+            className="w-full text-left flex items-center gap-3 p-3 rounded-2xl bg-card border border-border hover:border-primary/40 transition-colors"
           >
             <div
               className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold"
@@ -332,8 +679,8 @@ function ContactsPanel({
                 {c.lat.toFixed(4)}, {c.lng.toFixed(4)} · {c.updated}
               </div>
             </div>
-            <CheckCircle2 className="w-5 h-5 text-primary" />
-          </div>
+            <ChevronRight className="w-5 h-5 text-muted-foreground" />
+          </button>
         ))}
         <div className="text-xs text-muted-foreground text-center pt-2">
           En la app real puedes enviar y aceptar solicitudes por correo.
@@ -372,14 +719,51 @@ function HistoryPanel() {
 function AdminPanel({
   contactsCount,
   sosActive,
+  contacts,
+  onOpenUser,
+  onConfigureProfile,
+  profile,
 }: {
   contactsCount: number;
   sosActive: boolean;
+  contacts: DemoMarker[];
+  onOpenUser: (c: DemoMarker) => void;
+  onConfigureProfile: () => void;
+  profile: DemoProfile;
 }) {
   return (
     <div className="h-full overflow-y-auto px-4 py-4">
       <div className="max-w-md mx-auto space-y-4">
-        <h2 className="text-lg font-semibold">Panel administrativo</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-semibold">Panel administrativo</h2>
+          <Button size="sm" onClick={onConfigureProfile} className="gap-1">
+            <Settings className="w-4 h-4" /> Perfil
+          </Button>
+        </div>
+
+        <button
+          onClick={onConfigureProfile}
+          className="w-full flex items-center gap-3 p-3 rounded-2xl bg-card border border-border hover:border-primary/40 text-left"
+        >
+          {profile.avatar ? (
+            <img src={profile.avatar} alt="" className="w-12 h-12 rounded-full object-cover" />
+          ) : (
+            <div
+              className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold"
+              style={{ background: "var(--gradient-brand)" }}
+            >
+              {profile.fullName[0]}
+            </div>
+          )}
+          <div className="flex-1 min-w-0">
+            <div className="font-semibold truncate">{profile.fullName}</div>
+            <div className="text-xs text-muted-foreground truncate">
+              {profile.email} · {profile.phone}
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-muted-foreground" />
+        </button>
+
         <div className="grid grid-cols-3 gap-2">
           {[
             { label: "Conectados", value: contactsCount + 1 },
@@ -401,16 +785,20 @@ function AdminPanel({
           <h3 className="text-sm font-semibold text-muted-foreground">
             Usuarios activos
           </h3>
-          {["Tú (Demo)", "María López", "Carlos Pérez", "Ana Torres"].map((n) => (
-            <div
-              key={n}
-              className="flex items-center justify-between p-3 rounded-xl bg-card border border-border"
+          {contacts.map((c) => (
+            <button
+              key={c.id}
+              onClick={() => onOpenUser(c)}
+              className="w-full flex items-center justify-between p-3 rounded-xl bg-card border border-border hover:border-primary/40 text-left"
             >
-              <span className="text-sm">{n}</span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary">
+              <span className="flex items-center gap-2 text-sm min-w-0">
+                <UserIcon className="w-4 h-4 text-primary shrink-0" />
+                <span className="truncate">{c.name}</span>
+              </span>
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary shrink-0">
                 En línea
               </span>
-            </div>
+            </button>
           ))}
         </div>
         {sosActive && (
