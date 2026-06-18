@@ -377,10 +377,14 @@ function MapLegend({
   markers,
   me,
   onSelect,
+  onSosContact,
+  sosContactId,
 }: {
   markers: DemoMarker[];
   me: { lat: number; lng: number };
   onSelect: (m: DemoMarker) => void;
+  onSosContact: (contactId: string) => void;
+  sosContactId: string | null;
 }) {
   const items = markers.filter((m) => m.kind !== "me");
   return (
@@ -406,23 +410,34 @@ function MapLegend({
       {items.length > 0 && (
         <div className="pt-1 border-t border-border space-y-1 max-h-32 overflow-y-auto">
           {items.map((m) => (
-            <button
+            <div
               key={m.id}
-              onClick={() => onSelect(m)}
-              className="w-full flex items-center justify-between gap-2 px-2 py-1 rounded-lg hover:bg-muted text-left"
+              className="w-full flex items-center justify-between gap-1 px-1 py-1 rounded-lg hover:bg-muted"
             >
-              <span className="flex items-center gap-2 min-w-0">
+              <button
+                onClick={() => onSelect(m)}
+                className="flex items-center gap-2 min-w-0 flex-1 text-left"
+              >
                 <span
                   className={`w-2 h-2 rounded-full shrink-0 ${
-                    m.kind === "sos" ? "bg-red-500" : "bg-emerald-500"
+                    m.kind === "sos" ? "bg-red-500 animate-pulse" : "bg-emerald-500"
                   }`}
                 />
                 <span className="text-xs truncate">{m.name}</span>
-              </span>
-              <span className="text-[10px] text-muted-foreground shrink-0">
-                {haversineMeters(me, m)} m
-              </span>
-            </button>
+                <span className="text-[10px] text-muted-foreground shrink-0 ml-auto">
+                  {haversineMeters(me, m)} m
+                </span>
+              </button>
+              {m.kind !== "sos" && sosContactId !== m.id && (
+                <button
+                  onClick={() => onSosContact(m.id)}
+                  title={`Simular SOS de ${m.name}`}
+                  className="shrink-0 w-6 h-6 rounded-md bg-red-500/10 text-red-600 hover:bg-red-500 hover:text-white flex items-center justify-center"
+                >
+                  <Siren className="w-3 h-3" />
+                </button>
+              )}
+            </div>
           ))}
         </div>
       )}
