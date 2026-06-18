@@ -160,6 +160,7 @@ function DemoPage() {
   const [me, setMe] = useState({ lat: 19.4326, lng: -99.1332 });
   const [contacts, setContacts] = useState(baseContacts);
   const [sos, setSos] = useState<DemoMarker | null>(null);
+  const [sosContactId, setSosContactId] = useState<string | null>(null);
   const [tick, setTick] = useState(0);
   const [selectedUser, setSelectedUser] = useState<DemoMarker | null>(null);
   const [showProfileEditor, setShowProfileEditor] = useState(false);
@@ -187,11 +188,45 @@ function DemoPage() {
   const markers = useMemo<DemoMarker[]>(() => {
     const all: DemoMarker[] = [
       { id: "me", name: "Tú (Demo)", kind: "me", lat: me.lat, lng: me.lng, updated: "ahora" },
-      ...contacts,
+      ...contacts.map((c) =>
+        c.id === sosContactId ? { ...c, kind: "sos" as const, updated: "¡SOS ahora!" } : c,
+      ),
     ];
     if (sos) all.push(sos);
     return all;
-  }, [me, contacts, sos, tick]);
+  }, [me, contacts, sos, sosContactId, tick]);
+
+  // Pedir permiso de notificaciones del navegador en la demo
+  useEffect(() => {
+    if (typeof window !== "undefined" && "Notification" in window) {
+      if (Notification.permission === "default") {
+        Notification.requestPermission().catch(() => {});
+      }
+    }
+  }, []);
+
+  const triggerContactSos = (contactId: string) => {
+    const c = contacts.find((x) => x.id === contactId);
+    if (!c) return;
+    setSosContactId(contactId);
+    const msg = `Alerta: ${c.name} necesita ayuda`;
+    toast.error(`🚨 ${msg}`, {
+      description: "Toca el punto rojo en el mapa para ver su ubicación.",
+      duration: 8000,
+    });
+    if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+      try {
+        new Notification("🚨 SOS SafeTrack", {
+          body: msg,
+          tag: `sos-${contactId}`,
+        });
+      } catch {}
+    }
+    if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+      try { navigator.vibrate?.([200, 100, 200, 100, 400]); } catch {}
+    }
+    setTimeout(() => setSosContactId((cur) => (cur === contactId ? null : cur)), 12000);
+  };
 
   const triggerSos = () => {
     setSos({
@@ -258,6 +293,8 @@ function DemoPage() {
               markers={markers}
               me={me}
               onSelect={(m) => setSelectedUser(m)}
+              onSosContact={triggerContactSos}
+              sosContactId={sosContactId}
             />
           </div>
         )}
