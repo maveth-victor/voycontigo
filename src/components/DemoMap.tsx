@@ -5,19 +5,19 @@ import "leaflet/dist/leaflet.css";
 
 const meIcon = new L.DivIcon({
   className: "",
-  html: `<div style="width:18px;height:18px;border-radius:9999px;background:oklch(0.52 0.21 290);border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.35)"></div>`,
+  html: `<div style="width:18px;height:18px;border-radius:9999px;background:#3b82f6;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.35)"></div>`,
   iconSize: [18, 18],
   iconAnchor: [9, 9],
 });
 const contactIcon = new L.DivIcon({
   className: "",
-  html: `<div style="width:18px;height:18px;border-radius:9999px;background:oklch(0.55 0.2 255);border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.35)"></div>`,
+  html: `<div style="width:18px;height:18px;border-radius:9999px;background:#10b981;border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.35)"></div>`,
   iconSize: [18, 18],
   iconAnchor: [9, 9],
 });
 const sosIcon = new L.DivIcon({
   className: "",
-  html: `<div style="width:22px;height:22px;border-radius:9999px;background:oklch(0.6 0.24 25);border:3px solid white;box-shadow:0 0 0 6px oklch(0.6 0.24 25 / 0.3)"></div>`,
+  html: `<div style="width:22px;height:22px;border-radius:9999px;background:#ef4444;border:3px solid white;box-shadow:0 0 0 6px rgba(239,68,68,0.35);animation:pulse 1.2s ease-out infinite"></div>`,
   iconSize: [22, 22],
   iconAnchor: [11, 11],
 });
