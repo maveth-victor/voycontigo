@@ -1276,3 +1276,148 @@ function ForumPanel() {
     </div>
   );
 }
+
+function TrackingPanel({
+  contacts,
+  onTrack,
+}: {
+  contacts: DemoMarker[];
+  onTrack: (id: string) => void;
+}) {
+  return (
+    <div className="h-full overflow-y-auto px-4 py-4">
+      <div className="max-w-md mx-auto space-y-3">
+        <div>
+          <h2 className="text-lg font-semibold">Seguimiento en vivo</h2>
+          <p className="text-xs text-muted-foreground">
+            Selecciona un contacto para ver el recorrido que está realizando en tiempo real.
+          </p>
+        </div>
+        {contacts.map((c) => {
+          const info = detailsFor(c.id);
+          return (
+            <button
+              key={c.id}
+              onClick={() => onTrack(c.id)}
+              className="w-full text-left flex items-center gap-3 p-3 rounded-2xl bg-card border border-border hover:border-primary/40 transition-colors"
+            >
+              <div
+                className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold"
+                style={{ background: "var(--gradient-brand)" }}
+              >
+                {c.name[0]}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-medium truncate">{c.name}</div>
+                <div className="text-xs text-muted-foreground truncate">
+                  {info.phone} · {c.updated}
+                </div>
+              </div>
+              <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-primary/10 text-primary flex items-center gap-1">
+                <Navigation className="w-3 h-3" /> SEGUIR
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function TrackingView({
+  contact,
+  trail,
+  onClose,
+}: {
+  contact: DemoMarker;
+  trail: [number, number][];
+  onClose: () => void;
+}) {
+  const info = detailsFor(contact.id);
+  const [paused, setPaused] = useState(false);
+  const now = new Date().toLocaleTimeString("es-PE", { hour12: true });
+  const markers: DemoMarker[] = [
+    { ...contact, kind: "contact" },
+  ];
+  return (
+    <div className="fixed inset-0 z-[9999] bg-background flex flex-col">
+      <header
+        className="flex items-center gap-3 px-4 py-3 border-b border-border bg-card"
+        style={{ paddingTop: "calc(env(safe-area-inset-top) + 0.75rem)" }}
+      >
+        <button
+          onClick={onClose}
+          className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center"
+          aria-label="Volver"
+        >
+          <ArrowLeft className="w-4 h-4" />
+        </button>
+        <div className="flex-1 min-w-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-primary">
+            En seguimiento
+          </div>
+          <div className="font-semibold truncate">{contact.name}</div>
+        </div>
+        <span className="text-[10px] font-semibold px-2 py-1 rounded-full bg-emerald-500/15 text-emerald-600 flex items-center gap-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          EN VIVO
+        </span>
+      </header>
+
+      <div className="flex-1 relative">
+        <ClientOnly fallback={<div className="h-full w-full bg-muted" />}>
+          <Suspense fallback={<div className="h-full w-full bg-muted" />}>
+            <DemoMap markers={markers} trail={trail} initialZoom={16} />
+          </Suspense>
+        </ClientOnly>
+      </div>
+
+      <div className="bg-card border-t border-border p-4 space-y-3" style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 1rem)" }}>
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+            <MapPin className="w-5 h-5 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[10px] font-bold uppercase text-muted-foreground">Dirección</div>
+            <div className="text-sm font-medium">{info.address}</div>
+            <div className="text-xs text-muted-foreground">Lima, Perú</div>
+          </div>
+        </div>
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+            <Clock className="w-5 h-5 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[10px] font-bold uppercase text-muted-foreground">
+              Última actualización
+            </div>
+            <div className="text-sm font-medium">{now}</div>
+            <div className="text-xs text-muted-foreground">
+              {trail.length} puntos registrados · {contact.updated}
+            </div>
+          </div>
+        </div>
+        <div className="flex gap-2 pt-1">
+          <Button
+            variant="outline"
+            size="lg"
+            className="px-4"
+            onClick={() => setPaused((p) => !p)}
+          >
+            {paused ? "▶" : "❚❚"}
+          </Button>
+          <Button
+            size="lg"
+            className="flex-1 font-semibold"
+            onClick={() => {
+              toast.success("Seguimiento finalizado");
+              onClose();
+            }}
+          >
+            FINALIZAR SEGUIMIENTO
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
