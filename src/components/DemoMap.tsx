@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
@@ -39,10 +39,18 @@ function Recenter({ center }: { center: [number, number] }) {
   return null;
 }
 
-export function DemoMap({ markers }: { markers: DemoMarker[] }) {
+export function DemoMap({
+  markers,
+  trail,
+  initialZoom = 14,
+}: {
+  markers: DemoMarker[];
+  trail?: [number, number][];
+  initialZoom?: number;
+}) {
   const me = markers.find((m) => m.kind === "me");
   const initial = useMemo<[number, number]>(
-    () => (me ? [me.lat, me.lng] : [19.4326, -99.1332]),
+    () => (me ? [me.lat, me.lng] : [-12.0464, -77.0428]),
     [],
   );
   const [center, setCenter] = useState<[number, number]>(initial);
@@ -53,7 +61,7 @@ export function DemoMap({ markers }: { markers: DemoMarker[] }) {
   return (
     <MapContainer
       center={initial}
-      zoom={14}
+      zoom={initialZoom}
       className="h-full w-full"
       style={{ background: "var(--color-muted)" }}
     >
@@ -62,6 +70,12 @@ export function DemoMap({ markers }: { markers: DemoMarker[] }) {
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       <Recenter center={center} />
+      {trail && trail.length > 1 && (
+        <Polyline
+          positions={trail}
+          pathOptions={{ color: "#7c3aed", weight: 5, opacity: 0.85 }}
+        />
+      )}
       {markers.map((m) => (
         <Marker
           key={m.id}

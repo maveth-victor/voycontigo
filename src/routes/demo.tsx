@@ -43,7 +43,7 @@ export const Route = createFileRoute("/demo")({
   component: DemoPage,
 });
 
-type Tab = "map" | "contacts" | "history" | "sos" | "forum" | "admin";
+type Tab = "map" | "contacts" | "tracking" | "history" | "sos" | "forum" | "admin";
 
 type Review = {
   id: string;
@@ -86,9 +86,9 @@ const seedReviews: Review[] = [
 ];
 
 const baseContacts: DemoMarker[] = [
-  { id: "c1", name: "María López", kind: "contact", lat: 19.4339, lng: -99.1410, updated: "hace 12 s" },
-  { id: "c2", name: "Carlos Pérez", kind: "contact", lat: 19.4280, lng: -99.1290, updated: "hace 8 s" },
-  { id: "c3", name: "Ana Torres", kind: "contact", lat: 19.4365, lng: -99.1355, updated: "hace 5 s" },
+  { id: "c1", name: "María López", kind: "contact", lat: -12.0480, lng: -77.0410, updated: "hace 12 s" },
+  { id: "c2", name: "Carlos Pérez", kind: "contact", lat: -12.0510, lng: -77.0380, updated: "hace 8 s" },
+  { id: "c3", name: "Ana Torres", kind: "contact", lat: -12.0440, lng: -77.0455, updated: "hace 5 s" },
 ];
 
 const historyLog = [
@@ -112,9 +112,9 @@ type DemoProfile = {
 
 const defaultProfile: DemoProfile = {
   fullName: "Tú (Demo)",
-  phone: "+52 55 1234 5678",
+  phone: "+51 987 654 321",
   email: "demo@safetrack.app",
-  address: "Av. Reforma 222, CDMX",
+  address: "Av. Arequipa 1234, Lince, Lima",
   bloodType: "O+",
   birthdate: "1995-08-12",
   emergencyNote: "Alergia a la penicilina. Contactar a María López.",
@@ -160,23 +160,23 @@ const contactDetails: Record<
   { phone: string; email: string; address: string; dailyMeters: number; relation: string }
 > = {
   c1: {
-    phone: "+52 55 2233 4455",
+    phone: "+51 987 112 233",
     email: "maria.lopez@safetrack.app",
-    address: "Calle Orizaba 45, Roma Norte",
+    address: "Av. Larco 345, Miraflores, Lima",
     dailyMeters: 4820,
     relation: "Familiar",
   },
   c2: {
-    phone: "+52 55 7788 9911",
+    phone: "+51 956 778 991",
     email: "carlos.perez@safetrack.app",
-    address: "Av. Juárez 88, Centro",
+    address: "Jr. de la Unión 880, Cercado de Lima",
     dailyMeters: 7310,
     relation: "Amigo",
   },
   c3: {
-    phone: "+52 55 3344 5566",
+    phone: "+51 934 455 667",
     email: "ana.torres@safetrack.app",
-    address: "Av. Michoacán 12, Condesa",
+    address: "Av. Pardo y Aliaga 120, San Isidro, Lima",
     dailyMeters: 2640,
     relation: "Compañera de trabajo",
   },
@@ -185,7 +185,7 @@ const contactDetails: Record<
 function detailsFor(id: string) {
   return (
     contactDetails[id] ?? {
-      phone: "+52 55 0000 0000",
+      phone: "+51 900 000 000",
       email: "contacto@safetrack.app",
       address: "Ubicación no registrada",
       dailyMeters: 1500 + (id.charCodeAt(0) % 50) * 100,
@@ -196,7 +196,7 @@ function detailsFor(id: string) {
 
 function DemoPage() {
   const [tab, setTab] = useState<Tab>("map");
-  const [me, setMe] = useState({ lat: 19.4326, lng: -99.1332 });
+  const [me, setMe] = useState({ lat: -12.0464, lng: -77.0428 });
   const [contacts, setContacts] = useState(baseContacts);
   const [sos, setSos] = useState<DemoMarker | null>(null);
   const [sosContactId, setSosContactId] = useState<string | null>(null);
@@ -204,6 +204,10 @@ function DemoPage() {
   const [selectedUser, setSelectedUser] = useState<DemoMarker | null>(null);
   const [showProfileEditor, setShowProfileEditor] = useState(false);
   const [profile, setProfile] = useState<DemoProfile>(defaultProfile);
+  const [trackingId, setTrackingId] = useState<string | null>(null);
+  const [trails, setTrails] = useState<Record<string, [number, number][]>>(() =>
+    Object.fromEntries(baseContacts.map((c) => [c.id, [[c.lat, c.lng]]])),
+  );
 
   // Simulate live movement every 2s
   useEffect(() => {
@@ -214,11 +218,19 @@ function DemoPage() {
         lng: p.lng + (Math.random() - 0.5) * 0.0008,
       }));
       setContacts((cs) =>
-        cs.map((c) => ({
-          ...c,
-          lat: c.lat + (Math.random() - 0.5) * 0.0006,
-          lng: c.lng + (Math.random() - 0.5) * 0.0006,
-        })),
+        cs.map((c) => {
+          const next = {
+            ...c,
+            lat: c.lat + (Math.random() - 0.5) * 0.0006,
+            lng: c.lng + (Math.random() - 0.5) * 0.0006,
+          };
+          setTrails((tr) => {
+            const prev = tr[c.id] ?? [[c.lat, c.lng] as [number, number]];
+            const updated = [...prev, [next.lat, next.lng] as [number, number]].slice(-40);
+            return { ...tr, [c.id]: updated };
+          });
+          return next;
+        }),
       );
     }, 2000);
     return () => clearInterval(id);
@@ -347,6 +359,12 @@ function DemoPage() {
         {tab === "history" && <HistoryPanel />}
         {tab === "sos" && <SosPanel me={me} onTriggerSos={triggerSos} sosActive={!!sos} />}
         {tab === "forum" && <ForumPanel />}
+        {tab === "tracking" && (
+          <TrackingPanel
+            contacts={contacts}
+            onTrack={(id) => setTrackingId(id)}
+          />
+        )}
         {tab === "admin" && (
           <AdminPanel
             contactsCount={contacts.length}
@@ -368,6 +386,7 @@ function DemoPage() {
           {[
             { id: "map" as Tab, icon: MapIcon, label: "Mapa" },
             { id: "contacts" as Tab, icon: Users, label: "Contactos" },
+            { id: "tracking" as Tab, icon: Navigation, label: "Seguir" },
             { id: "sos" as Tab, icon: Siren, label: "SOS" },
             { id: "forum" as Tab, icon: MessageSquare, label: "Foro" },
             { id: "history" as Tab, icon: HistoryIcon, label: "Historial" },
@@ -395,6 +414,13 @@ function DemoPage() {
           user={selectedUser}
           me={me}
           onClose={() => setSelectedUser(null)}
+        />
+      )}
+      {trackingId && (
+        <TrackingView
+          contact={contacts.find((c) => c.id === trackingId)!}
+          trail={trails[trackingId] ?? []}
+          onClose={() => setTrackingId(null)}
         />
       )}
       {showProfileEditor && (
@@ -752,7 +778,7 @@ function ContactsPanel({
               <Input
                 type="tel"
                 inputMode="tel"
-                placeholder="+52 55 1234 5678"
+                placeholder="+51 987 654 321"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
               />
@@ -1245,6 +1271,151 @@ function ForumPanel() {
               )}
             </div>
           ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TrackingPanel({
+  contacts,
+  onTrack,
+}: {
+  contacts: DemoMarker[];
+  onTrack: (id: string) => void;
+}) {
+  return (
+    <div className="h-full overflow-y-auto px-4 py-4">
+      <div className="max-w-md mx-auto space-y-3">
+        <div>
+          <h2 className="text-lg font-semibold">Seguimiento en vivo</h2>
+          <p className="text-xs text-muted-foreground">
+            Selecciona un contacto para ver el recorrido que está realizando en tiempo real.
+          </p>
+        </div>
+        {contacts.map((c) => {
+          const info = detailsFor(c.id);
+          return (
+            <button
+              key={c.id}
+              onClick={() => onTrack(c.id)}
+              className="w-full text-left flex items-center gap-3 p-3 rounded-2xl bg-card border border-border hover:border-primary/40 transition-colors"
+            >
+              <div
+                className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold"
+                style={{ background: "var(--gradient-brand)" }}
+              >
+                {c.name[0]}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-medium truncate">{c.name}</div>
+                <div className="text-xs text-muted-foreground truncate">
+                  {info.phone} · {c.updated}
+                </div>
+              </div>
+              <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-primary/10 text-primary flex items-center gap-1">
+                <Navigation className="w-3 h-3" /> SEGUIR
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function TrackingView({
+  contact,
+  trail,
+  onClose,
+}: {
+  contact: DemoMarker;
+  trail: [number, number][];
+  onClose: () => void;
+}) {
+  const info = detailsFor(contact.id);
+  const [paused, setPaused] = useState(false);
+  const now = new Date().toLocaleTimeString("es-PE", { hour12: true });
+  const markers: DemoMarker[] = [
+    { ...contact, kind: "contact" },
+  ];
+  return (
+    <div className="fixed inset-0 z-[9999] bg-background flex flex-col">
+      <header
+        className="flex items-center gap-3 px-4 py-3 border-b border-border bg-card"
+        style={{ paddingTop: "calc(env(safe-area-inset-top) + 0.75rem)" }}
+      >
+        <button
+          onClick={onClose}
+          className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center"
+          aria-label="Volver"
+        >
+          <ArrowLeft className="w-4 h-4" />
+        </button>
+        <div className="flex-1 min-w-0">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-primary">
+            En seguimiento
+          </div>
+          <div className="font-semibold truncate">{contact.name}</div>
+        </div>
+        <span className="text-[10px] font-semibold px-2 py-1 rounded-full bg-emerald-500/15 text-emerald-600 flex items-center gap-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+          EN VIVO
+        </span>
+      </header>
+
+      <div className="flex-1 relative">
+        <ClientOnly fallback={<div className="h-full w-full bg-muted" />}>
+          <Suspense fallback={<div className="h-full w-full bg-muted" />}>
+            <DemoMap markers={markers} trail={trail} initialZoom={16} />
+          </Suspense>
+        </ClientOnly>
+      </div>
+
+      <div className="bg-card border-t border-border p-4 space-y-3" style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 1rem)" }}>
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+            <MapPin className="w-5 h-5 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[10px] font-bold uppercase text-muted-foreground">Dirección</div>
+            <div className="text-sm font-medium">{info.address}</div>
+            <div className="text-xs text-muted-foreground">Lima, Perú</div>
+          </div>
+        </div>
+        <div className="flex items-start gap-3">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+            <Clock className="w-5 h-5 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="text-[10px] font-bold uppercase text-muted-foreground">
+              Última actualización
+            </div>
+            <div className="text-sm font-medium">{now}</div>
+            <div className="text-xs text-muted-foreground">
+              {trail.length} puntos registrados · {contact.updated}
+            </div>
+          </div>
+        </div>
+        <div className="flex gap-2 pt-1">
+          <Button
+            variant="outline"
+            size="lg"
+            className="px-4"
+            onClick={() => setPaused((p) => !p)}
+          >
+            {paused ? "▶" : "❚❚"}
+          </Button>
+          <Button
+            size="lg"
+            className="flex-1 font-semibold"
+            onClick={() => {
+              toast.success("Seguimiento finalizado");
+              onClose();
+            }}
+          >
+            FINALIZAR SEGUIMIENTO
+          </Button>
         </div>
       </div>
     </div>
