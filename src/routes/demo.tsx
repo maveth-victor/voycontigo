@@ -155,6 +155,45 @@ function streetsFor(id: string): string[] {
   );
 }
 
+const contactDetails: Record<
+  string,
+  { phone: string; email: string; address: string; dailyMeters: number; relation: string }
+> = {
+  c1: {
+    phone: "+52 55 2233 4455",
+    email: "maria.lopez@safetrack.app",
+    address: "Calle Orizaba 45, Roma Norte",
+    dailyMeters: 4820,
+    relation: "Familiar",
+  },
+  c2: {
+    phone: "+52 55 7788 9911",
+    email: "carlos.perez@safetrack.app",
+    address: "Av. Juárez 88, Centro",
+    dailyMeters: 7310,
+    relation: "Amigo",
+  },
+  c3: {
+    phone: "+52 55 3344 5566",
+    email: "ana.torres@safetrack.app",
+    address: "Av. Michoacán 12, Condesa",
+    dailyMeters: 2640,
+    relation: "Compañera de trabajo",
+  },
+};
+
+function detailsFor(id: string) {
+  return (
+    contactDetails[id] ?? {
+      phone: "+52 55 0000 0000",
+      email: "contacto@safetrack.app",
+      address: "Ubicación no registrada",
+      dailyMeters: 1500 + (id.charCodeAt(0) % 50) * 100,
+      relation: "Contacto",
+    }
+  );
+}
+
 function DemoPage() {
   const [tab, setTab] = useState<Tab>("map");
   const [me, setMe] = useState({ lat: 19.4326, lng: -99.1332 });
