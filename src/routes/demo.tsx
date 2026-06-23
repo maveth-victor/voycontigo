@@ -778,7 +778,7 @@ function ContactsPanel({
               <Input
                 type="tel"
                 inputMode="tel"
-                placeholder="+52 55 1234 5678"
+                placeholder="+51 987 654 321"
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
               />
