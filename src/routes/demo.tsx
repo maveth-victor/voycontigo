@@ -196,7 +196,7 @@ function detailsFor(id: string) {
 
 function DemoPage() {
   const [tab, setTab] = useState<Tab>("map");
-  const [me, setMe] = useState({ lat: 19.4326, lng: -99.1332 });
+  const [me, setMe] = useState({ lat: -12.0464, lng: -77.0428 });
   const [contacts, setContacts] = useState(baseContacts);
   const [sos, setSos] = useState<DemoMarker | null>(null);
   const [sosContactId, setSosContactId] = useState<string | null>(null);
@@ -204,6 +204,10 @@ function DemoPage() {
   const [selectedUser, setSelectedUser] = useState<DemoMarker | null>(null);
   const [showProfileEditor, setShowProfileEditor] = useState(false);
   const [profile, setProfile] = useState<DemoProfile>(defaultProfile);
+  const [trackingId, setTrackingId] = useState<string | null>(null);
+  const [trails, setTrails] = useState<Record<string, [number, number][]>>(() =>
+    Object.fromEntries(baseContacts.map((c) => [c.id, [[c.lat, c.lng]]])),
+  );
 
   // Simulate live movement every 2s
   useEffect(() => {
@@ -214,11 +218,19 @@ function DemoPage() {
         lng: p.lng + (Math.random() - 0.5) * 0.0008,
       }));
       setContacts((cs) =>
-        cs.map((c) => ({
-          ...c,
-          lat: c.lat + (Math.random() - 0.5) * 0.0006,
-          lng: c.lng + (Math.random() - 0.5) * 0.0006,
-        })),
+        cs.map((c) => {
+          const next = {
+            ...c,
+            lat: c.lat + (Math.random() - 0.5) * 0.0006,
+            lng: c.lng + (Math.random() - 0.5) * 0.0006,
+          };
+          setTrails((tr) => {
+            const prev = tr[c.id] ?? [[c.lat, c.lng] as [number, number]];
+            const updated = [...prev, [next.lat, next.lng] as [number, number]].slice(-40);
+            return { ...tr, [c.id]: updated };
+          });
+          return next;
+        }),
       );
     }, 2000);
     return () => clearInterval(id);
