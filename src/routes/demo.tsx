@@ -495,7 +495,6 @@ function UserProfileSheet({
 }) {
   const dist = haversineMeters(me, user);
   const dir = bearingLabel(me, user);
-  const streets = streetsFor(user.id);
   const info = detailsFor(user.id);
   const distKm = (dist / 1000).toFixed(2);
   const dailyKm = (info.dailyMeters / 1000).toFixed(2);
