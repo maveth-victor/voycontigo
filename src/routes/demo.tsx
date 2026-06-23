@@ -112,9 +112,9 @@ type DemoProfile = {
 
 const defaultProfile: DemoProfile = {
   fullName: "Tú (Demo)",
-  phone: "+52 55 1234 5678",
+  phone: "+51 987 654 321",
   email: "demo@safetrack.app",
-  address: "Av. Reforma 222, CDMX",
+  address: "Av. Arequipa 1234, Lince, Lima",
   bloodType: "O+",
   birthdate: "1995-08-12",
   emergencyNote: "Alergia a la penicilina. Contactar a María López.",
@@ -160,23 +160,23 @@ const contactDetails: Record<
   { phone: string; email: string; address: string; dailyMeters: number; relation: string }
 > = {
   c1: {
-    phone: "+52 55 2233 4455",
+    phone: "+51 987 112 233",
     email: "maria.lopez@safetrack.app",
-    address: "Calle Orizaba 45, Roma Norte",
+    address: "Av. Larco 345, Miraflores, Lima",
     dailyMeters: 4820,
     relation: "Familiar",
   },
   c2: {
-    phone: "+52 55 7788 9911",
+    phone: "+51 956 778 991",
     email: "carlos.perez@safetrack.app",
-    address: "Av. Juárez 88, Centro",
+    address: "Jr. de la Unión 880, Cercado de Lima",
     dailyMeters: 7310,
     relation: "Amigo",
   },
   c3: {
-    phone: "+52 55 3344 5566",
+    phone: "+51 934 455 667",
     email: "ana.torres@safetrack.app",
-    address: "Av. Michoacán 12, Condesa",
+    address: "Av. Pardo y Aliaga 120, San Isidro, Lima",
     dailyMeters: 2640,
     relation: "Compañera de trabajo",
   },
@@ -185,7 +185,7 @@ const contactDetails: Record<
 function detailsFor(id: string) {
   return (
     contactDetails[id] ?? {
-      phone: "+52 55 0000 0000",
+      phone: "+51 900 000 000",
       email: "contacto@safetrack.app",
       address: "Ubicación no registrada",
       dailyMeters: 1500 + (id.charCodeAt(0) % 50) * 100,
