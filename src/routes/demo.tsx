@@ -495,7 +495,6 @@ function UserProfileSheet({
 }) {
   const dist = haversineMeters(me, user);
   const dir = bearingLabel(me, user);
-  const streets = streetsFor(user.id);
   const info = detailsFor(user.id);
   const distKm = (dist / 1000).toFixed(2);
   const dailyKm = (info.dailyMeters / 1000).toFixed(2);
@@ -572,32 +571,6 @@ function UserProfileSheet({
               <span className="font-medium">{info.address}</span>
             </div>
           </div>
-        </div>
-
-        <div className="p-3 rounded-xl bg-muted/50 space-y-1">
-          <div className="text-[10px] uppercase text-muted-foreground">Coordenadas</div>
-          <div className="text-sm font-mono">
-            Lat {user.lat.toFixed(5)} · Lng {user.lng.toFixed(5)}
-          </div>
-          <div className="text-[11px] text-muted-foreground">
-            Actualizado: {user.updated}
-          </div>
-        </div>
-
-        <div className="p-3 rounded-xl bg-muted/50 space-y-2">
-          <div className="text-[10px] uppercase text-muted-foreground flex items-center gap-1">
-            <RouteIcon className="w-3 h-3" /> Recorrido estimado
-          </div>
-          <ol className="space-y-1 text-sm">
-            {streets.map((s, i) => (
-              <li key={s} className="flex items-center gap-2">
-                <span className="w-5 h-5 rounded-full bg-primary/10 text-primary text-[10px] font-bold flex items-center justify-center">
-                  {i + 1}
-                </span>
-                {s}
-              </li>
-            ))}
-          </ol>
         </div>
 
         <div className="flex gap-2">
