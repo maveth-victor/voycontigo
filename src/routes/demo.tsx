@@ -155,6 +155,45 @@ function streetsFor(id: string): string[] {
   );
 }
 
+const contactDetails: Record<
+  string,
+  { phone: string; email: string; address: string; dailyMeters: number; relation: string }
+> = {
+  c1: {
+    phone: "+52 55 2233 4455",
+    email: "maria.lopez@safetrack.app",
+    address: "Calle Orizaba 45, Roma Norte",
+    dailyMeters: 4820,
+    relation: "Familiar",
+  },
+  c2: {
+    phone: "+52 55 7788 9911",
+    email: "carlos.perez@safetrack.app",
+    address: "Av. Juárez 88, Centro",
+    dailyMeters: 7310,
+    relation: "Amigo",
+  },
+  c3: {
+    phone: "+52 55 3344 5566",
+    email: "ana.torres@safetrack.app",
+    address: "Av. Michoacán 12, Condesa",
+    dailyMeters: 2640,
+    relation: "Compañera de trabajo",
+  },
+};
+
+function detailsFor(id: string) {
+  return (
+    contactDetails[id] ?? {
+      phone: "+52 55 0000 0000",
+      email: "contacto@safetrack.app",
+      address: "Ubicación no registrada",
+      dailyMeters: 1500 + (id.charCodeAt(0) % 50) * 100,
+      relation: "Contacto",
+    }
+  );
+}
+
 function DemoPage() {
   const [tab, setTab] = useState<Tab>("map");
   const [me, setMe] = useState({ lat: 19.4326, lng: -99.1332 });
@@ -457,6 +496,9 @@ function UserProfileSheet({
   const dist = haversineMeters(me, user);
   const dir = bearingLabel(me, user);
   const streets = streetsFor(user.id);
+  const info = detailsFor(user.id);
+  const distKm = (dist / 1000).toFixed(2);
+  const dailyKm = (info.dailyMeters / 1000).toFixed(2);
   return (
     <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm" onClick={onClose}>
       <div
@@ -484,13 +526,50 @@ function UserProfileSheet({
 
         <div className="grid grid-cols-2 gap-2">
           <div className="p-3 rounded-xl bg-muted/50 text-center">
-            <div className="text-[10px] uppercase text-muted-foreground">Distancia</div>
+            <div className="text-[10px] uppercase text-muted-foreground">Lejos de ti</div>
             <div className="text-lg font-bold text-primary">{dist} m</div>
+            <div className="text-[10px] text-muted-foreground">{distKm} km</div>
           </div>
           <div className="p-3 rounded-xl bg-muted/50 text-center">
             <div className="text-[10px] uppercase text-muted-foreground">Dirección</div>
             <div className="text-lg font-bold text-primary flex items-center justify-center gap-1">
               <Navigation className="w-4 h-4" /> {dir}
+            </div>
+          </div>
+        </div>
+
+        <div className="p-3 rounded-xl bg-primary/5 border border-primary/20 space-y-1">
+          <div className="text-[10px] uppercase text-muted-foreground flex items-center gap-1">
+            <RouteIcon className="w-3 h-3" /> Distancia recorrida hoy
+          </div>
+          <div className="text-2xl font-bold text-primary">{dailyKm} km</div>
+          <div className="text-[11px] text-muted-foreground">
+            {info.dailyMeters.toLocaleString()} metros acumulados durante el día
+          </div>
+        </div>
+
+        <div className="p-3 rounded-xl bg-muted/50 space-y-2">
+          <div className="text-[10px] uppercase text-muted-foreground">Perfil</div>
+          <div className="grid grid-cols-1 gap-1 text-sm">
+            <div className="flex items-center gap-2">
+              <UserIcon className="w-3.5 h-3.5 text-muted-foreground" />
+              <span className="text-muted-foreground">Relación:</span>
+              <span className="font-medium">{info.relation}</span>
+            </div>
+            <a href={`tel:${info.phone.replace(/\s/g, "")}`} className="flex items-center gap-2 hover:text-primary">
+              <Phone className="w-3.5 h-3.5 text-muted-foreground" />
+              <span className="text-muted-foreground">Teléfono:</span>
+              <span className="font-medium">{info.phone}</span>
+            </a>
+            <div className="flex items-center gap-2">
+              <MessageCircle className="w-3.5 h-3.5 text-muted-foreground" />
+              <span className="text-muted-foreground">Email:</span>
+              <span className="font-medium truncate">{info.email}</span>
+            </div>
+            <div className="flex items-start gap-2">
+              <MapPin className="w-3.5 h-3.5 text-muted-foreground mt-0.5" />
+              <span className="text-muted-foreground">Dirección:</span>
+              <span className="font-medium">{info.address}</span>
             </div>
           </div>
         </div>
