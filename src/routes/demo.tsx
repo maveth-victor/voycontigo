@@ -43,7 +43,7 @@ export const Route = createFileRoute("/demo")({
   component: DemoPage,
 });
 
-type Tab = "map" | "contacts" | "history" | "sos" | "forum" | "admin";
+type Tab = "map" | "contacts" | "tracking" | "history" | "sos" | "forum" | "admin";
 
 type Review = {
   id: string;
@@ -86,9 +86,9 @@ const seedReviews: Review[] = [
 ];
 
 const baseContacts: DemoMarker[] = [
-  { id: "c1", name: "María López", kind: "contact", lat: 19.4339, lng: -99.1410, updated: "hace 12 s" },
-  { id: "c2", name: "Carlos Pérez", kind: "contact", lat: 19.4280, lng: -99.1290, updated: "hace 8 s" },
-  { id: "c3", name: "Ana Torres", kind: "contact", lat: 19.4365, lng: -99.1355, updated: "hace 5 s" },
+  { id: "c1", name: "María López", kind: "contact", lat: -12.0480, lng: -77.0410, updated: "hace 12 s" },
+  { id: "c2", name: "Carlos Pérez", kind: "contact", lat: -12.0510, lng: -77.0380, updated: "hace 8 s" },
+  { id: "c3", name: "Ana Torres", kind: "contact", lat: -12.0440, lng: -77.0455, updated: "hace 5 s" },
 ];
 
 const historyLog = [
