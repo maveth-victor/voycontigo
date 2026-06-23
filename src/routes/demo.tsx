@@ -359,6 +359,12 @@ function DemoPage() {
         {tab === "history" && <HistoryPanel />}
         {tab === "sos" && <SosPanel me={me} onTriggerSos={triggerSos} sosActive={!!sos} />}
         {tab === "forum" && <ForumPanel />}
+        {tab === "tracking" && (
+          <TrackingPanel
+            contacts={contacts}
+            onTrack={(id) => setTrackingId(id)}
+          />
+        )}
         {tab === "admin" && (
           <AdminPanel
             contactsCount={contacts.length}
@@ -380,6 +386,7 @@ function DemoPage() {
           {[
             { id: "map" as Tab, icon: MapIcon, label: "Mapa" },
             { id: "contacts" as Tab, icon: Users, label: "Contactos" },
+            { id: "tracking" as Tab, icon: Navigation, label: "Seguir" },
             { id: "sos" as Tab, icon: Siren, label: "SOS" },
             { id: "forum" as Tab, icon: MessageSquare, label: "Foro" },
             { id: "history" as Tab, icon: HistoryIcon, label: "Historial" },
@@ -407,6 +414,13 @@ function DemoPage() {
           user={selectedUser}
           me={me}
           onClose={() => setSelectedUser(null)}
+        />
+      )}
+      {trackingId && (
+        <TrackingView
+          contact={contacts.find((c) => c.id === trackingId)!}
+          trail={trails[trackingId] ?? []}
+          onClose={() => setTrackingId(null)}
         />
       )}
       {showProfileEditor && (
