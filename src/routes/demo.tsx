@@ -499,9 +499,9 @@ function UserProfileSheet({
   const distKm = (dist / 1000).toFixed(2);
   const dailyKm = (info.dailyMeters / 1000).toFixed(2);
   return (
-    <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center bg-black/50 backdrop-blur-sm" onClick={onClose}>
+    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm" onClick={onClose}>
       <div
-        className="w-full max-w-md bg-card border border-border rounded-t-3xl sm:rounded-3xl p-5 space-y-4"
+        className="relative z-[10000] w-full max-w-md max-h-[90vh] overflow-y-auto bg-card border border-border rounded-t-3xl sm:rounded-3xl p-5 space-y-4"
         style={{ boxShadow: "var(--shadow-card)" }}
         onClick={(e) => e.stopPropagation()}
       >
