@@ -560,12 +560,13 @@ function UserProfileSheet({
           <div className="p-3 rounded-xl bg-muted/50 text-center">
             <div className="text-[10px] uppercase text-muted-foreground">Lejos de ti</div>
             <div className="text-lg font-bold text-primary">{dist} m</div>
-            <div className="text-[10px] text-muted-foreground">{distKm} km</div>
+            <div className="text-[10px] text-muted-foreground">{distKm} km · rumbo {dir}</div>
           </div>
           <div className="p-3 rounded-xl bg-muted/50 text-center">
-            <div className="text-[10px] uppercase text-muted-foreground">Dirección</div>
-            <div className="text-lg font-bold text-primary flex items-center justify-center gap-1">
-              <Navigation className="w-4 h-4" /> {dir}
+            <div className="text-[10px] uppercase text-muted-foreground">Último lugar de partida</div>
+            <div className="text-sm font-bold text-primary flex items-center justify-center gap-1">
+              <Navigation className="w-4 h-4 shrink-0" />
+              <span className="truncate">{info.lastDeparture}</span>
             </div>
           </div>
         </div>
@@ -1064,9 +1065,10 @@ function SosPanel({
             Líneas de emergencia
           </h3>
           {[
-            { name: "Emergencias", num: "911", desc: "Policía, bomberos, ambulancia" },
-            { name: "Cruz Roja", num: "065", desc: "Atención médica de emergencia" },
-            { name: "Denuncia anónima", num: "089", desc: "Denuncia segura y anónima" },
+            { name: "PNP - Policía", num: "105", desc: "Policía Nacional del Perú" },
+            { name: "Bomberos", num: "116", desc: "Bomberos voluntarios del Perú" },
+            { name: "SAMU", num: "106", desc: "Atención médica de emergencia" },
+            { name: "Serenazgo Lima", num: "1455", desc: "Línea de seguridad ciudadana" },
           ].map((line) => (
             <div
               key={line.num}
