@@ -869,14 +869,83 @@ function AdminPanel({
   onConfigureProfile: () => void;
   profile: DemoProfile;
 }) {
+  const dictionaries = {
+    es: {
+      title: "Panel administrativo",
+      profile: "Perfil",
+      connected: "Conectados",
+      locations: "Ubicaciones",
+      alerts: "Alertas",
+      activeUsers: "Usuarios activos",
+      online: "En línea",
+      sosActive: "Alerta SOS activa",
+      sosReceived: "Tú (Demo) — recibida ahora",
+      language: "Idioma",
+    },
+    en: {
+      title: "Admin panel",
+      profile: "Profile",
+      connected: "Connected",
+      locations: "Locations",
+      alerts: "Alerts",
+      activeUsers: "Active users",
+      online: "Online",
+      sosActive: "Active SOS alert",
+      sosReceived: "You (Demo) — received now",
+      language: "Language",
+    },
+    qu: {
+      title: "Kamachiq qhawana",
+      profile: "Runap willakuynin",
+      connected: "Tinkisqakuna",
+      locations: "Kayninkuna",
+      alerts: "Willakuykuna",
+      activeUsers: "Llamkaq runakuna",
+      online: "Kawsachkan",
+      sosActive: "SOS willakuy kachkan",
+      sosReceived: "Qam (Demo) — kunan chaskisqa",
+      language: "Simi",
+    },
+  } as const;
+  type Lang = keyof typeof dictionaries;
+  const [lang, setLang] = useState<Lang>("es");
+  const t = dictionaries[lang];
+  const langs: { code: Lang; label: string; flag: string }[] = [
+    { code: "es", label: "Español", flag: "🇵🇪" },
+    { code: "en", label: "English", flag: "🇺🇸" },
+    { code: "qu", label: "Quechua", flag: "🪶" },
+  ];
   return (
     <div className="h-full overflow-y-auto px-4 py-4">
       <div className="max-w-md mx-auto space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Panel administrativo</h2>
+          <h2 className="text-lg font-semibold">{t.title}</h2>
           <Button size="sm" onClick={onConfigureProfile} className="gap-1">
-            <Settings className="w-4 h-4" /> Perfil
+            <Settings className="w-4 h-4" /> {t.profile}
           </Button>
+        </div>
+
+        <div className="p-3 rounded-2xl bg-card border border-border space-y-2">
+          <div className="text-[10px] uppercase text-muted-foreground">{t.language}</div>
+          <div className="grid grid-cols-3 gap-2">
+            {langs.map((l) => (
+              <button
+                key={l.code}
+                onClick={() => {
+                  setLang(l.code);
+                  toast.success(`${l.flag} ${l.label}`);
+                }}
+                className={`px-2 py-2 rounded-xl border text-xs font-semibold transition-colors ${
+                  lang === l.code
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-muted/40 border-border hover:border-primary/40"
+                }`}
+              >
+                <div className="text-base leading-none">{l.flag}</div>
+                <div className="mt-1">{l.label}</div>
+              </button>
+            ))}
+          </div>
         </div>
 
         <button
@@ -904,9 +973,9 @@ function AdminPanel({
 
         <div className="grid grid-cols-3 gap-2">
           {[
-            { label: "Conectados", value: contactsCount + 1 },
-            { label: "Ubicaciones", value: 248 },
-            { label: "Alertas", value: sosActive ? 1 : 0 },
+            { label: t.connected, value: contactsCount + 1 },
+            { label: t.locations, value: 248 },
+            { label: t.alerts, value: sosActive ? 1 : 0 },
           ].map((s) => (
             <div
               key={s.label}
@@ -921,7 +990,7 @@ function AdminPanel({
         </div>
         <div className="space-y-2">
           <h3 className="text-sm font-semibold text-muted-foreground">
-            Usuarios activos
+            {t.activeUsers}
           </h3>
           {contacts.map((c) => (
             <button
@@ -934,7 +1003,7 @@ function AdminPanel({
                 <span className="truncate">{c.name}</span>
               </span>
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary shrink-0">
-                En línea
+                {t.online}
               </span>
             </button>
           ))}
@@ -942,10 +1011,10 @@ function AdminPanel({
         {sosActive && (
           <div className="p-3 rounded-2xl border border-destructive/40 bg-destructive/5">
             <div className="flex items-center gap-2 text-destructive font-semibold">
-              <Siren className="w-4 h-4" /> Alerta SOS activa
+              <Siren className="w-4 h-4" /> {t.sosActive}
             </div>
             <div className="text-xs text-muted-foreground mt-1">
-              Tú (Demo) — recibida ahora
+              {t.sosReceived}
             </div>
           </div>
         )}
