@@ -29,6 +29,7 @@ import {
   Settings,
   Save,
 } from "lucide-react";
+import { Gamepad2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -43,7 +44,7 @@ export const Route = createFileRoute("/demo")({
   component: DemoPage,
 });
 
-type Tab = "map" | "contacts" | "tracking" | "history" | "sos" | "forum" | "admin";
+type Tab = "map" | "contacts" | "tracking" | "history" | "sos" | "forum" | "game" | "admin";
 
 type Review = {
   id: string;
@@ -59,27 +60,27 @@ const seedReviews: Review[] = [
   {
     id: "r1",
     author: "María López",
-    place: "Parque México, Condesa",
+    place: "Parque Kennedy, Miraflores",
     rating: 5,
-    text: "Lugar muy seguro de día, bien iluminado y con vigilancia. Ideal para caminar.",
+    text: "Muy seguro de día, bien iluminado y con serenazgo. Ideal para caminar.",
     photos: [],
     when: "Hoy 13:20",
   },
   {
     id: "r2",
     author: "Carlos Pérez",
-    place: "Av. Reforma 222, CDMX",
+    place: "Jr. de la Unión 880, Cercado de Lima",
     rating: 4,
-    text: "Mucha gente y cámaras. Por la noche prefiero ir acompañado.",
+    text: "Bastante movimiento y cámaras. De noche prefiero ir acompañado.",
     photos: [],
     when: "Ayer 20:05",
   },
   {
     id: "r3",
     author: "Ana Torres",
-    place: "Coyoacán, CDMX",
+    place: "Barranco Malecón, Lima",
     rating: 5,
-    text: "Ambiente familiar, me sentí muy tranquila. Recomendado 100%.",
+    text: "Ambiente bohemio y tranquilo, me sentí muy segura. Recomendadísimo.",
     photos: [],
     when: "Lun 18:40",
   },
@@ -92,11 +93,11 @@ const baseContacts: DemoMarker[] = [
 ];
 
 const historyLog = [
-  { t: "Hoy 14:32", place: "Av. Reforma 222, CDMX", lat: 19.4326, lng: -99.1582 },
-  { t: "Hoy 13:10", place: "Parque México, Condesa", lat: 19.4108, lng: -99.1719 },
-  { t: "Ayer 19:45", place: "Roma Norte, CDMX", lat: 19.4156, lng: -99.1633 },
-  { t: "Ayer 09:12", place: "Polanco, CDMX", lat: 19.4338, lng: -99.1900 },
-  { t: "Lun 18:20", place: "Coyoacán, CDMX", lat: 19.3467, lng: -99.1618 },
+  { t: "Hoy 14:32", place: "Av. Larco 345, Miraflores", lat: -12.1212, lng: -77.0298 },
+  { t: "Hoy 13:10", place: "Parque Kennedy, Miraflores", lat: -12.1219, lng: -77.0294 },
+  { t: "Ayer 19:45", place: "Av. Pardo y Aliaga 120, San Isidro", lat: -12.0966, lng: -77.0376 },
+  { t: "Ayer 09:12", place: "Jr. de la Unión 880, Cercado de Lima", lat: -12.0501, lng: -77.0334 },
+  { t: "Lun 18:20", place: "Malecón de Barranco, Lima", lat: -12.1469, lng: -77.0238 },
 ];
 
 type DemoProfile = {
@@ -157,7 +158,7 @@ function streetsFor(id: string): string[] {
 
 const contactDetails: Record<
   string,
-  { phone: string; email: string; address: string; dailyMeters: number; relation: string }
+  { phone: string; email: string; address: string; dailyMeters: number; relation: string; lastDeparture: string }
 > = {
   c1: {
     phone: "+51 987 112 233",
@@ -165,6 +166,7 @@ const contactDetails: Record<
     address: "Av. Larco 345, Miraflores, Lima",
     dailyMeters: 4820,
     relation: "Familiar",
+    lastDeparture: "Parque Kennedy, Miraflores",
   },
   c2: {
     phone: "+51 956 778 991",
@@ -172,6 +174,7 @@ const contactDetails: Record<
     address: "Jr. de la Unión 880, Cercado de Lima",
     dailyMeters: 7310,
     relation: "Amigo",
+    lastDeparture: "Plaza San Martín, Cercado de Lima",
   },
   c3: {
     phone: "+51 934 455 667",
@@ -179,6 +182,7 @@ const contactDetails: Record<
     address: "Av. Pardo y Aliaga 120, San Isidro, Lima",
     dailyMeters: 2640,
     relation: "Compañera de trabajo",
+    lastDeparture: "Óvalo Gutiérrez, San Isidro",
   },
 };
 
@@ -190,6 +194,7 @@ function detailsFor(id: string) {
       address: "Ubicación no registrada",
       dailyMeters: 1500 + (id.charCodeAt(0) % 50) * 100,
       relation: "Contacto",
+      lastDeparture: "Lima, Perú",
     }
   );
 }
@@ -359,6 +364,7 @@ function DemoPage() {
         {tab === "history" && <HistoryPanel />}
         {tab === "sos" && <SosPanel me={me} onTriggerSos={triggerSos} sosActive={!!sos} />}
         {tab === "forum" && <ForumPanel />}
+        {tab === "game" && <GamePanel />}
         {tab === "tracking" && (
           <TrackingPanel
             contacts={contacts}
@@ -389,6 +395,7 @@ function DemoPage() {
             { id: "tracking" as Tab, icon: Navigation, label: "Seguir" },
             { id: "sos" as Tab, icon: Siren, label: "SOS" },
             { id: "forum" as Tab, icon: MessageSquare, label: "Foro" },
+          { id: "game" as Tab, icon: Gamepad2, label: "Juego" },
             { id: "history" as Tab, icon: HistoryIcon, label: "Historial" },
             { id: "admin" as Tab, icon: ShieldCheck, label: "Admin" },
           ].map(({ id, icon: Icon, label }) => {
