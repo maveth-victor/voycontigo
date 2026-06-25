@@ -1499,3 +1499,440 @@ function TrackingView({
     </div>
   );
 }
+// ============================================================================
+// MINIJUEGO: SafeTrack Runner (plataformas con niveles)
+// Funciona con teclado (←/→/Espacio/↑) y táctil (botones en pantalla)
+// ============================================================================
+type GameLevel = {
+  id: number;
+  name: string;
+  bg: string;
+  platforms: { x: number; y: number; w: number; h: number }[];
+  coins: { x: number; y: number }[];
+  enemies: { x: number; y: number; minX: number; maxX: number; speed: number }[];
+  goal: { x: number; y: number; w: number; h: number };
+  spawn: { x: number; y: number };
+  gravity: number;
+};
+
+const GAME_W = 640;
+const GAME_H = 320;
+
+const LEVELS: GameLevel[] = [
+  {
+    id: 1,
+    name: "Nivel 1 · Miraflores",
+    bg: "linear-gradient(180deg,#7dd3fc 0%,#bae6fd 60%,#fef3c7 100%)",
+    spawn: { x: 30, y: 220 },
+    gravity: 0.55,
+    platforms: [
+      { x: 0, y: 290, w: 640, h: 30 },
+      { x: 180, y: 230, w: 80, h: 14 },
+      { x: 320, y: 190, w: 80, h: 14 },
+      { x: 460, y: 230, w: 80, h: 14 },
+    ],
+    coins: [
+      { x: 210, y: 200 }, { x: 350, y: 160 }, { x: 490, y: 200 },
+    ],
+    enemies: [
+      { x: 350, y: 268, minX: 280, maxX: 440, speed: 1.2 },
+    ],
+    goal: { x: 590, y: 250, w: 30, h: 40 },
+  },
+  {
+    id: 2,
+    name: "Nivel 2 · Barranco",
+    bg: "linear-gradient(180deg,#a78bfa 0%,#c4b5fd 60%,#fde68a 100%)",
+    spawn: { x: 20, y: 220 },
+    gravity: 0.6,
+    platforms: [
+      { x: 0, y: 290, w: 200, h: 30 },
+      { x: 260, y: 290, w: 120, h: 30 },
+      { x: 440, y: 290, w: 200, h: 30 },
+      { x: 150, y: 220, w: 70, h: 14 },
+      { x: 280, y: 180, w: 70, h: 14 },
+      { x: 420, y: 220, w: 70, h: 14 },
+      { x: 520, y: 160, w: 70, h: 14 },
+    ],
+    coins: [
+      { x: 170, y: 190 }, { x: 300, y: 150 }, { x: 440, y: 190 },
+      { x: 540, y: 130 }, { x: 480, y: 260 },
+    ],
+    enemies: [
+      { x: 320, y: 268, minX: 260, maxX: 370, speed: 1.6 },
+      { x: 510, y: 268, minX: 440, maxX: 630, speed: 2 },
+    ],
+    goal: { x: 600, y: 120, w: 30, h: 40 },
+  },
+  {
+    id: 3,
+    name: "Nivel 3 · Cusco",
+    bg: "linear-gradient(180deg,#f97316 0%,#fb923c 50%,#1f2937 100%)",
+    spawn: { x: 20, y: 220 },
+    gravity: 0.65,
+    platforms: [
+      { x: 0, y: 290, w: 120, h: 30 },
+      { x: 180, y: 260, w: 60, h: 14 },
+      { x: 280, y: 220, w: 60, h: 14 },
+      { x: 380, y: 180, w: 60, h: 14 },
+      { x: 480, y: 220, w: 60, h: 14 },
+      { x: 560, y: 290, w: 80, h: 30 },
+      { x: 220, y: 140, w: 60, h: 14 },
+      { x: 360, y: 100, w: 60, h: 14 },
+    ],
+    coins: [
+      { x: 200, y: 230 }, { x: 300, y: 190 }, { x: 400, y: 150 },
+      { x: 500, y: 190 }, { x: 240, y: 110 }, { x: 380, y: 70 },
+    ],
+    enemies: [
+      { x: 220, y: 238, minX: 180, maxX: 240, speed: 1.4 },
+      { x: 400, y: 158, minX: 380, maxX: 440, speed: 1.8 },
+      { x: 500, y: 198, minX: 480, maxX: 540, speed: 2.2 },
+    ],
+    goal: { x: 600, y: 250, w: 30, h: 40 },
+  },
+];
+
+function GamePanel() {
+  const [levelIdx, setLevelIdx] = useState(0);
+  const [score, setScore] = useState(0);
+  const [lives, setLives] = useState(3);
+  const [status, setStatus] = useState<"playing" | "win" | "gameover" | "complete">("playing");
+  const [collected, setCollected] = useState<Set<string>>(new Set());
+  const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
+  const keys = React.useRef({ left: false, right: false, jump: false });
+  const player = React.useRef({ x: 30, y: 200, vx: 0, vy: 0, w: 22, h: 28, onGround: false, facing: 1 });
+  const enemiesRef = React.useRef<{ x: number; y: number; dir: number; def: GameLevel["enemies"][number] }[]>([]);
+  const rafRef = React.useRef<number | null>(null);
+
+  const level = LEVELS[levelIdx];
+
+  // reset on level change
+  useEffect(() => {
+    player.current = {
+      x: level.spawn.x,
+      y: level.spawn.y,
+      vx: 0,
+      vy: 0,
+      w: 22,
+      h: 28,
+      onGround: false,
+      facing: 1,
+    };
+    enemiesRef.current = level.enemies.map((e) => ({ x: e.x, y: e.y, dir: 1, def: e }));
+    setCollected(new Set());
+    setStatus("playing");
+  }, [levelIdx, level]);
+
+  // keyboard
+  useEffect(() => {
+    const down = (e: KeyboardEvent) => {
+      if (["ArrowLeft", "a", "A"].includes(e.key)) keys.current.left = true;
+      if (["ArrowRight", "d", "D"].includes(e.key)) keys.current.right = true;
+      if ([" ", "ArrowUp", "w", "W"].includes(e.key)) {
+        e.preventDefault();
+        keys.current.jump = true;
+      }
+    };
+    const up = (e: KeyboardEvent) => {
+      if (["ArrowLeft", "a", "A"].includes(e.key)) keys.current.left = false;
+      if (["ArrowRight", "d", "D"].includes(e.key)) keys.current.right = false;
+      if ([" ", "ArrowUp", "w", "W"].includes(e.key)) keys.current.jump = false;
+    };
+    window.addEventListener("keydown", down);
+    window.addEventListener("keyup", up);
+    return () => {
+      window.removeEventListener("keydown", down);
+      window.removeEventListener("keyup", up);
+    };
+  }, []);
+
+  // main game loop
+  useEffect(() => {
+    if (status !== "playing") return;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d")!;
+
+    const step = () => {
+      const p = player.current;
+      // input
+      const speed = 3.4;
+      if (keys.current.left) {
+        p.vx = -speed;
+        p.facing = -1;
+      } else if (keys.current.right) {
+        p.vx = speed;
+        p.facing = 1;
+      } else {
+        p.vx *= 0.75;
+      }
+      if (keys.current.jump && p.onGround) {
+        p.vy = -10.2;
+        p.onGround = false;
+      }
+      // physics
+      p.vy += level.gravity;
+      if (p.vy > 12) p.vy = 12;
+      p.x += p.vx;
+      // h collisions
+      for (const pl of level.platforms) {
+        if (p.x < pl.x + pl.w && p.x + p.w > pl.x && p.y < pl.y + pl.h && p.y + p.h > pl.y) {
+          if (p.vx > 0) p.x = pl.x - p.w;
+          else if (p.vx < 0) p.x = pl.x + pl.w;
+          p.vx = 0;
+        }
+      }
+      p.y += p.vy;
+      p.onGround = false;
+      for (const pl of level.platforms) {
+        if (p.x < pl.x + pl.w && p.x + p.w > pl.x && p.y < pl.y + pl.h && p.y + p.h > pl.y) {
+          if (p.vy > 0) {
+            p.y = pl.y - p.h;
+            p.vy = 0;
+            p.onGround = true;
+          } else if (p.vy < 0) {
+            p.y = pl.y + pl.h;
+            p.vy = 0;
+          }
+        }
+      }
+      // walls
+      if (p.x < 0) p.x = 0;
+      if (p.x + p.w > GAME_W) p.x = GAME_W - p.w;
+      // fall pit
+      if (p.y > GAME_H + 80) {
+        loseLife();
+        return;
+      }
+      // enemies
+      for (const en of enemiesRef.current) {
+        en.x += en.dir * en.def.speed;
+        if (en.x < en.def.minX) en.dir = 1;
+        if (en.x > en.def.maxX) en.dir = -1;
+        // collide
+        if (p.x < en.x + 22 && p.x + p.w > en.x && p.y < en.y + 22 && p.y + p.h > en.y) {
+          if (p.vy > 1) {
+            // stomp
+            en.x = -9999;
+            p.vy = -7;
+            setScore((s) => s + 50);
+          } else {
+            loseLife();
+            return;
+          }
+        }
+      }
+      // coins
+      level.coins.forEach((c, i) => {
+        const key = `${levelIdx}-${i}`;
+        if (collected.has(key)) return;
+        if (p.x < c.x + 14 && p.x + p.w > c.x && p.y < c.y + 14 && p.y + p.h > c.y) {
+          setCollected((prev) => {
+            const next = new Set(prev);
+            next.add(key);
+            return next;
+          });
+          setScore((s) => s + 20);
+        }
+      });
+      // goal
+      const g = level.goal;
+      if (p.x < g.x + g.w && p.x + p.w > g.x && p.y < g.y + g.h && p.y + p.h > g.y) {
+        if (levelIdx + 1 < LEVELS.length) {
+          setStatus("win");
+        } else {
+          setStatus("complete");
+        }
+        return;
+      }
+
+      // render
+      ctx.clearRect(0, 0, GAME_W, GAME_H);
+      // platforms
+      for (const pl of level.platforms) {
+        ctx.fillStyle = "#7c3aed";
+        ctx.fillRect(pl.x, pl.y, pl.w, pl.h);
+        ctx.fillStyle = "#a78bfa";
+        ctx.fillRect(pl.x, pl.y, pl.w, 4);
+      }
+      // coins
+      level.coins.forEach((c, i) => {
+        const key = `${levelIdx}-${i}`;
+        if (collected.has(key)) return;
+        ctx.fillStyle = "#facc15";
+        ctx.beginPath();
+        ctx.arc(c.x + 7, c.y + 7, 7, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#ca8a04";
+        ctx.stroke();
+      });
+      // enemies
+      for (const en of enemiesRef.current) {
+        if (en.x < -100) continue;
+        ctx.fillStyle = "#ef4444";
+        ctx.fillRect(en.x, en.y, 22, 22);
+        ctx.fillStyle = "#fff";
+        ctx.fillRect(en.x + 4, en.y + 6, 4, 4);
+        ctx.fillRect(en.x + 14, en.y + 6, 4, 4);
+      }
+      // goal flag
+      ctx.fillStyle = "#0ea5e9";
+      ctx.fillRect(g.x, g.y, 4, g.h);
+      ctx.fillRect(g.x, g.y, g.w, 14);
+      // player
+      ctx.fillStyle = "#1d4ed8";
+      ctx.fillRect(p.x, p.y, p.w, p.h);
+      ctx.fillStyle = "#fff";
+      const eyeX = p.facing > 0 ? p.x + 14 : p.x + 4;
+      ctx.fillRect(eyeX, p.y + 6, 4, 4);
+
+      rafRef.current = requestAnimationFrame(step);
+    };
+
+    const loseLife = () => {
+      setLives((l) => {
+        const nl = l - 1;
+        if (nl <= 0) {
+          setStatus("gameover");
+        } else {
+          player.current.x = level.spawn.x;
+          player.current.y = level.spawn.y;
+          player.current.vx = 0;
+          player.current.vy = 0;
+          rafRef.current = requestAnimationFrame(step);
+        }
+        return nl;
+      });
+    };
+
+    rafRef.current = requestAnimationFrame(step);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [status, levelIdx, level, collected]);
+
+  const restart = () => {
+    setLives(3);
+    setScore(0);
+    setLevelIdx(0);
+  };
+  const nextLevel = () => setLevelIdx((i) => Math.min(i + 1, LEVELS.length - 1));
+
+  // touch helpers
+  const press = (k: "left" | "right" | "jump", v: boolean) => {
+    keys.current[k] = v;
+  };
+
+  return (
+    <div className="h-full overflow-y-auto px-4 py-4">
+      <div className="max-w-md mx-auto space-y-3">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-lg font-semibold flex items-center gap-2">
+              <Gamepad2 className="w-5 h-5 text-primary" /> SafeTrack Runner
+            </h2>
+            <p className="text-xs text-muted-foreground">{level.name}</p>
+          </div>
+          <div className="text-right text-xs">
+            <div>⭐ <b>{score}</b></div>
+            <div>❤️ <b>{lives}</b></div>
+          </div>
+        </div>
+
+        <div
+          className="relative rounded-2xl overflow-hidden border border-border"
+          style={{ background: level.bg }}
+        >
+          <canvas
+            ref={canvasRef}
+            width={GAME_W}
+            height={GAME_H}
+            className="w-full block touch-none select-none"
+            style={{ aspectRatio: `${GAME_W}/${GAME_H}` }}
+          />
+          {status !== "playing" && (
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center text-white gap-3 p-4 text-center">
+              {status === "win" && (
+                <>
+                  <CheckCircle2 className="w-10 h-10 text-emerald-400" />
+                  <div className="text-lg font-bold">¡Nivel superado!</div>
+                  <Button onClick={nextLevel}>Siguiente nivel</Button>
+                </>
+              )}
+              {status === "complete" && (
+                <>
+                  <Star className="w-10 h-10 text-yellow-400" />
+                  <div className="text-lg font-bold">¡Felicidades, completaste el juego!</div>
+                  <div className="text-sm">Puntaje final: {score}</div>
+                  <Button onClick={restart}>Jugar de nuevo</Button>
+                </>
+              )}
+              {status === "gameover" && (
+                <>
+                  <AlertTriangle className="w-10 h-10 text-red-400" />
+                  <div className="text-lg font-bold">Game Over</div>
+                  <Button onClick={restart}>Reintentar</Button>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Controles táctiles */}
+        <div className="grid grid-cols-3 gap-2 sm:hidden">
+          <button
+            onTouchStart={() => press("left", true)}
+            onTouchEnd={() => press("left", false)}
+            onMouseDown={() => press("left", true)}
+            onMouseUp={() => press("left", false)}
+            onMouseLeave={() => press("left", false)}
+            className="py-5 rounded-2xl bg-primary text-primary-foreground text-2xl font-bold active:scale-95"
+          >
+            ◀
+          </button>
+          <button
+            onTouchStart={() => press("jump", true)}
+            onTouchEnd={() => press("jump", false)}
+            onMouseDown={() => press("jump", true)}
+            onMouseUp={() => press("jump", false)}
+            onMouseLeave={() => press("jump", false)}
+            className="py-5 rounded-2xl bg-emerald-500 text-white text-xl font-bold active:scale-95"
+          >
+            SALTAR
+          </button>
+          <button
+            onTouchStart={() => press("right", true)}
+            onTouchEnd={() => press("right", false)}
+            onMouseDown={() => press("right", true)}
+            onMouseUp={() => press("right", false)}
+            onMouseLeave={() => press("right", false)}
+            className="py-5 rounded-2xl bg-primary text-primary-foreground text-2xl font-bold active:scale-95"
+          >
+            ▶
+          </button>
+        </div>
+
+        <div className="text-xs text-muted-foreground text-center hidden sm:block">
+          Controles: <b>←/→</b> para moverte · <b>Espacio</b> o <b>↑</b> para saltar
+        </div>
+
+        <div className="flex gap-2">
+          {LEVELS.map((l, i) => (
+            <button
+              key={l.id}
+              onClick={() => setLevelIdx(i)}
+              className={`flex-1 py-2 rounded-xl text-xs font-semibold border ${
+                levelIdx === i
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-muted/40 border-border"
+              }`}
+            >
+              Nivel {l.id}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
