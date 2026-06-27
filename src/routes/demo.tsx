@@ -578,9 +578,9 @@ function DemoPageInner() {
     const c = contacts.find((x) => x.id === contactId);
     if (!c) return;
     setSosContactId(contactId);
-    const msg = `Alerta: ${c.name} necesita ayuda`;
+    const msg = t("needHelpToast", { name: c.name });
     toast.error(`🚨 ${msg}`, {
-      description: "Toca el punto rojo en el mapa para ver su ubicación.",
+      description: t("redDotHint"),
       duration: 8000,
     });
     if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
@@ -606,7 +606,7 @@ function DemoPageInner() {
       lng: me.lng,
       updated: new Date().toLocaleTimeString(),
     });
-    toast.error("🚨 Alerta SOS enviada a tus contactos");
+    toast.error(t("sosToContacts"));
     setTimeout(() => setSos(null), 8000);
   };
 
@@ -624,7 +624,7 @@ function DemoPageInner() {
           <Link
             to="/auth"
             className="w-9 h-9 rounded-xl flex items-center justify-center bg-muted text-muted-foreground"
-            aria-label="Volver"
+            aria-label={t("back")}
           >
             <ArrowLeft className="w-4 h-4" />
           </Link>
@@ -636,16 +636,25 @@ function DemoPageInner() {
           </div>
           <div className="flex-1 min-w-0">
             <div className="font-semibold leading-tight truncate">
-              SafeTrack · Demo
+              {t("appTitle")}
             </div>
             <div className="text-[11px] text-muted-foreground flex items-center gap-1 truncate">
               <MapPin className="w-3 h-3" />
               {me.lat.toFixed(4)}, {me.lng.toFixed(4)}
             </div>
           </div>
-          <span className="text-[10px] font-semibold px-2 py-1 rounded-full bg-primary/10 text-primary">
-            DEMO
-          </span>
+          <div className="flex items-center gap-1">
+            {(["es","en","qu"] as Lang[]).map((l) => (
+              <button
+                key={l}
+                onClick={() => setLang(l)}
+                className={`text-[10px] font-bold px-1.5 py-1 rounded-md ${lang===l?"bg-primary text-primary-foreground":"bg-muted text-muted-foreground"}`}
+                aria-label={`lang ${l}`}
+              >
+                {l.toUpperCase()}
+              </button>
+            ))}
+          </div>
         </div>
       </header>
 
@@ -678,12 +687,6 @@ function DemoPageInner() {
         {tab === "sos" && <SosPanel me={me} onTriggerSos={triggerSos} sosActive={!!sos} />}
         {tab === "forum" && <ForumPanel />}
         {tab === "game" && <GamePanel />}
-        {tab === "tracking" && (
-          <TrackingPanel
-            contacts={contacts}
-            onTrack={(id) => setTrackingId(id)}
-          />
-        )}
         {tab === "admin" && (
           <AdminPanel
             contactsCount={contacts.length}
@@ -703,14 +706,13 @@ function DemoPageInner() {
       >
         <div className="max-w-md mx-auto flex items-center justify-around px-2 py-2">
           {[
-            { id: "map" as Tab, icon: MapIcon, label: "Mapa" },
-            { id: "contacts" as Tab, icon: Users, label: "Contactos" },
-            { id: "tracking" as Tab, icon: Navigation, label: "Seguir" },
-            { id: "sos" as Tab, icon: Siren, label: "SOS" },
-            { id: "forum" as Tab, icon: MessageSquare, label: "Foro" },
-          { id: "game" as Tab, icon: Gamepad2, label: "Juego" },
-            { id: "history" as Tab, icon: HistoryIcon, label: "Historial" },
-            { id: "admin" as Tab, icon: ShieldCheck, label: "Admin" },
+            { id: "map" as Tab, icon: MapIcon, label: t("tabMap") },
+            { id: "contacts" as Tab, icon: Users, label: t("tabContacts") },
+            { id: "sos" as Tab, icon: Siren, label: t("tabSos") },
+            { id: "forum" as Tab, icon: MessageSquare, label: t("tabForum") },
+            { id: "game" as Tab, icon: Gamepad2, label: t("tabGame") },
+            { id: "history" as Tab, icon: HistoryIcon, label: t("tabHistory") },
+            { id: "admin" as Tab, icon: ShieldCheck, label: t("tabAdmin") },
           ].map(({ id, icon: Icon, label }) => {
             const active = tab === id;
             return (
@@ -733,6 +735,7 @@ function DemoPageInner() {
         <UserProfileSheet
           user={selectedUser}
           me={me}
+          onFollow={(c) => { setTrackingId(c.id); setSelectedUser(null); }}
           onClose={() => setSelectedUser(null)}
         />
       )}
