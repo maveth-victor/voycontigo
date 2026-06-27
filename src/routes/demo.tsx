@@ -30,7 +30,7 @@ import {
   Settings,
   Save,
 } from "lucide-react";
-import { Gamepad2 } from "lucide-react";
+import { Gamepad2, Languages, Store, Home, Cross } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -45,7 +45,310 @@ export const Route = createFileRoute("/demo")({
   component: DemoPage,
 });
 
-type Tab = "map" | "contacts" | "tracking" | "history" | "sos" | "forum" | "game" | "admin";
+type Tab = "map" | "contacts" | "history" | "sos" | "forum" | "game" | "admin";
+
+// ============================================================================
+// i18n: idiomas para TODA la app demo
+// ============================================================================
+type Lang = "es" | "en" | "qu";
+const DICT: Record<Lang, Record<string, string>> = {
+  es: {
+    appTitle: "SafeTrack · Demo",
+    back: "Volver",
+    demoBadge: "DEMO",
+    tabMap: "Mapa",
+    tabContacts: "Contactos",
+    tabSos: "SOS",
+    tabForum: "Foro",
+    tabGame: "Juego",
+    tabHistory: "Historial",
+    tabAdmin: "Admin",
+    language: "Idioma",
+    legend: "Leyenda",
+    you: "Tú",
+    contacts: "Contactos",
+    sosAlert: "Alerta SOS",
+    authorizedContacts: "Contactos autorizados",
+    new: "Nuevo",
+    close: "Cerrar",
+    addContact: "Agregar contacto",
+    fullName: "Nombre",
+    phone: "Teléfono",
+    save: "Guardar contacto",
+    realAppHint: "En la app real puedes enviar y aceptar solicitudes por correo.",
+    history7: "Historial (últimos 7 días)",
+    askHelp: "Pedir ayuda",
+    emergencyHint: "En una emergencia, presiona el botón para alertar a tus contactos.",
+    emergencyBtn: "BOTÓN DE EMERGENCIA",
+    alertSent: "Alerta enviada",
+    sentToParents: "Tus padres y contactos han sido notificados",
+    holdHint: "Mantén presionado 3 segundos en la app real",
+    sosActiveTitle: "Alerta SOS activa",
+    sentTo: "Enviada a {n} contactos",
+    emergencyContacts: "Contactos de emergencia",
+    authorizedContact: "Contacto autorizado",
+    emergencyLines: "Líneas de emergencia",
+    demoFooter: "Esta es una demostración. En la app real, la alerta comparte tu ubicación en tiempo real con tus contactos de confianza.",
+    safeZonesTitle: "Zonas seguras cercanas",
+    safeZonesHint: "Tiendas, farmacias y vecinos voluntarios registrados para ofrecer refugio inmediato.",
+    storeKind: "Tienda",
+    pharmacyKind: "Farmacia",
+    neighborKind: "Vecino voluntario",
+    goNow: "Ir ahora",
+    forumTitle: "Foro de reseñas",
+    ratePlace: "Califica un lugar",
+    yourRating: "Tu calificación",
+    placePh: "Nombre del lugar (p. ej. Parque Kennedy)",
+    expPh: "¿Cómo fue tu experiencia? ¿Te sentiste seguro?",
+    uploadPhotos: "Subir fotos",
+    publish: "Publicar",
+    needPlace: "Agrega el lugar y tu reseña",
+    published: "Reseña publicada",
+    profile: "Perfil",
+    adminTitle: "Panel administrativo",
+    connected: "Conectados",
+    locationsLbl: "Ubicaciones",
+    alerts: "Alertas",
+    activeUsers: "Usuarios activos",
+    online: "En línea",
+    sosReceived: "Tú (Demo) — recibida ahora",
+    farFromYou: "Lejos de ti",
+    lastDeparture: "Último lugar de partida",
+    dailyDistance: "Distancia recorrida hoy",
+    metersAccum: "{n} metros acumulados durante el día",
+    profileLbl: "Perfil",
+    relation: "Relación:",
+    phoneLbl: "Teléfono:",
+    emailLbl: "Email:",
+    addressLbl: "Dirección:",
+    call: "Llamar",
+    message: "Mensaje",
+    follow: "Seguir en vivo",
+    needHelpToast: "Alerta: {name} necesita ayuda",
+    redDotHint: "Toca el punto rojo en el mapa para ver su ubicación.",
+    sosToContacts: "🚨 Alerta SOS enviada a tus contactos",
+    gameTitle: "SafeTrack Runner",
+    nextLevel: "Siguiente nivel",
+    levelDone: "¡Nivel superado!",
+    gameDone: "¡Felicidades, completaste el juego!",
+    finalScore: "Puntaje final: {n}",
+    playAgain: "Jugar de nuevo",
+    gameOver: "Game Over",
+    retry: "Reintentar",
+    jump: "SALTAR",
+    keyboardHint: "Controles: ←/→ para moverte · Espacio o ↑ para saltar",
+    level: "Nivel",
+  },
+  en: {
+    appTitle: "SafeTrack · Demo",
+    back: "Back",
+    demoBadge: "DEMO",
+    tabMap: "Map",
+    tabContacts: "Contacts",
+    tabSos: "SOS",
+    tabForum: "Forum",
+    tabGame: "Game",
+    tabHistory: "History",
+    tabAdmin: "Admin",
+    language: "Language",
+    legend: "Legend",
+    you: "You",
+    contacts: "Contacts",
+    sosAlert: "SOS Alert",
+    authorizedContacts: "Authorized contacts",
+    new: "New",
+    close: "Close",
+    addContact: "Add contact",
+    fullName: "Name",
+    phone: "Phone",
+    save: "Save contact",
+    realAppHint: "In the real app you can send and accept requests by email.",
+    history7: "History (last 7 days)",
+    askHelp: "Ask for help",
+    emergencyHint: "In an emergency, press the button to alert your contacts.",
+    emergencyBtn: "EMERGENCY BUTTON",
+    alertSent: "Alert sent",
+    sentToParents: "Your parents and contacts have been notified",
+    holdHint: "Hold 3 seconds in the real app",
+    sosActiveTitle: "Active SOS alert",
+    sentTo: "Sent to {n} contacts",
+    emergencyContacts: "Emergency contacts",
+    authorizedContact: "Authorized contact",
+    emergencyLines: "Emergency lines",
+    demoFooter: "This is a demo. In the real app, the alert shares your live location with your trusted contacts.",
+    safeZonesTitle: "Nearby safe zones",
+    safeZonesHint: "Stores, pharmacies and volunteer neighbors registered to offer immediate shelter.",
+    storeKind: "Store",
+    pharmacyKind: "Pharmacy",
+    neighborKind: "Volunteer neighbor",
+    goNow: "Go now",
+    forumTitle: "Reviews forum",
+    ratePlace: "Rate a place",
+    yourRating: "Your rating",
+    placePh: "Place name (e.g. Kennedy Park)",
+    expPh: "How was your experience? Did you feel safe?",
+    uploadPhotos: "Upload photos",
+    publish: "Publish",
+    needPlace: "Add place and review",
+    published: "Review published",
+    profile: "Profile",
+    adminTitle: "Admin panel",
+    connected: "Connected",
+    locationsLbl: "Locations",
+    alerts: "Alerts",
+    activeUsers: "Active users",
+    online: "Online",
+    sosReceived: "You (Demo) — received now",
+    farFromYou: "Distance from you",
+    lastDeparture: "Last departure point",
+    dailyDistance: "Distance traveled today",
+    metersAccum: "{n} meters accumulated today",
+    profileLbl: "Profile",
+    relation: "Relation:",
+    phoneLbl: "Phone:",
+    emailLbl: "Email:",
+    addressLbl: "Address:",
+    call: "Call",
+    message: "Message",
+    follow: "Live follow",
+    needHelpToast: "Alert: {name} needs help",
+    redDotHint: "Tap the red dot on the map to see their location.",
+    sosToContacts: "🚨 SOS alert sent to your contacts",
+    gameTitle: "SafeTrack Runner",
+    nextLevel: "Next level",
+    levelDone: "Level completed!",
+    gameDone: "Congrats, you finished the game!",
+    finalScore: "Final score: {n}",
+    playAgain: "Play again",
+    gameOver: "Game Over",
+    retry: "Retry",
+    jump: "JUMP",
+    keyboardHint: "Controls: ←/→ to move · Space or ↑ to jump",
+    level: "Level",
+  },
+  qu: {
+    appTitle: "SafeTrack · Qhawana",
+    back: "Kutiy",
+    demoBadge: "QHAWANA",
+    tabMap: "Mapa",
+    tabContacts: "Riqsisqakuna",
+    tabSos: "SOS",
+    tabForum: "Rimaynin",
+    tabGame: "Pukllay",
+    tabHistory: "Ñawpaq",
+    tabAdmin: "Kamachiq",
+    language: "Simi",
+    legend: "Sutichana",
+    you: "Qam",
+    contacts: "Riqsisqakuna",
+    sosAlert: "SOS Willakuy",
+    authorizedContacts: "Saqisqa riqsisqakuna",
+    new: "Musuq",
+    close: "Wisq'ay",
+    addContact: "Riqsisqata yapay",
+    fullName: "Suti",
+    phone: "Telefonu",
+    save: "Riqsisqata waqaychay",
+    realAppHint: "Cheqaq aplikasyunpiqa email-warmi mañakuy atiwaqmi.",
+    history7: "Ñawpaq ruwasqa (qanchis p'unchaw)",
+    askHelp: "Yanapayta mañay",
+    emergencyHint: "Sasachakuypi, riqsisqakunaman willanapaq ñit'iy.",
+    emergencyBtn: "SASACHAKUY ÑIT'INA",
+    alertSent: "Willakuy apachisqa",
+    sentToParents: "Tayta-mamayki, riqsisqakuna willasqaña",
+    holdHint: "Cheqaq aplikasyunpi 3 segundo hap'iy",
+    sosActiveTitle: "SOS willakuy kachkan",
+    sentTo: "{n} riqsisqakunaman apachisqa",
+    emergencyContacts: "Sasachakuy riqsisqakuna",
+    authorizedContact: "Saqisqa riqsisqa",
+    emergencyLines: "Sasachakuy telefonukuna",
+    demoFooter: "Kayqa qhawanallam. Cheqaq aplikasyunpiqa, willakuy kawsayniyki mama qhawasqaykita riqsisqaykiman willan.",
+    safeZonesTitle: "Qaylla allin k'itikuna",
+    safeZonesHint: "Qhatukuna, hampi qhatukuna, voluntario wasimasikuna chaski kanapaq qillqasqa.",
+    storeKind: "Qhatu",
+    pharmacyKind: "Hampi Qhatu",
+    neighborKind: "Voluntario wasimasi",
+    goNow: "Kunan riy",
+    forumTitle: "Rimanakuy",
+    ratePlace: "K'itita chaninchay",
+    yourRating: "Chaniyki",
+    placePh: "K'itip sutin (kikinraq Parque Kennedy)",
+    expPh: "¿Imayna karqa? ¿Allinta karqankichu?",
+    uploadPhotos: "Fotokunata wichachiy",
+    publish: "Willay",
+    needPlace: "K'itita, rimayniyki yapay",
+    published: "Rimaynin willasqa",
+    profile: "Runap willakuynin",
+    adminTitle: "Kamachiq qhawana",
+    connected: "Tinkisqakuna",
+    locationsLbl: "K'itikuna",
+    alerts: "Willakuykuna",
+    activeUsers: "Llamkaq runakuna",
+    online: "Kawsachkan",
+    sosReceived: "Qam (Qhawana) — kunan chaskisqa",
+    farFromYou: "Karu qammanta",
+    lastDeparture: "Qhipan lluqsina k'iti",
+    dailyDistance: "P'unchaw purisqa",
+    metersAccum: "{n} metro p'unchawpi",
+    profileLbl: "Runap willakuynin",
+    relation: "Riqsiy:",
+    phoneLbl: "Telefonu:",
+    emailLbl: "Email:",
+    addressLbl: "Tiyana:",
+    call: "Waqyay",
+    message: "Willay",
+    follow: "Kawsay qatiy",
+    needHelpToast: "Willakuy: {name} yanapayta munan",
+    redDotHint: "Mapapi puka muyuta ñit'iy k'itinta qhawanapaq.",
+    sosToContacts: "🚨 SOS willakuy riqsisqaykiman apachisqa",
+    gameTitle: "SafeTrack Runner",
+    nextLevel: "Hina nivel",
+    levelDone: "¡Nivel atisqa!",
+    gameDone: "¡Allinmi, pukllayta tukunki!",
+    finalScore: "Tukuy puntaje: {n}",
+    playAgain: "Wakmanta pukllay",
+    gameOver: "Tukusqa",
+    retry: "Wakmanta",
+    jump: "P'ITAY",
+    keyboardHint: "Kamachiy: ←/→ kuyuy · Espacio utaq ↑ p'itay",
+    level: "Nivel",
+  },
+};
+
+const LangCtx = React.createContext<{ lang: Lang; setLang: (l: Lang) => void; t: (k: string, vars?: Record<string, string | number>) => string }>({
+  lang: "es",
+  setLang: () => {},
+  t: (k) => k,
+});
+
+function LangProvider({ children }: { children: React.ReactNode }) {
+  const [lang, setLangState] = useState<Lang>(() => {
+    if (typeof window === "undefined") return "es";
+    return (localStorage.getItem("safetrack-lang") as Lang) || "es";
+  });
+  const setLang = (l: Lang) => {
+    setLangState(l);
+    try { localStorage.setItem("safetrack-lang", l); } catch {}
+  };
+  const t = (k: string, vars?: Record<string, string | number>) => {
+    let s = DICT[lang][k] ?? DICT.es[k] ?? k;
+    if (vars) for (const [vk, vv] of Object.entries(vars)) s = s.replace(`{${vk}}`, String(vv));
+    return s;
+  };
+  return <LangCtx.Provider value={{ lang, setLang, t }}>{children}</LangCtx.Provider>;
+}
+function useT() { return React.useContext(LangCtx); }
+
+// Safe zones cerca de Lima
+type SafeZone = { id: string; name: string; kind: "store" | "pharmacy" | "neighbor"; address: string; lat: number; lng: number };
+const SAFE_ZONES: SafeZone[] = [
+  { id: "sz1", name: "Bodega Don Pepe", kind: "store", address: "Av. Larco 245, Miraflores", lat: -12.1208, lng: -77.0301 },
+  { id: "sz2", name: "Inkafarma Pardo", kind: "pharmacy", address: "Av. Pardo 410, Miraflores", lat: -12.1225, lng: -77.0322 },
+  { id: "sz3", name: "Sra. Rosa (vecina voluntaria)", kind: "neighbor", address: "Calle Berlín 380, Miraflores", lat: -12.1248, lng: -77.0287 },
+  { id: "sz4", name: "Mifarma Larcomar", kind: "pharmacy", address: "Malecón de la Reserva 610", lat: -12.1318, lng: -77.0309 },
+  { id: "sz5", name: "Tienda La Esquina", kind: "store", address: "Av. Arequipa 1820, Lince", lat: -12.0935, lng: -77.0356 },
+  { id: "sz6", name: "Familia Quispe (voluntarios)", kind: "neighbor", address: "Jr. Risso 240, Lince", lat: -12.0908, lng: -77.0331 },
+];
 
 type Review = {
   id: string;
@@ -201,6 +504,15 @@ function detailsFor(id: string) {
 }
 
 function DemoPage() {
+  return (
+    <LangProvider>
+      <DemoPageInner />
+    </LangProvider>
+  );
+}
+
+function DemoPageInner() {
+  const { t, lang, setLang } = useT();
   const [tab, setTab] = useState<Tab>("map");
   const [me, setMe] = useState({ lat: -12.0464, lng: -77.0428 });
   const [contacts, setContacts] = useState(baseContacts);
@@ -266,9 +578,9 @@ function DemoPage() {
     const c = contacts.find((x) => x.id === contactId);
     if (!c) return;
     setSosContactId(contactId);
-    const msg = `Alerta: ${c.name} necesita ayuda`;
+    const msg = t("needHelpToast", { name: c.name });
     toast.error(`🚨 ${msg}`, {
-      description: "Toca el punto rojo en el mapa para ver su ubicación.",
+      description: t("redDotHint"),
       duration: 8000,
     });
     if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
@@ -294,7 +606,7 @@ function DemoPage() {
       lng: me.lng,
       updated: new Date().toLocaleTimeString(),
     });
-    toast.error("🚨 Alerta SOS enviada a tus contactos");
+    toast.error(t("sosToContacts"));
     setTimeout(() => setSos(null), 8000);
   };
 
@@ -312,7 +624,7 @@ function DemoPage() {
           <Link
             to="/auth"
             className="w-9 h-9 rounded-xl flex items-center justify-center bg-muted text-muted-foreground"
-            aria-label="Volver"
+            aria-label={t("back")}
           >
             <ArrowLeft className="w-4 h-4" />
           </Link>
@@ -324,16 +636,25 @@ function DemoPage() {
           </div>
           <div className="flex-1 min-w-0">
             <div className="font-semibold leading-tight truncate">
-              SafeTrack · Demo
+              {t("appTitle")}
             </div>
             <div className="text-[11px] text-muted-foreground flex items-center gap-1 truncate">
               <MapPin className="w-3 h-3" />
               {me.lat.toFixed(4)}, {me.lng.toFixed(4)}
             </div>
           </div>
-          <span className="text-[10px] font-semibold px-2 py-1 rounded-full bg-primary/10 text-primary">
-            DEMO
-          </span>
+          <div className="flex items-center gap-1">
+            {(["es","en","qu"] as Lang[]).map((l) => (
+              <button
+                key={l}
+                onClick={() => setLang(l)}
+                className={`text-[10px] font-bold px-1.5 py-1 rounded-md ${lang===l?"bg-primary text-primary-foreground":"bg-muted text-muted-foreground"}`}
+                aria-label={`lang ${l}`}
+              >
+                {l.toUpperCase()}
+              </button>
+            ))}
+          </div>
         </div>
       </header>
 
@@ -366,12 +687,6 @@ function DemoPage() {
         {tab === "sos" && <SosPanel me={me} onTriggerSos={triggerSos} sosActive={!!sos} />}
         {tab === "forum" && <ForumPanel />}
         {tab === "game" && <GamePanel />}
-        {tab === "tracking" && (
-          <TrackingPanel
-            contacts={contacts}
-            onTrack={(id) => setTrackingId(id)}
-          />
-        )}
         {tab === "admin" && (
           <AdminPanel
             contactsCount={contacts.length}
@@ -391,14 +706,13 @@ function DemoPage() {
       >
         <div className="max-w-md mx-auto flex items-center justify-around px-2 py-2">
           {[
-            { id: "map" as Tab, icon: MapIcon, label: "Mapa" },
-            { id: "contacts" as Tab, icon: Users, label: "Contactos" },
-            { id: "tracking" as Tab, icon: Navigation, label: "Seguir" },
-            { id: "sos" as Tab, icon: Siren, label: "SOS" },
-            { id: "forum" as Tab, icon: MessageSquare, label: "Foro" },
-          { id: "game" as Tab, icon: Gamepad2, label: "Juego" },
-            { id: "history" as Tab, icon: HistoryIcon, label: "Historial" },
-            { id: "admin" as Tab, icon: ShieldCheck, label: "Admin" },
+            { id: "map" as Tab, icon: MapIcon, label: t("tabMap") },
+            { id: "contacts" as Tab, icon: Users, label: t("tabContacts") },
+            { id: "sos" as Tab, icon: Siren, label: t("tabSos") },
+            { id: "forum" as Tab, icon: MessageSquare, label: t("tabForum") },
+            { id: "game" as Tab, icon: Gamepad2, label: t("tabGame") },
+            { id: "history" as Tab, icon: HistoryIcon, label: t("tabHistory") },
+            { id: "admin" as Tab, icon: ShieldCheck, label: t("tabAdmin") },
           ].map(({ id, icon: Icon, label }) => {
             const active = tab === id;
             return (
@@ -421,6 +735,7 @@ function DemoPage() {
         <UserProfileSheet
           user={selectedUser}
           me={me}
+          onFollow={(c) => { setTrackingId(c.id); setSelectedUser(null); }}
           onClose={() => setSelectedUser(null)}
         />
       )}
@@ -522,11 +837,14 @@ function UserProfileSheet({
   user,
   me,
   onClose,
+  onFollow,
 }: {
   user: DemoMarker;
   me: { lat: number; lng: number };
   onClose: () => void;
+  onFollow?: (u: DemoMarker) => void;
 }) {
+  const { t } = useT();
   const dist = haversineMeters(me, user);
   const dir = bearingLabel(me, user);
   const info = detailsFor(user.id);
@@ -559,12 +877,12 @@ function UserProfileSheet({
 
         <div className="grid grid-cols-2 gap-2">
           <div className="p-3 rounded-xl bg-muted/50 text-center">
-            <div className="text-[10px] uppercase text-muted-foreground">Lejos de ti</div>
+            <div className="text-[10px] uppercase text-muted-foreground">{t("farFromYou")}</div>
             <div className="text-lg font-bold text-primary">{dist} m</div>
             <div className="text-[10px] text-muted-foreground">{distKm} km · rumbo {dir}</div>
           </div>
           <div className="p-3 rounded-xl bg-muted/50 text-center">
-            <div className="text-[10px] uppercase text-muted-foreground">Último lugar de partida</div>
+            <div className="text-[10px] uppercase text-muted-foreground">{t("lastDeparture")}</div>
             <div className="text-sm font-bold text-primary flex items-center justify-center gap-1">
               <Navigation className="w-4 h-4 shrink-0" />
               <span className="truncate">{info.lastDeparture}</span>
@@ -574,11 +892,11 @@ function UserProfileSheet({
 
         <div className="p-3 rounded-xl bg-primary/5 border border-primary/20 space-y-1">
           <div className="text-[10px] uppercase text-muted-foreground flex items-center gap-1">
-            <RouteIcon className="w-3 h-3" /> Distancia recorrida hoy
+            <RouteIcon className="w-3 h-3" /> {t("dailyDistance")}
           </div>
           <div className="text-2xl font-bold text-primary">{dailyKm} km</div>
           <div className="text-[11px] text-muted-foreground">
-            {info.dailyMeters.toLocaleString()} metros acumulados durante el día
+            {t("metersAccum", { n: info.dailyMeters.toLocaleString() })}
           </div>
         </div>
 
@@ -608,13 +926,18 @@ function UserProfileSheet({
           </div>
         </div>
 
-        <div className="flex gap-2">
-          <Button variant="outline" className="flex-1 gap-2" onClick={() => toast.info(`Llamando a ${user.name} (demo)`)}>
-            <Phone className="w-4 h-4" /> Llamar
+        <div className="grid grid-cols-3 gap-2">
+          <Button variant="outline" className="gap-1" onClick={() => toast.info(`${t("call")} ${user.name}`)}>
+            <Phone className="w-4 h-4" /> {t("call")}
           </Button>
-          <Button className="flex-1 gap-2" onClick={() => toast.info(`Mensaje a ${user.name} (demo)`)}>
-            <MessageCircle className="w-4 h-4" /> Mensaje
+          <Button variant="outline" className="gap-1" onClick={() => toast.info(`${t("message")} ${user.name}`)}>
+            <MessageCircle className="w-4 h-4" /> {t("message")}
           </Button>
+          {onFollow && user.kind !== "sos" && (
+            <Button className="gap-1" onClick={() => onFollow(user)}>
+              <Navigation className="w-4 h-4" /> {t("follow")}
+            </Button>
+          )}
         </div>
       </div>
     </div>
@@ -725,13 +1048,14 @@ function ContactsPanel({
   setContacts: React.Dispatch<React.SetStateAction<DemoMarker[]>>;
   onOpen: (c: DemoMarker) => void;
 }) {
+  const { t } = useT();
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
 
   const addContact = () => {
     if (!name.trim() || !phone.trim()) {
-      toast.error("Completa nombre y teléfono");
+      toast.error(t("fullName") + " / " + t("phone"));
       return;
     }
     if (!/^[+\d\s-]{7,}$/.test(phone.trim())) {
@@ -757,14 +1081,14 @@ function ContactsPanel({
     <div className="h-full overflow-y-auto px-4 py-4">
       <div className="max-w-md mx-auto space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Contactos autorizados</h2>
+          <h2 className="text-lg font-semibold">{t("authorizedContacts")}</h2>
           <Button
             size="sm"
             onClick={() => setShowForm((v) => !v)}
             className="gap-1"
           >
             {showForm ? <X className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
-            {showForm ? "Cerrar" : "Nuevo"}
+            {showForm ? t("close") : t("new")}
           </Button>
         </div>
 
@@ -773,9 +1097,9 @@ function ContactsPanel({
             className="rounded-2xl bg-card border border-border p-4 space-y-3"
             style={{ boxShadow: "var(--shadow-card)" }}
           >
-            <div className="text-sm font-semibold">Agregar contacto</div>
+            <div className="text-sm font-semibold">{t("addContact")}</div>
             <div className="space-y-2">
-              <label className="text-xs text-muted-foreground">Nombre</label>
+              <label className="text-xs text-muted-foreground">{t("fullName")}</label>
               <Input
                 placeholder="Ej. Laura Gómez"
                 value={name}
@@ -783,7 +1107,7 @@ function ContactsPanel({
               />
             </div>
             <div className="space-y-2">
-              <label className="text-xs text-muted-foreground">Teléfono</label>
+              <label className="text-xs text-muted-foreground">{t("phone")}</label>
               <Input
                 type="tel"
                 inputMode="tel"
@@ -794,7 +1118,7 @@ function ContactsPanel({
             </div>
             <Button onClick={addContact} className="w-full gap-2">
               <UserPlus className="w-4 h-4" />
-              Guardar contacto
+              {t("save")}
             </Button>
           </div>
         )}
@@ -822,7 +1146,7 @@ function ContactsPanel({
           </button>
         ))}
         <div className="text-xs text-muted-foreground text-center pt-2">
-          En la app real puedes enviar y aceptar solicitudes por correo.
+          {t("realAppHint")}
         </div>
       </div>
     </div>
@@ -830,10 +1154,11 @@ function ContactsPanel({
 }
 
 function HistoryPanel() {
+  const { t } = useT();
   return (
     <div className="h-full overflow-y-auto px-4 py-4">
       <div className="max-w-md mx-auto space-y-3">
-        <h2 className="text-lg font-semibold">Historial (últimos 7 días)</h2>
+        <h2 className="text-lg font-semibold">{t("history7")}</h2>
         {historyLog.map((h, i) => (
           <div
             key={i}
@@ -870,47 +1195,7 @@ function AdminPanel({
   onConfigureProfile: () => void;
   profile: DemoProfile;
 }) {
-  const dictionaries = {
-    es: {
-      title: "Panel administrativo",
-      profile: "Perfil",
-      connected: "Conectados",
-      locations: "Ubicaciones",
-      alerts: "Alertas",
-      activeUsers: "Usuarios activos",
-      online: "En línea",
-      sosActive: "Alerta SOS activa",
-      sosReceived: "Tú (Demo) — recibida ahora",
-      language: "Idioma",
-    },
-    en: {
-      title: "Admin panel",
-      profile: "Profile",
-      connected: "Connected",
-      locations: "Locations",
-      alerts: "Alerts",
-      activeUsers: "Active users",
-      online: "Online",
-      sosActive: "Active SOS alert",
-      sosReceived: "You (Demo) — received now",
-      language: "Language",
-    },
-    qu: {
-      title: "Kamachiq qhawana",
-      profile: "Runap willakuynin",
-      connected: "Tinkisqakuna",
-      locations: "Kayninkuna",
-      alerts: "Willakuykuna",
-      activeUsers: "Llamkaq runakuna",
-      online: "Kawsachkan",
-      sosActive: "SOS willakuy kachkan",
-      sosReceived: "Qam (Demo) — kunan chaskisqa",
-      language: "Simi",
-    },
-  } as const;
-  type Lang = keyof typeof dictionaries;
-  const [lang, setLang] = useState<Lang>("es");
-  const t = dictionaries[lang];
+  const { t, lang, setLang } = useT();
   const langs: { code: Lang; label: string; flag: string }[] = [
     { code: "es", label: "Español", flag: "🇵🇪" },
     { code: "en", label: "English", flag: "🇺🇸" },
@@ -920,14 +1205,14 @@ function AdminPanel({
     <div className="h-full overflow-y-auto px-4 py-4">
       <div className="max-w-md mx-auto space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">{t.title}</h2>
+          <h2 className="text-lg font-semibold">{t("adminTitle")}</h2>
           <Button size="sm" onClick={onConfigureProfile} className="gap-1">
-            <Settings className="w-4 h-4" /> {t.profile}
+            <Settings className="w-4 h-4" /> {t("profile")}
           </Button>
         </div>
 
         <div className="p-3 rounded-2xl bg-card border border-border space-y-2">
-          <div className="text-[10px] uppercase text-muted-foreground">{t.language}</div>
+          <div className="text-[10px] uppercase text-muted-foreground">{t("language")}</div>
           <div className="grid grid-cols-3 gap-2">
             {langs.map((l) => (
               <button
@@ -974,9 +1259,9 @@ function AdminPanel({
 
         <div className="grid grid-cols-3 gap-2">
           {[
-            { label: t.connected, value: contactsCount + 1 },
-            { label: t.locations, value: 248 },
-            { label: t.alerts, value: sosActive ? 1 : 0 },
+            { label: t("connected"), value: contactsCount + 1 },
+            { label: t("locationsLbl"), value: 248 },
+            { label: t("alerts"), value: sosActive ? 1 : 0 },
           ].map((s) => (
             <div
               key={s.label}
@@ -991,7 +1276,7 @@ function AdminPanel({
         </div>
         <div className="space-y-2">
           <h3 className="text-sm font-semibold text-muted-foreground">
-            {t.activeUsers}
+            {t("activeUsers")}
           </h3>
           {contacts.map((c) => (
             <button
@@ -1004,7 +1289,7 @@ function AdminPanel({
                 <span className="truncate">{c.name}</span>
               </span>
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary shrink-0">
-                {t.online}
+                {t("online")}
               </span>
             </button>
           ))}
@@ -1012,10 +1297,10 @@ function AdminPanel({
         {sosActive && (
           <div className="p-3 rounded-2xl border border-destructive/40 bg-destructive/5">
             <div className="flex items-center gap-2 text-destructive font-semibold">
-              <Siren className="w-4 h-4" /> {t.sosActive}
+              <Siren className="w-4 h-4" /> {t("sosActiveTitle")}
             </div>
             <div className="text-xs text-muted-foreground mt-1">
-              {t.sosReceived}
+              {t("sosReceived")}
             </div>
           </div>
         )}
@@ -1033,6 +1318,7 @@ function SosPanel({
   onTriggerSos: () => void;
   sosActive: boolean;
 }) {
+  const { t } = useT();
   const [sent, setSent] = useState(false);
 
   const handleSos = () => {
@@ -1041,13 +1327,19 @@ function SosPanel({
     setTimeout(() => setSent(false), 6000);
   };
 
+  // Zonas seguras ordenadas por distancia a "me"
+  const nearbyZones = [...SAFE_ZONES]
+    .map((z) => ({ ...z, d: haversineMeters(me, z) }))
+    .sort((a, b) => a.d - b.d)
+    .slice(0, 5);
+
   return (
     <div className="h-full overflow-y-auto px-4 py-4">
       <div className="max-w-md mx-auto space-y-4">
         <div className="text-center space-y-1">
-          <h2 className="text-xl font-bold">Pedir ayuda</h2>
+          <h2 className="text-xl font-bold">{t("askHelp")}</h2>
           <p className="text-sm text-muted-foreground">
-            En una emergencia, presiona el botón para alertar a tus contactos.
+            {t("emergencyHint")}
           </p>
         </div>
 
@@ -1070,32 +1362,65 @@ function SosPanel({
             <Siren className="w-10 h-10" />
           )}
           <span className="text-lg">
-            {sent ? "Alerta enviada" : "BOTÓN DE EMERGENCIA"}
+            {sent ? t("alertSent") : t("emergencyBtn")}
           </span>
           <span className="text-xs font-normal opacity-90">
-            {sent
-              ? "Tus contactos han sido notificados"
-              : "Mantén presionado 3 segundos en la app real"}
+            {sent ? t("sentToParents") : t("holdHint")}
           </span>
         </button>
+
+        {(sosActive || sent) && (
+          <div className="rounded-2xl border border-emerald-300/50 bg-emerald-50 dark:bg-emerald-950/30 p-4 space-y-3">
+            <div className="flex items-center gap-2 font-semibold text-emerald-700 dark:text-emerald-400">
+              <Home className="w-5 h-5" /> {t("safeZonesTitle")}
+            </div>
+            <p className="text-xs text-muted-foreground">{t("safeZonesHint")}</p>
+            <div className="space-y-2">
+              {nearbyZones.map((z) => {
+                const Icon = z.kind === "store" ? Store : z.kind === "pharmacy" ? Cross : UserIcon;
+                const kindLbl = z.kind === "store" ? t("storeKind") : z.kind === "pharmacy" ? t("pharmacyKind") : t("neighborKind");
+                return (
+                  <div key={z.id} className="flex items-center gap-3 p-2 rounded-xl bg-card border border-border">
+                    <div className="w-9 h-9 rounded-xl bg-emerald-500/15 text-emerald-600 flex items-center justify-center shrink-0">
+                      <Icon className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium truncate">{z.name}</div>
+                      <div className="text-[11px] text-muted-foreground truncate">{kindLbl} · {z.address}</div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="text-[11px] font-bold text-primary">{z.d} m</div>
+                      <button
+                        onClick={() => toast.success(`${t("goNow")} → ${z.name}`)}
+                        className="text-[10px] mt-1 px-2 py-0.5 rounded-md bg-primary text-primary-foreground"
+                      >
+                        {t("goNow")}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {sosActive && (
           <div className="p-4 rounded-2xl border border-destructive/40 bg-destructive/5 space-y-2">
             <div className="flex items-center gap-2 text-destructive font-semibold">
-              <AlertTriangle className="w-5 h-5" /> Alerta SOS activa
+              <AlertTriangle className="w-5 h-5" /> {t("sosActiveTitle")}
             </div>
             <div className="text-sm text-muted-foreground">
               Ubicación: {me.lat.toFixed(4)}, {me.lng.toFixed(4)}
             </div>
             <div className="text-xs text-muted-foreground">
-              Enviada a {baseContacts.length} contactos
+              {t("sentTo", { n: baseContacts.length })}
             </div>
           </div>
         )}
 
         <div className="space-y-2">
           <h3 className="text-sm font-semibold text-muted-foreground">
-            Contactos de emergencia
+            {t("emergencyContacts")}
           </h3>
           {baseContacts.map((c) => (
             <div
@@ -1108,7 +1433,7 @@ function SosPanel({
               <div className="flex-1 min-w-0">
                 <div className="font-medium truncate">{c.name}</div>
                 <div className="text-xs text-muted-foreground">
-                  Contacto autorizado
+                  {t("authorizedContact")}
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -1132,7 +1457,7 @@ function SosPanel({
         <div className="p-4 rounded-2xl bg-card border border-border space-y-3">
           <h3 className="text-sm font-semibold flex items-center gap-2">
             <HeartPulse className="w-4 h-4 text-primary" />
-            Líneas de emergencia
+            {t("emergencyLines")}
           </h3>
           {[
             { name: "PNP - Policía", num: "105", desc: "Policía Nacional del Perú" },
@@ -1160,7 +1485,7 @@ function SosPanel({
         </div>
 
         <div className="text-xs text-muted-foreground text-center">
-          Esta es una demostración. En la app real, la alerta comparte tu ubicación en tiempo real con tus contactos de confianza.
+          {t("demoFooter")}
         </div>
       </div>
     </div>
@@ -1201,6 +1526,7 @@ function Stars({
 }
 
 function ForumPanel() {
+  const { t } = useT();
   const [reviews, setReviews] = useState<Review[]>(seedReviews);
   const [place, setPlace] = useState("");
   const [text, setText] = useState("");
@@ -1222,7 +1548,7 @@ function ForumPanel() {
 
   const submit = () => {
     if (!place.trim() || !text.trim()) {
-      toast.error("Agrega el lugar y tu reseña");
+      toast.error(t("needPlace"));
       return;
     }
     const r: Review = {
@@ -1239,7 +1565,7 @@ function ForumPanel() {
     setText("");
     setRating(5);
     setPhotos([]);
-    toast.success("Reseña publicada");
+    toast.success(t("published"));
   };
 
   const avg =
@@ -1251,7 +1577,7 @@ function ForumPanel() {
     <div className="h-full overflow-y-auto px-4 py-4">
       <div className="max-w-md mx-auto space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Foro de reseñas</h2>
+          <h2 className="text-lg font-semibold">{t("forumTitle")}</h2>
           <div className="flex items-center gap-1 text-sm">
             <Stars value={Math.round(avg)} />
             <span className="text-muted-foreground">({reviews.length})</span>
@@ -1259,21 +1585,21 @@ function ForumPanel() {
         </div>
 
         <div className="p-3 rounded-2xl bg-card border border-border space-y-3">
-          <div className="text-sm font-semibold">Califica un lugar</div>
+          <div className="text-sm font-semibold">{t("ratePlace")}</div>
           <input
             value={place}
             onChange={(e) => setPlace(e.target.value)}
-            placeholder="Nombre del lugar (p. ej. Parque México)"
+            placeholder={t("placePh")}
             className="w-full px-3 py-2 rounded-xl bg-muted/50 border border-border text-sm outline-none focus:ring-2 focus:ring-primary/40"
           />
           <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Tu calificación</span>
+            <span className="text-xs text-muted-foreground">{t("yourRating")}</span>
             <Stars value={rating} onChange={setRating} size={22} />
           </div>
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="¿Cómo fue tu experiencia? ¿Te sentiste seguro?"
+            placeholder={t("expPh")}
             rows={3}
             className="w-full px-3 py-2 rounded-xl bg-muted/50 border border-border text-sm outline-none focus:ring-2 focus:ring-primary/40 resize-none"
           />
@@ -1307,11 +1633,11 @@ function ForumPanel() {
                 }}
               />
               <div className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-muted text-sm font-medium">
-                <Camera className="w-4 h-4" /> Subir fotos
+                <Camera className="w-4 h-4" /> {t("uploadPhotos")}
               </div>
             </label>
             <Button onClick={submit} className="gap-2">
-              <Send className="w-4 h-4" /> Publicar
+              <Send className="w-4 h-4" /> {t("publish")}
             </Button>
           </div>
         </div>
@@ -1591,6 +1917,93 @@ const LEVELS: GameLevel[] = [
       { x: 500, y: 198, minX: 480, maxX: 540, speed: 2.2 },
     ],
     goal: { x: 600, y: 250, w: 30, h: 40 },
+  },
+  {
+    id: 4,
+    name: "Nivel 4 · Arequipa",
+    bg: "linear-gradient(180deg,#fda4af 0%,#fecaca 50%,#fef3c7 100%)",
+    spawn: { x: 20, y: 220 },
+    gravity: 0.62,
+    platforms: [
+      { x: 0, y: 290, w: 160, h: 30 },
+      { x: 220, y: 250, w: 60, h: 14 },
+      { x: 320, y: 210, w: 60, h: 14 },
+      { x: 420, y: 170, w: 60, h: 14 },
+      { x: 520, y: 130, w: 60, h: 14 },
+      { x: 560, y: 290, w: 80, h: 30 },
+      { x: 180, y: 160, w: 50, h: 14 },
+      { x: 80, y: 200, w: 50, h: 14 },
+    ],
+    coins: [
+      { x: 240, y: 220 }, { x: 340, y: 180 }, { x: 440, y: 140 },
+      { x: 540, y: 100 }, { x: 200, y: 130 }, { x: 100, y: 170 }, { x: 590, y: 260 },
+    ],
+    enemies: [
+      { x: 250, y: 228, minX: 220, maxX: 280, speed: 1.7 },
+      { x: 440, y: 148, minX: 420, maxX: 480, speed: 2.1 },
+      { x: 590, y: 268, minX: 560, maxX: 630, speed: 2.4 },
+    ],
+    goal: { x: 600, y: 250, w: 30, h: 40 },
+  },
+  {
+    id: 5,
+    name: "Nivel 5 · Iquitos",
+    bg: "linear-gradient(180deg,#22c55e 0%,#16a34a 50%,#064e3b 100%)",
+    spawn: { x: 20, y: 220 },
+    gravity: 0.68,
+    platforms: [
+      { x: 0, y: 290, w: 100, h: 30 },
+      { x: 140, y: 260, w: 50, h: 14 },
+      { x: 230, y: 220, w: 50, h: 14 },
+      { x: 320, y: 180, w: 50, h: 14 },
+      { x: 410, y: 140, w: 50, h: 14 },
+      { x: 500, y: 180, w: 50, h: 14 },
+      { x: 580, y: 230, w: 60, h: 14 },
+      { x: 260, y: 100, w: 60, h: 14 },
+      { x: 380, y: 70, w: 60, h: 14 },
+    ],
+    coins: [
+      { x: 160, y: 230 }, { x: 250, y: 190 }, { x: 340, y: 150 },
+      { x: 430, y: 110 }, { x: 520, y: 150 }, { x: 280, y: 70 }, { x: 400, y: 40 }, { x: 600, y: 200 },
+    ],
+    enemies: [
+      { x: 250, y: 198, minX: 230, maxX: 280, speed: 1.9 },
+      { x: 430, y: 118, minX: 410, maxX: 460, speed: 2.3 },
+      { x: 520, y: 158, minX: 500, maxX: 550, speed: 2.5 },
+      { x: 400, y: 48, minX: 380, maxX: 440, speed: 2.7 },
+    ],
+    goal: { x: 600, y: 190, w: 30, h: 40 },
+  },
+  {
+    id: 6,
+    name: "Nivel 6 · Machu Picchu",
+    bg: "linear-gradient(180deg,#0ea5e9 0%,#1e293b 60%,#0f172a 100%)",
+    spawn: { x: 20, y: 220 },
+    gravity: 0.7,
+    platforms: [
+      { x: 0, y: 290, w: 80, h: 30 },
+      { x: 120, y: 260, w: 40, h: 14 },
+      { x: 200, y: 230, w: 40, h: 14 },
+      { x: 280, y: 200, w: 40, h: 14 },
+      { x: 360, y: 170, w: 40, h: 14 },
+      { x: 440, y: 140, w: 40, h: 14 },
+      { x: 520, y: 110, w: 40, h: 14 },
+      { x: 580, y: 80, w: 60, h: 14 },
+      { x: 160, y: 140, w: 40, h: 14 },
+      { x: 80, y: 180, w: 40, h: 14 },
+    ],
+    coins: [
+      { x: 130, y: 230 }, { x: 210, y: 200 }, { x: 290, y: 170 },
+      { x: 370, y: 140 }, { x: 450, y: 110 }, { x: 530, y: 80 },
+      { x: 600, y: 50 }, { x: 170, y: 110 }, { x: 90, y: 150 },
+    ],
+    enemies: [
+      { x: 210, y: 208, minX: 200, maxX: 240, speed: 2.2 },
+      { x: 370, y: 148, minX: 360, maxX: 400, speed: 2.5 },
+      { x: 530, y: 88, minX: 520, maxX: 560, speed: 2.8 },
+      { x: 600, y: 58, minX: 580, maxX: 640, speed: 3 },
+    ],
+    goal: { x: 600, y: 40, w: 30, h: 40 },
   },
 ];
 
