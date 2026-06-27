@@ -1566,6 +1566,7 @@ function Stars({
 }
 
 function ForumPanel() {
+  const { t } = useT();
   const [reviews, setReviews] = useState<Review[]>(seedReviews);
   const [place, setPlace] = useState("");
   const [text, setText] = useState("");
@@ -1587,7 +1588,7 @@ function ForumPanel() {
 
   const submit = () => {
     if (!place.trim() || !text.trim()) {
-      toast.error("Agrega el lugar y tu reseña");
+      toast.error(t("needPlace"));
       return;
     }
     const r: Review = {
@@ -1604,7 +1605,7 @@ function ForumPanel() {
     setText("");
     setRating(5);
     setPhotos([]);
-    toast.success("Reseña publicada");
+    toast.success(t("published"));
   };
 
   const avg =
@@ -1616,7 +1617,7 @@ function ForumPanel() {
     <div className="h-full overflow-y-auto px-4 py-4">
       <div className="max-w-md mx-auto space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Foro de reseñas</h2>
+          <h2 className="text-lg font-semibold">{t("forumTitle")}</h2>
           <div className="flex items-center gap-1 text-sm">
             <Stars value={Math.round(avg)} />
             <span className="text-muted-foreground">({reviews.length})</span>
@@ -1624,21 +1625,21 @@ function ForumPanel() {
         </div>
 
         <div className="p-3 rounded-2xl bg-card border border-border space-y-3">
-          <div className="text-sm font-semibold">Califica un lugar</div>
+          <div className="text-sm font-semibold">{t("ratePlace")}</div>
           <input
             value={place}
             onChange={(e) => setPlace(e.target.value)}
-            placeholder="Nombre del lugar (p. ej. Parque México)"
+            placeholder={t("placePh")}
             className="w-full px-3 py-2 rounded-xl bg-muted/50 border border-border text-sm outline-none focus:ring-2 focus:ring-primary/40"
           />
           <div className="flex items-center justify-between">
-            <span className="text-xs text-muted-foreground">Tu calificación</span>
+            <span className="text-xs text-muted-foreground">{t("yourRating")}</span>
             <Stars value={rating} onChange={setRating} size={22} />
           </div>
           <textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="¿Cómo fue tu experiencia? ¿Te sentiste seguro?"
+            placeholder={t("expPh")}
             rows={3}
             className="w-full px-3 py-2 rounded-xl bg-muted/50 border border-border text-sm outline-none focus:ring-2 focus:ring-primary/40 resize-none"
           />
@@ -1672,11 +1673,11 @@ function ForumPanel() {
                 }}
               />
               <div className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-muted text-sm font-medium">
-                <Camera className="w-4 h-4" /> Subir fotos
+                <Camera className="w-4 h-4" /> {t("uploadPhotos")}
               </div>
             </label>
             <Button onClick={submit} className="gap-2">
-              <Send className="w-4 h-4" /> Publicar
+              <Send className="w-4 h-4" /> {t("publish")}
             </Button>
           </div>
         </div>
