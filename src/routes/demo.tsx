@@ -504,6 +504,15 @@ function detailsFor(id: string) {
 }
 
 function DemoPage() {
+  return (
+    <LangProvider>
+      <DemoPageInner />
+    </LangProvider>
+  );
+}
+
+function DemoPageInner() {
+  const { t, lang, setLang } = useT();
   const [tab, setTab] = useState<Tab>("map");
   const [me, setMe] = useState({ lat: -12.0464, lng: -77.0428 });
   const [contacts, setContacts] = useState(baseContacts);
