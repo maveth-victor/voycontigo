@@ -1358,6 +1358,7 @@ function SosPanel({
   onTriggerSos: () => void;
   sosActive: boolean;
 }) {
+  const { t } = useT();
   const [sent, setSent] = useState(false);
 
   const handleSos = () => {
@@ -1366,13 +1367,19 @@ function SosPanel({
     setTimeout(() => setSent(false), 6000);
   };
 
+  // Zonas seguras ordenadas por distancia a "me"
+  const nearbyZones = [...SAFE_ZONES]
+    .map((z) => ({ ...z, d: haversineMeters(me, z) }))
+    .sort((a, b) => a.d - b.d)
+    .slice(0, 5);
+
   return (
     <div className="h-full overflow-y-auto px-4 py-4">
       <div className="max-w-md mx-auto space-y-4">
         <div className="text-center space-y-1">
-          <h2 className="text-xl font-bold">Pedir ayuda</h2>
+          <h2 className="text-xl font-bold">{t("askHelp")}</h2>
           <p className="text-sm text-muted-foreground">
-            En una emergencia, presiona el botón para alertar a tus contactos.
+            {t("emergencyHint")}
           </p>
         </div>
 
@@ -1395,32 +1402,65 @@ function SosPanel({
             <Siren className="w-10 h-10" />
           )}
           <span className="text-lg">
-            {sent ? "Alerta enviada" : "BOTÓN DE EMERGENCIA"}
+            {sent ? t("alertSent") : t("emergencyBtn")}
           </span>
           <span className="text-xs font-normal opacity-90">
-            {sent
-              ? "Tus contactos han sido notificados"
-              : "Mantén presionado 3 segundos en la app real"}
+            {sent ? t("sentToParents") : t("holdHint")}
           </span>
         </button>
+
+        {(sosActive || sent) && (
+          <div className="rounded-2xl border border-emerald-300/50 bg-emerald-50 dark:bg-emerald-950/30 p-4 space-y-3">
+            <div className="flex items-center gap-2 font-semibold text-emerald-700 dark:text-emerald-400">
+              <Home className="w-5 h-5" /> {t("safeZonesTitle")}
+            </div>
+            <p className="text-xs text-muted-foreground">{t("safeZonesHint")}</p>
+            <div className="space-y-2">
+              {nearbyZones.map((z) => {
+                const Icon = z.kind === "store" ? Store : z.kind === "pharmacy" ? Cross : UserIcon;
+                const kindLbl = z.kind === "store" ? t("storeKind") : z.kind === "pharmacy" ? t("pharmacyKind") : t("neighborKind");
+                return (
+                  <div key={z.id} className="flex items-center gap-3 p-2 rounded-xl bg-card border border-border">
+                    <div className="w-9 h-9 rounded-xl bg-emerald-500/15 text-emerald-600 flex items-center justify-center shrink-0">
+                      <Icon className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium truncate">{z.name}</div>
+                      <div className="text-[11px] text-muted-foreground truncate">{kindLbl} · {z.address}</div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="text-[11px] font-bold text-primary">{z.d} m</div>
+                      <button
+                        onClick={() => toast.success(`${t("goNow")} → ${z.name}`)}
+                        className="text-[10px] mt-1 px-2 py-0.5 rounded-md bg-primary text-primary-foreground"
+                      >
+                        {t("goNow")}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {sosActive && (
           <div className="p-4 rounded-2xl border border-destructive/40 bg-destructive/5 space-y-2">
             <div className="flex items-center gap-2 text-destructive font-semibold">
-              <AlertTriangle className="w-5 h-5" /> Alerta SOS activa
+              <AlertTriangle className="w-5 h-5" /> {t("sosActiveTitle")}
             </div>
             <div className="text-sm text-muted-foreground">
               Ubicación: {me.lat.toFixed(4)}, {me.lng.toFixed(4)}
             </div>
             <div className="text-xs text-muted-foreground">
-              Enviada a {baseContacts.length} contactos
+              {t("sentTo", { n: baseContacts.length })}
             </div>
           </div>
         )}
 
         <div className="space-y-2">
           <h3 className="text-sm font-semibold text-muted-foreground">
-            Contactos de emergencia
+            {t("emergencyContacts")}
           </h3>
           {baseContacts.map((c) => (
             <div
@@ -1433,7 +1473,7 @@ function SosPanel({
               <div className="flex-1 min-w-0">
                 <div className="font-medium truncate">{c.name}</div>
                 <div className="text-xs text-muted-foreground">
-                  Contacto autorizado
+                  {t("authorizedContact")}
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -1457,7 +1497,7 @@ function SosPanel({
         <div className="p-4 rounded-2xl bg-card border border-border space-y-3">
           <h3 className="text-sm font-semibold flex items-center gap-2">
             <HeartPulse className="w-4 h-4 text-primary" />
-            Líneas de emergencia
+            {t("emergencyLines")}
           </h3>
           {[
             { name: "PNP - Policía", num: "105", desc: "Policía Nacional del Perú" },
@@ -1485,7 +1525,7 @@ function SosPanel({
         </div>
 
         <div className="text-xs text-muted-foreground text-center">
-          Esta es una demostración. En la app real, la alerta comparte tu ubicación en tiempo real con tus contactos de confianza.
+          {t("demoFooter")}
         </div>
       </div>
     </div>
