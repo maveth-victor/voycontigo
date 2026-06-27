@@ -837,11 +837,14 @@ function UserProfileSheet({
   user,
   me,
   onClose,
+  onFollow,
 }: {
   user: DemoMarker;
   me: { lat: number; lng: number };
   onClose: () => void;
+  onFollow?: (u: DemoMarker) => void;
 }) {
+  const { t } = useT();
   const dist = haversineMeters(me, user);
   const dir = bearingLabel(me, user);
   const info = detailsFor(user.id);
@@ -874,12 +877,12 @@ function UserProfileSheet({
 
         <div className="grid grid-cols-2 gap-2">
           <div className="p-3 rounded-xl bg-muted/50 text-center">
-            <div className="text-[10px] uppercase text-muted-foreground">Lejos de ti</div>
+            <div className="text-[10px] uppercase text-muted-foreground">{t("farFromYou")}</div>
             <div className="text-lg font-bold text-primary">{dist} m</div>
             <div className="text-[10px] text-muted-foreground">{distKm} km · rumbo {dir}</div>
           </div>
           <div className="p-3 rounded-xl bg-muted/50 text-center">
-            <div className="text-[10px] uppercase text-muted-foreground">Último lugar de partida</div>
+            <div className="text-[10px] uppercase text-muted-foreground">{t("lastDeparture")}</div>
             <div className="text-sm font-bold text-primary flex items-center justify-center gap-1">
               <Navigation className="w-4 h-4 shrink-0" />
               <span className="truncate">{info.lastDeparture}</span>
@@ -889,11 +892,11 @@ function UserProfileSheet({
 
         <div className="p-3 rounded-xl bg-primary/5 border border-primary/20 space-y-1">
           <div className="text-[10px] uppercase text-muted-foreground flex items-center gap-1">
-            <RouteIcon className="w-3 h-3" /> Distancia recorrida hoy
+            <RouteIcon className="w-3 h-3" /> {t("dailyDistance")}
           </div>
           <div className="text-2xl font-bold text-primary">{dailyKm} km</div>
           <div className="text-[11px] text-muted-foreground">
-            {info.dailyMeters.toLocaleString()} metros acumulados durante el día
+            {t("metersAccum", { n: info.dailyMeters.toLocaleString() })}
           </div>
         </div>
 
@@ -923,13 +926,18 @@ function UserProfileSheet({
           </div>
         </div>
 
-        <div className="flex gap-2">
-          <Button variant="outline" className="flex-1 gap-2" onClick={() => toast.info(`Llamando a ${user.name} (demo)`)}>
-            <Phone className="w-4 h-4" /> Llamar
+        <div className="grid grid-cols-3 gap-2">
+          <Button variant="outline" className="gap-1" onClick={() => toast.info(`${t("call")} ${user.name}`)}>
+            <Phone className="w-4 h-4" /> {t("call")}
           </Button>
-          <Button className="flex-1 gap-2" onClick={() => toast.info(`Mensaje a ${user.name} (demo)`)}>
-            <MessageCircle className="w-4 h-4" /> Mensaje
+          <Button variant="outline" className="gap-1" onClick={() => toast.info(`${t("message")} ${user.name}`)}>
+            <MessageCircle className="w-4 h-4" /> {t("message")}
           </Button>
+          {onFollow && user.kind !== "sos" && (
+            <Button className="gap-1" onClick={() => onFollow(user)}>
+              <Navigation className="w-4 h-4" /> {t("follow")}
+            </Button>
+          )}
         </div>
       </div>
     </div>
