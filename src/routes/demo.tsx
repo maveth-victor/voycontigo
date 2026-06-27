@@ -1048,13 +1048,14 @@ function ContactsPanel({
   setContacts: React.Dispatch<React.SetStateAction<DemoMarker[]>>;
   onOpen: (c: DemoMarker) => void;
 }) {
+  const { t } = useT();
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
 
   const addContact = () => {
     if (!name.trim() || !phone.trim()) {
-      toast.error("Completa nombre y teléfono");
+      toast.error(t("fullName") + " / " + t("phone"));
       return;
     }
     if (!/^[+\d\s-]{7,}$/.test(phone.trim())) {
@@ -1080,14 +1081,14 @@ function ContactsPanel({
     <div className="h-full overflow-y-auto px-4 py-4">
       <div className="max-w-md mx-auto space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold">Contactos autorizados</h2>
+          <h2 className="text-lg font-semibold">{t("authorizedContacts")}</h2>
           <Button
             size="sm"
             onClick={() => setShowForm((v) => !v)}
             className="gap-1"
           >
             {showForm ? <X className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
-            {showForm ? "Cerrar" : "Nuevo"}
+            {showForm ? t("close") : t("new")}
           </Button>
         </div>
 
@@ -1096,9 +1097,9 @@ function ContactsPanel({
             className="rounded-2xl bg-card border border-border p-4 space-y-3"
             style={{ boxShadow: "var(--shadow-card)" }}
           >
-            <div className="text-sm font-semibold">Agregar contacto</div>
+            <div className="text-sm font-semibold">{t("addContact")}</div>
             <div className="space-y-2">
-              <label className="text-xs text-muted-foreground">Nombre</label>
+              <label className="text-xs text-muted-foreground">{t("fullName")}</label>
               <Input
                 placeholder="Ej. Laura Gómez"
                 value={name}
@@ -1106,7 +1107,7 @@ function ContactsPanel({
               />
             </div>
             <div className="space-y-2">
-              <label className="text-xs text-muted-foreground">Teléfono</label>
+              <label className="text-xs text-muted-foreground">{t("phone")}</label>
               <Input
                 type="tel"
                 inputMode="tel"
@@ -1117,7 +1118,7 @@ function ContactsPanel({
             </div>
             <Button onClick={addContact} className="w-full gap-2">
               <UserPlus className="w-4 h-4" />
-              Guardar contacto
+              {t("save")}
             </Button>
           </div>
         )}
@@ -1145,7 +1146,7 @@ function ContactsPanel({
           </button>
         ))}
         <div className="text-xs text-muted-foreground text-center pt-2">
-          En la app real puedes enviar y aceptar solicitudes por correo.
+          {t("realAppHint")}
         </div>
       </div>
     </div>
@@ -1153,10 +1154,11 @@ function ContactsPanel({
 }
 
 function HistoryPanel() {
+  const { t } = useT();
   return (
     <div className="h-full overflow-y-auto px-4 py-4">
       <div className="max-w-md mx-auto space-y-3">
-        <h2 className="text-lg font-semibold">Historial (últimos 7 días)</h2>
+        <h2 className="text-lg font-semibold">{t("history7")}</h2>
         {historyLog.map((h, i) => (
           <div
             key={i}
