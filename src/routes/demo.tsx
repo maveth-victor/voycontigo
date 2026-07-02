@@ -764,7 +764,14 @@ function DemoPageInner() {
           user={selectedUser}
           me={me}
           onFollow={(c) => { setTrackingId(c.id); setSelectedUser(null); }}
+          onChat={(c) => { setChatContact(c); setSelectedUser(null); }}
           onClose={() => setSelectedUser(null)}
+        />
+      )}
+      {chatContact && (
+        <ChatSheet
+          contact={chatContact}
+          onClose={() => setChatContact(null)}
         />
       )}
       {trackingId && (
