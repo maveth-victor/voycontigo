@@ -689,12 +689,30 @@ function DemoPageInner() {
             contacts={contacts}
             setContacts={setContacts}
             onOpen={(c) => setSelectedUser(c)}
+            onChat={(c) => setChatContact(c)}
           />
         )}
         {tab === "history" && <HistoryPanel />}
         {tab === "sos" && <SosPanel me={me} onTriggerSos={triggerSos} sosActive={!!sos} />}
         {tab === "forum" && <ForumPanel />}
         {tab === "game" && <GamePanel />}
+        {tab === "premium" && <PremiumPanel />}
+        {tab === "group" && (
+          <GroupChatPanel
+            contacts={contacts}
+            onGroupSos={(from) => {
+              toast.error(`🚨 ${from} pidió ayuda al grupo`);
+              if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+                try {
+                  new Notification("SafeTrack — Ayuda en el grupo", {
+                    body: `${from} necesita ayuda. Toca para ver la ubicación.`,
+                  });
+                } catch {}
+              }
+              contacts.forEach((c) => toast(`Notificando a ${c.name}...`, { duration: 1500 }));
+            }}
+          />
+        )}
         {tab === "admin" && (
           <AdminPanel
             contactsCount={contacts.length}
@@ -716,9 +734,11 @@ function DemoPageInner() {
           {[
             { id: "map" as Tab, icon: MapIcon, label: t("tabMap") },
             { id: "contacts" as Tab, icon: Users, label: t("tabContacts") },
+            { id: "group" as Tab, icon: MessagesSquare, label: "Grupo" },
             { id: "sos" as Tab, icon: Siren, label: t("tabSos") },
             { id: "forum" as Tab, icon: MessageSquare, label: t("tabForum") },
             { id: "game" as Tab, icon: Gamepad2, label: t("tabGame") },
+            { id: "premium" as Tab, icon: Crown, label: "Premium" },
             { id: "history" as Tab, icon: HistoryIcon, label: t("tabHistory") },
             { id: "admin" as Tab, icon: ShieldCheck, label: t("tabAdmin") },
           ].map(({ id, icon: Icon, label }) => {
