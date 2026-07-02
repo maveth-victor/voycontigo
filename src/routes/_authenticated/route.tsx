@@ -147,10 +147,11 @@ function PermissionsGate({ onGranted }: { onGranted: () => void }) {
     }
   };
 
+  // Cámara es OPCIONAL: se pide permiso pero no bloquea el ingreso.
   const allGranted =
-    loc === "granted" && cam === "granted" && net === "granted" && notif === "granted";
+    loc === "granted" && net === "granted" && notif === "granted";
   const anyDenied =
-    loc === "denied" || cam === "denied" || net === "denied" || notif === "denied";
+    loc === "denied" || net === "denied" || notif === "denied";
 
   const handleEnter = () => {
     localStorage.setItem("safetrack-perms", "1");
@@ -191,8 +192,8 @@ function PermissionsGate({ onGranted }: { onGranted: () => void }) {
         />
         <PermRow
           icon={<Camera className="w-5 h-5" />}
-          title="Cámara"
-          desc="Para fotos de evidencia y reseñas de lugares."
+          title="Cámara (opcional)"
+          desc="Solo se usa para fotos de evidencia y reseñas. Puedes entrar sin aceptarla."
           state={cam}
           onAction={askCamera}
           actionLabel="Permitir cámara"
@@ -240,7 +241,7 @@ function PermissionsGate({ onGranted }: { onGranted: () => void }) {
               <CheckCircle2 className="w-5 h-5" /> Entrar a SafeTrack
             </>
           ) : (
-            "Conceda todos los permisos"
+            "Conceda los permisos necesarios"
           )}
         </Button>
       </div>
