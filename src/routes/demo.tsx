@@ -1080,10 +1080,12 @@ function ContactsPanel({
   contacts,
   setContacts,
   onOpen,
+  onChat,
 }: {
   contacts: DemoMarker[];
   setContacts: React.Dispatch<React.SetStateAction<DemoMarker[]>>;
   onOpen: (c: DemoMarker) => void;
+  onChat: (c: DemoMarker) => void;
 }) {
   const { t } = useT();
   const [showForm, setShowForm] = useState(false);
@@ -1161,26 +1163,33 @@ function ContactsPanel({
         )}
 
         {contacts.map((c) => (
-          <button
+          <div
             key={c.id}
-            onClick={() => onOpen(c)}
-            className="w-full text-left flex items-center gap-3 p-3 rounded-2xl bg-card border border-border hover:border-primary/40 transition-colors"
+            className="flex items-center gap-2 p-3 rounded-2xl bg-card border border-border hover:border-primary/40 transition-colors"
           >
-            <div
-              className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold"
-              style={{ background: "var(--gradient-brand)" }}
-            >
-              {c.name[0]}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="font-medium truncate">{c.name}</div>
-              <div className="text-xs text-muted-foreground flex items-center gap-1">
-                <MapPin className="w-3 h-3" />
-                {c.lat.toFixed(4)}, {c.lng.toFixed(4)} · {c.updated}
+            <button onClick={() => onOpen(c)} className="flex items-center gap-3 flex-1 min-w-0 text-left">
+              <div
+                className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold"
+                style={{ background: "var(--gradient-brand)" }}
+              >
+                {c.name[0]}
               </div>
-            </div>
-            <ChevronRight className="w-5 h-5 text-muted-foreground" />
-          </button>
+              <div className="flex-1 min-w-0">
+                <div className="font-medium truncate">{c.name}</div>
+                <div className="text-xs text-muted-foreground flex items-center gap-1">
+                  <MapPin className="w-3 h-3" />
+                  {c.lat.toFixed(4)}, {c.lng.toFixed(4)} · {c.updated}
+                </div>
+              </div>
+            </button>
+            <button
+              onClick={() => onChat(c)}
+              title={`Chatear con ${c.name}`}
+              className="shrink-0 w-9 h-9 rounded-xl bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground flex items-center justify-center"
+            >
+              <MessageCircle className="w-4 h-4" />
+            </button>
+          </div>
         ))}
         <div className="text-xs text-muted-foreground text-center pt-2">
           {t("realAppHint")}
