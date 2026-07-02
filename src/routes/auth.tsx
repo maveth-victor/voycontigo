@@ -40,7 +40,7 @@ function AuthPage() {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -48,9 +48,20 @@ function AuthPage() {
         data: { full_name: fullName, phone },
       },
     });
+    if (error) {
+      setBusy(false);
+      return toast.error(error.message);
+    }
+    if (!data.session) {
+      const { error: signInErr } = await supabase.auth.signInWithPassword({ email, password });
+      if (signInErr) {
+        setBusy(false);
+        return toast.error(signInErr.message);
+      }
+    }
     setBusy(false);
-    if (error) return toast.error(error.message);
-    toast.success("Cuenta creada. Revisa tu correo para confirmar.");
+    toast.success("Cuenta creada. Bienvenido a SafeTrack");
+    navigate({ to: "/map" });
   };
 
   return (

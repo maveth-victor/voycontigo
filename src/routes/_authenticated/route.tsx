@@ -37,12 +37,61 @@ function AuthenticatedLayout() {
     return <PermissionsGate onGranted={() => setPermsGranted(true)} />;
   }
 
-  return <Outlet />;
+  return (
+    <>
+      <SosNotifier />
+      <Outlet />
+    </>
+  );
+}
+
+function SosNotifier() {
+  useEffect(() => {
+    const ch = supabase
+      .channel("sos-notify")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "sos_alerts" },
+        async (payload) => {
+          const row = payload.new as { user_id: string };
+          const { data: me } = await supabase.auth.getUser();
+          if (!me.user || me.user.id === row.user_id) return;
+          const { data: p } = await supabase
+            .from("profiles")
+            .select("full_name")
+            .eq("id", row.user_id)
+            .maybeSingle();
+          const name = p?.full_name ?? "Un contacto";
+          const msg = `Alerta: ${name} necesita ayuda`;
+          toast.error(msg);
+          if (
+            typeof window !== "undefined" &&
+            "Notification" in window &&
+            Notification.permission === "granted"
+          ) {
+            new Notification("SafeTrack SOS", { body: msg });
+          }
+        },
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(ch);
+    };
+  }, []);
+  return null;
 }
 
 function PermissionsGate({ onGranted }: { onGranted: () => void }) {
   const [loc, setLoc] = useState<PermState>("idle");
   const [cam, setCam] = useState<PermState>("idle");
+  const [notif, setNotif] = useState<PermState>(() => {
+    if (typeof window === "undefined" || !("Notification" in window)) return "denied";
+    return Notification.permission === "granted"
+      ? "granted"
+      : Notification.permission === "denied"
+        ? "denied"
+        : "idle";
+  });
   const [net, setNet] = useState<PermState>(
     typeof navigator !== "undefined" && navigator.onLine ? "granted" : "denied",
   );
@@ -80,6 +129,17 @@ function PermissionsGate({ onGranted }: { onGranted: () => void }) {
     }
   };
 
+  const askNotif = async () => {
+    if (!("Notification" in window)) return setNotif("denied");
+    setNotif("checking");
+    try {
+      const r = await Notification.requestPermission();
+      setNotif(r === "granted" ? "granted" : "denied");
+    } catch {
+      setNotif("denied");
+    }
+  };
+
   const retryNet = () => {
     setNet(navigator.onLine ? "granted" : "denied");
     if (!navigator.onLine) {
@@ -87,8 +147,10 @@ function PermissionsGate({ onGranted }: { onGranted: () => void }) {
     }
   };
 
-  const allGranted = loc === "granted" && cam === "granted" && net === "granted";
-  const anyDenied = loc === "denied" || cam === "denied" || net === "denied";
+  const allGranted =
+    loc === "granted" && cam === "granted" && net === "granted" && notif === "granted";
+  const anyDenied =
+    loc === "denied" || cam === "denied" || net === "denied" || notif === "denied";
 
   const handleEnter = () => {
     localStorage.setItem("safetrack-perms", "1");
@@ -134,6 +196,14 @@ function PermissionsGate({ onGranted }: { onGranted: () => void }) {
           state={cam}
           onAction={askCamera}
           actionLabel="Permitir cámara"
+        />
+        <PermRow
+          icon={<Shield className="w-5 h-5" />}
+          title="Notificaciones"
+          desc="Para avisarte al instante cuando un contacto envía una alerta SOS."
+          state={notif}
+          onAction={askNotif}
+          actionLabel="Permitir notificaciones"
         />
         <PermRow
           icon={net === "granted" ? <Wifi className="w-5 h-5" /> : <WifiOff className="w-5 h-5" />}

@@ -50,8 +50,9 @@ type Tab = "map" | "contacts" | "history" | "sos" | "forum" | "game" | "admin";
 // ============================================================================
 // i18n: idiomas para TODA la app demo
 // ============================================================================
-type Lang = "es" | "en" | "qu";
-const DICT: Record<Lang, Record<string, string>> = {
+type Lang = "es" | "en" | "qu" | "pt" | "fr" | "it" | "de";
+const DICT: Record<Lang, Record<string, string>> = {} as Record<Lang, Record<string, string>>;
+const _BASE_DICT: Partial<Record<Lang, Record<string, string>>> = {
   es: {
     appTitle: "SafeTrack · Demo",
     back: "Volver",
@@ -314,6 +315,12 @@ const DICT: Record<Lang, Record<string, string>> = {
     level: "Nivel",
   },
 };
+Object.assign(DICT, _BASE_DICT);
+// Fallback languages inherit from English until fully translated
+DICT.pt = { ...DICT.en, appTitle: "SafeTrack · Demo", back: "Voltar", tabMap: "Mapa", tabContacts: "Contatos", tabForum: "Fórum", tabGame: "Jogo", tabHistory: "Histórico", tabAdmin: "Admin", language: "Idioma", legend: "Legenda", you: "Você", contacts: "Contatos", sosAlert: "Alerta SOS", new: "Novo", close: "Fechar", addContact: "Adicionar contato", fullName: "Nome", phone: "Telefone", save: "Salvar contato", askHelp: "Pedir ajuda", emergencyBtn: "BOTÃO DE EMERGÊNCIA", alertSent: "Alerta enviada", safeZonesTitle: "Zonas seguras próximas", goNow: "Ir agora", forumTitle: "Fórum de avaliações", publish: "Publicar", published: "Avaliação publicada", profile: "Perfil", adminTitle: "Painel de admin", connected: "Conectados", alerts: "Alertas", online: "Online", follow: "Seguir ao vivo", needHelpToast: "Alerta: {name} precisa de ajuda", jump: "PULAR", level: "Nível", playAgain: "Jogar de novo", retry: "Tentar" };
+DICT.fr = { ...DICT.en, appTitle: "SafeTrack · Démo", back: "Retour", tabMap: "Carte", tabContacts: "Contacts", tabForum: "Forum", tabGame: "Jeu", tabHistory: "Historique", tabAdmin: "Admin", language: "Langue", legend: "Légende", you: "Toi", contacts: "Contacts", sosAlert: "Alerte SOS", new: "Nouveau", close: "Fermer", addContact: "Ajouter un contact", fullName: "Nom", phone: "Téléphone", save: "Enregistrer", askHelp: "Demander de l'aide", emergencyBtn: "BOUTON D'URGENCE", alertSent: "Alerte envoyée", safeZonesTitle: "Zones sûres à proximité", goNow: "Y aller", forumTitle: "Forum d'avis", publish: "Publier", published: "Avis publié", profile: "Profil", adminTitle: "Panneau admin", connected: "Connectés", alerts: "Alertes", online: "En ligne", follow: "Suivre en direct", needHelpToast: "Alerte : {name} a besoin d'aide", jump: "SAUTER", level: "Niveau", playAgain: "Rejouer", retry: "Réessayer" };
+DICT.it = { ...DICT.en, appTitle: "SafeTrack · Demo", back: "Indietro", tabMap: "Mappa", tabContacts: "Contatti", tabForum: "Forum", tabGame: "Gioco", tabHistory: "Cronologia", tabAdmin: "Admin", language: "Lingua", legend: "Legenda", you: "Tu", contacts: "Contatti", sosAlert: "Allarme SOS", new: "Nuovo", close: "Chiudi", addContact: "Aggiungi contatto", fullName: "Nome", phone: "Telefono", save: "Salva contatto", askHelp: "Chiedi aiuto", emergencyBtn: "PULSANTE DI EMERGENZA", alertSent: "Allarme inviato", safeZonesTitle: "Zone sicure vicine", goNow: "Vai ora", forumTitle: "Forum recensioni", publish: "Pubblica", published: "Recensione pubblicata", profile: "Profilo", adminTitle: "Pannello admin", connected: "Connessi", alerts: "Allarmi", online: "Online", follow: "Segui dal vivo", needHelpToast: "Allarme: {name} ha bisogno di aiuto", jump: "SALTA", level: "Livello", playAgain: "Rigioca", retry: "Riprova" };
+DICT.de = { ...DICT.en, appTitle: "SafeTrack · Demo", back: "Zurück", tabMap: "Karte", tabContacts: "Kontakte", tabForum: "Forum", tabGame: "Spiel", tabHistory: "Verlauf", tabAdmin: "Admin", language: "Sprache", legend: "Legende", you: "Du", contacts: "Kontakte", sosAlert: "SOS-Alarm", new: "Neu", close: "Schließen", addContact: "Kontakt hinzufügen", fullName: "Name", phone: "Telefon", save: "Kontakt speichern", askHelp: "Hilfe rufen", emergencyBtn: "NOTFALLKNOPF", alertSent: "Alarm gesendet", safeZonesTitle: "Sichere Zonen in der Nähe", goNow: "Jetzt hin", forumTitle: "Bewertungsforum", publish: "Veröffentlichen", published: "Bewertung veröffentlicht", profile: "Profil", adminTitle: "Admin-Panel", connected: "Verbunden", alerts: "Alarme", online: "Online", follow: "Live folgen", needHelpToast: "Alarm: {name} braucht Hilfe", jump: "SPRINGEN", level: "Level", playAgain: "Nochmal spielen", retry: "Erneut" };
 
 const LangCtx = React.createContext<{ lang: Lang; setLang: (l: Lang) => void; t: (k: string, vars?: Record<string, string | number>) => string }>({
   lang: "es",
@@ -643,8 +650,8 @@ function DemoPageInner() {
               {me.lat.toFixed(4)}, {me.lng.toFixed(4)}
             </div>
           </div>
-          <div className="flex items-center gap-1">
-            {(["es","en","qu"] as Lang[]).map((l) => (
+          <div className="flex items-center gap-1 flex-wrap justify-end max-w-[180px]">
+            {(["es","en","qu","pt","fr","it","de"] as Lang[]).map((l) => (
               <button
                 key={l}
                 onClick={() => setLang(l)}
@@ -1200,6 +1207,10 @@ function AdminPanel({
     { code: "es", label: "Español", flag: "🇵🇪" },
     { code: "en", label: "English", flag: "🇺🇸" },
     { code: "qu", label: "Quechua", flag: "🪶" },
+    { code: "pt", label: "Português", flag: "🇧🇷" },
+    { code: "fr", label: "Français", flag: "🇫🇷" },
+    { code: "it", label: "Italiano", flag: "🇮🇹" },
+    { code: "de", label: "Deutsch", flag: "🇩🇪" },
   ];
   return (
     <div className="h-full overflow-y-auto px-4 py-4">
