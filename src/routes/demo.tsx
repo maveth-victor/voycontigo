@@ -650,8 +650,8 @@ function DemoPageInner() {
               {me.lat.toFixed(4)}, {me.lng.toFixed(4)}
             </div>
           </div>
-          <div className="flex items-center gap-1">
-            {(["es","en","qu"] as Lang[]).map((l) => (
+          <div className="flex items-center gap-1 flex-wrap justify-end max-w-[180px]">
+            {(["es","en","qu","pt","fr","it","de"] as Lang[]).map((l) => (
               <button
                 key={l}
                 onClick={() => setLang(l)}
@@ -1207,6 +1207,10 @@ function AdminPanel({
     { code: "es", label: "Español", flag: "🇵🇪" },
     { code: "en", label: "English", flag: "🇺🇸" },
     { code: "qu", label: "Quechua", flag: "🪶" },
+    { code: "pt", label: "Português", flag: "🇧🇷" },
+    { code: "fr", label: "Français", flag: "🇫🇷" },
+    { code: "it", label: "Italiano", flag: "🇮🇹" },
+    { code: "de", label: "Deutsch", flag: "🇩🇪" },
   ];
   return (
     <div className="h-full overflow-y-auto px-4 py-4">
