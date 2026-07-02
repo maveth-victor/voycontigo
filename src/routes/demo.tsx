@@ -2400,3 +2400,303 @@ function GamePanel() {
     </div>
   );
 }
+
+// ============================================================================
+// Acciones Premium (S/) — merchandising e innovaciones de pago
+// ============================================================================
+type PremiumItem = {
+  id: string;
+  name: string;
+  desc: string;
+  price: number; // soles
+  badge?: string;
+  icon: React.ComponentType<{ className?: string }>;
+};
+
+const PREMIUM_ITEMS: PremiumItem[] = [
+  { id: "plush", name: "Peluche SafeTrack Guardián", desc: "Peluche oficial 25 cm con bolsillo interior para llavero GPS. Edición Perú.", price: 49.90, badge: "Nuevo", icon: ShoppingBag },
+  { id: "sticker", name: "Pack de stickers SafeTrack", desc: "12 stickers holográficos resistentes al agua para mochila y casco.", price: 12.90, icon: Sparkles },
+  { id: "band", name: "Pulsera Panic Band Pro", desc: "Pulsera con botón físico que activa SOS al presionar 3 segundos.", price: 89.90, badge: "Innovador", icon: Siren },
+  { id: "keychain", name: "Llavero GPS mini", desc: "Localizador Bluetooth con alerta antipérdida y sonido.", price: 59.00, icon: MapPin },
+  { id: "family", name: "SafeTrack Familiar (mensual)", desc: "Hasta 8 miembros, historial 30 días y zonas seguras ilimitadas.", price: 9.90, badge: "Suscripción", icon: Crown },
+  { id: "pro", name: "SafeTrack Pro (anual)", desc: "Todo lo del plan familiar + soporte prioritario 24/7 y rutas seguras IA.", price: 79.00, badge: "Anual", icon: ShieldCheck },
+];
+
+function formatSol(n: number) {
+  return `S/ ${n.toFixed(2).replace(/\.00$/, "")}`;
+}
+
+function PremiumPanel() {
+  return (
+    <div className="h-full overflow-y-auto px-4 py-4">
+      <div className="max-w-md mx-auto space-y-3">
+        <div className="flex items-center gap-2">
+          <Crown className="w-5 h-5 text-primary" />
+          <h2 className="text-lg font-semibold">Acciones Premium</h2>
+        </div>
+        <p className="text-xs text-muted-foreground">
+          Merchandising oficial y funciones innovadoras. Precios en soles peruanos (S/).
+          Los pagos reales se procesan al enlazar el aplicativo con tu método de pago.
+        </p>
+        {PREMIUM_ITEMS.map((it) => (
+          <div
+            key={it.id}
+            className="flex items-start gap-3 p-3 rounded-2xl bg-card border border-border"
+            style={{ boxShadow: "var(--shadow-card)" }}
+          >
+            <div
+              className="w-12 h-12 rounded-2xl flex items-center justify-center text-white shrink-0"
+              style={{ background: "var(--gradient-brand)" }}
+            >
+              <it.icon className="w-6 h-6" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <div className="font-semibold text-sm truncate">{it.name}</div>
+                {it.badge && (
+                  <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-semibold shrink-0">
+                    {it.badge}
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground mt-0.5">{it.desc}</p>
+              <div className="flex items-center justify-between mt-2">
+                <div className="text-base font-bold text-primary">{formatSol(it.price)}</div>
+                <Button
+                  size="sm"
+                  onClick={() =>
+                    toast.success(`Pedido: ${it.name}`, {
+                      description: `Total: ${formatSol(it.price)}. Al registrarte podrás completar el pago.`,
+                    })
+                  }
+                >
+                  Comprar
+                </Button>
+              </div>
+            </div>
+          </div>
+        ))}
+        <div className="text-[11px] text-muted-foreground text-center pt-2">
+          Envío gratuito a Lima Metropolitana en compras mayores a S/ 80.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// Chat individual con contacto
+// ============================================================================
+type ChatMsg = { id: string; from: "me" | "them"; text: string; t: string };
+
+function ChatSheet({ contact, onClose }: { contact: DemoMarker; onClose: () => void }) {
+  const [msgs, setMsgs] = useState<ChatMsg[]>([
+    { id: "m1", from: "them", text: `Hola, soy ${contact.name} 👋`, t: "hace 2 min" },
+  ]);
+  const [text, setText] = useState("");
+
+  const send = () => {
+    const v = text.trim();
+    if (!v) return;
+    const time = new Date().toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" });
+    setMsgs((m) => [...m, { id: `m${Date.now()}`, from: "me", text: v, t: time }]);
+    setText("");
+    setTimeout(() => {
+      setMsgs((m) => [
+        ...m,
+        { id: `m${Date.now() + 1}`, from: "them", text: "Recibido, gracias 🙌", t: time },
+      ]);
+    }, 900);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm" onClick={onClose}>
+      <div
+        className="relative z-[10000] w-full max-w-md h-[85vh] sm:h-[600px] bg-card border border-border rounded-t-3xl sm:rounded-3xl flex flex-col overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center gap-3 p-4 border-b border-border">
+          <div
+            className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold"
+            style={{ background: "var(--gradient-brand)" }}
+          >
+            {contact.name[0]}
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="font-semibold truncate">{contact.name}</div>
+            <div className="text-[11px] text-emerald-600">en línea</div>
+          </div>
+          <button onClick={onClose} className="w-9 h-9 rounded-xl bg-muted flex items-center justify-center">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-4 space-y-2 bg-muted/30">
+          {msgs.map((m) => (
+            <div
+              key={m.id}
+              className={`max-w-[75%] p-2.5 rounded-2xl text-sm ${
+                m.from === "me"
+                  ? "ml-auto bg-primary text-primary-foreground rounded-br-sm"
+                  : "bg-card border border-border rounded-bl-sm"
+              }`}
+            >
+              <div>{m.text}</div>
+              <div className={`text-[10px] mt-1 ${m.from === "me" ? "text-primary-foreground/70" : "text-muted-foreground"}`}>
+                {m.t}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            send();
+          }}
+          className="p-3 border-t border-border flex items-center gap-2"
+        >
+          <Input
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder="Escribe un mensaje..."
+          />
+          <Button type="submit" size="icon">
+            <Send className="w-4 h-4" />
+          </Button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
+// Chat grupal con botón SOS al grupo
+// ============================================================================
+type GroupMsg = {
+  id: string;
+  author: string;
+  text: string;
+  t: string;
+  kind: "text" | "place" | "review" | "sos";
+};
+
+function GroupChatPanel({
+  contacts,
+  onGroupSos,
+}: {
+  contacts: DemoMarker[];
+  onGroupSos: (from: string) => void;
+}) {
+  const [msgs, setMsgs] = useState<GroupMsg[]>([
+    { id: "g1", author: "María López", kind: "text", text: "¡Hola grupo! Nos vemos hoy 7pm en Parque Kennedy 📍", t: "hace 10 min" },
+    { id: "g2", author: "Carlos Pérez", kind: "review", text: "Reseña confiable ⭐⭐⭐⭐⭐ Cafetería Tostaduría Bisetti — segura y bien iluminada.", t: "hace 5 min" },
+  ]);
+  const [text, setText] = useState("");
+  const [groupName, setGroupName] = useState("Familia SafeTrack");
+
+  const now = () => new Date().toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" });
+
+  const send = (kind: GroupMsg["kind"], overrideText?: string) => {
+    const v = (overrideText ?? text).trim();
+    if (!v) return;
+    setMsgs((m) => [...m, { id: `g${Date.now()}`, author: "Tú (Demo)", kind, text: v, t: now() }]);
+    setText("");
+  };
+
+  const sendPlace = () => send("place", "📍 Ubicación compartida: Av. Larco 345, Miraflores");
+  const sendReview = () => send("review", "⭐⭐⭐⭐ Reseña: Farmacia Inkafarma San Isidro — atención rápida.");
+
+  const askHelp = () => {
+    setMsgs((m) => [
+      ...m,
+      {
+        id: `g${Date.now()}`,
+        author: "Tú (Demo)",
+        kind: "sos",
+        text: "🚨 ¡Necesito ayuda! Estoy en mi ubicación actual.",
+        t: now(),
+      },
+    ]);
+    onGroupSos("Tú (Demo)");
+  };
+
+  return (
+    <div className="h-full flex flex-col">
+      <div className="max-w-md w-full mx-auto flex flex-col h-full">
+        <div className="px-4 pt-4 pb-3 border-b border-border bg-card/70">
+          <div className="flex items-center gap-2">
+            <MessagesSquare className="w-5 h-5 text-primary" />
+            <Input
+              value={groupName}
+              onChange={(e) => setGroupName(e.target.value)}
+              className="h-8 font-semibold"
+            />
+          </div>
+          <div className="text-[11px] text-muted-foreground mt-1">
+            {contacts.length + 1} miembros · {contacts.map((c) => c.name.split(" ")[0]).join(", ")}, Tú
+          </div>
+          <Button
+            onClick={askHelp}
+            className="w-full mt-3 gap-2 bg-red-600 hover:bg-red-700 text-white"
+          >
+            <Siren className="w-4 h-4" />
+            Pedir ayuda al grupo
+          </Button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto p-4 space-y-2 bg-muted/30">
+          {msgs.map((m) => {
+            const mine = m.author === "Tú (Demo)";
+            const bg =
+              m.kind === "sos"
+                ? "bg-red-500 text-white"
+                : mine
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-card border border-border";
+            return (
+              <div key={m.id} className={`max-w-[80%] ${mine ? "ml-auto" : ""}`}>
+                {!mine && (
+                  <div className="text-[10px] font-semibold text-primary mb-0.5 px-1">{m.author}</div>
+                )}
+                <div className={`p-2.5 rounded-2xl text-sm ${bg}`}>
+                  <div>{m.text}</div>
+                  <div className={`text-[10px] mt-1 ${mine || m.kind === "sos" ? "opacity-80" : "text-muted-foreground"}`}>
+                    {m.t}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="p-3 border-t border-border space-y-2 bg-card/70">
+          <div className="flex gap-2">
+            <Button size="sm" variant="outline" className="flex-1 gap-1" onClick={sendPlace}>
+              <MapPin className="w-3.5 h-3.5" /> Lugar
+            </Button>
+            <Button size="sm" variant="outline" className="flex-1 gap-1" onClick={sendReview}>
+              <Star className="w-3.5 h-3.5" /> Reseña
+            </Button>
+          </div>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              send("text");
+            }}
+            className="flex items-center gap-2"
+          >
+            <Input
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="Escribe al grupo..."
+            />
+            <Button type="submit" size="icon">
+              <Send className="w-4 h-4" />
+            </Button>
+          </form>
+        </div>
+      </div>
+    </div>
+  );
+}
