@@ -533,6 +533,7 @@ function DemoPageInner() {
   const [trails, setTrails] = useState<Record<string, [number, number][]>>(() =>
     Object.fromEntries(baseContacts.map((c) => [c.id, [[c.lat, c.lng]]])),
   );
+  const [chatContact, setChatContact] = useState<DemoMarker | null>(null);
 
   // Simulate live movement every 2s
   useEffect(() => {
