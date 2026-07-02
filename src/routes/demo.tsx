@@ -30,7 +30,7 @@ import {
   Settings,
   Save,
 } from "lucide-react";
-import { Gamepad2, Languages, Store, Home, Cross } from "lucide-react";
+import { Gamepad2, Languages, Store, Home, Cross, Crown, MessagesSquare, ShoppingBag, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
@@ -45,7 +45,7 @@ export const Route = createFileRoute("/demo")({
   component: DemoPage,
 });
 
-type Tab = "map" | "contacts" | "history" | "sos" | "forum" | "game" | "admin";
+type Tab = "map" | "contacts" | "history" | "sos" | "forum" | "game" | "admin" | "premium" | "group";
 
 // ============================================================================
 // i18n: idiomas para TODA la app demo
