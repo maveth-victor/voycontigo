@@ -51,7 +51,8 @@ type Tab = "map" | "contacts" | "history" | "sos" | "forum" | "game" | "admin";
 // i18n: idiomas para TODA la app demo
 // ============================================================================
 type Lang = "es" | "en" | "qu" | "pt" | "fr" | "it" | "de";
-const DICT: Record<Lang, Record<string, string>> = {
+const DICT: Record<Lang, Record<string, string>> = {} as Record<Lang, Record<string, string>>;
+const _BASE_DICT: Partial<Record<Lang, Record<string, string>>> = {
   es: {
     appTitle: "SafeTrack · Demo",
     back: "Volver",
