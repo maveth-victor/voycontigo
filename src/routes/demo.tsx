@@ -50,7 +50,7 @@ type Tab = "map" | "contacts" | "history" | "sos" | "forum" | "game" | "admin";
 // ============================================================================
 // i18n: idiomas para TODA la app demo
 // ============================================================================
-type Lang = "es" | "en" | "qu";
+type Lang = "es" | "en" | "qu" | "pt" | "fr" | "it" | "de";
 const DICT: Record<Lang, Record<string, string>> = {
   es: {
     appTitle: "SafeTrack · Demo",
