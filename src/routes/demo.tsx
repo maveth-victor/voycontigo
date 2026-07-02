@@ -873,11 +873,13 @@ function UserProfileSheet({
   me,
   onClose,
   onFollow,
+  onChat,
 }: {
   user: DemoMarker;
   me: { lat: number; lng: number };
   onClose: () => void;
   onFollow?: (u: DemoMarker) => void;
+  onChat?: (u: DemoMarker) => void;
 }) {
   const { t } = useT();
   const dist = haversineMeters(me, user);
@@ -965,7 +967,7 @@ function UserProfileSheet({
           <Button variant="outline" className="gap-1" onClick={() => toast.info(`${t("call")} ${user.name}`)}>
             <Phone className="w-4 h-4" /> {t("call")}
           </Button>
-          <Button variant="outline" className="gap-1" onClick={() => toast.info(`${t("message")} ${user.name}`)}>
+          <Button variant="outline" className="gap-1" onClick={() => onChat?.(user)}>
             <MessageCircle className="w-4 h-4" /> {t("message")}
           </Button>
           {onFollow && user.kind !== "sos" && (
