@@ -35,7 +35,7 @@ function MapPage() {
             <Shield className="w-5 h-5 text-primary-foreground" />
           </div>
           <div className="flex-1">
-            <div className="font-semibold leading-tight">SafeTrack</div>
+            <div className="font-semibold leading-tight">VoyContigo</div>
             <div className="text-[11px] text-muted-foreground flex items-center gap-1">
               <MapPin className="w-3 h-3" />
               {permission === "granted"

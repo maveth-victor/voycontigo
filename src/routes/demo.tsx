@@ -54,7 +54,7 @@ type Lang = "es" | "en" | "qu" | "pt" | "fr" | "it" | "de";
 const DICT: Record<Lang, Record<string, string>> = {} as Record<Lang, Record<string, string>>;
 const _BASE_DICT: Partial<Record<Lang, Record<string, string>>> = {
   es: {
-    appTitle: "SafeTrack · Demo",
+    appTitle: "VoyContigo · Demo",
     back: "Volver",
     demoBadge: "DEMO",
     tabMap: "Mapa",
@@ -128,7 +128,7 @@ const _BASE_DICT: Partial<Record<Lang, Record<string, string>>> = {
     needHelpToast: "Alerta: {name} necesita ayuda",
     redDotHint: "Toca el punto rojo en el mapa para ver su ubicación.",
     sosToContacts: "🚨 Alerta SOS enviada a tus contactos",
-    gameTitle: "SafeTrack Runner",
+    gameTitle: "VoyContigo Runner",
     nextLevel: "Siguiente nivel",
     levelDone: "¡Nivel superado!",
     gameDone: "¡Felicidades, completaste el juego!",
@@ -141,7 +141,7 @@ const _BASE_DICT: Partial<Record<Lang, Record<string, string>>> = {
     level: "Nivel",
   },
   en: {
-    appTitle: "SafeTrack · Demo",
+    appTitle: "VoyContigo · Demo",
     back: "Back",
     demoBadge: "DEMO",
     tabMap: "Map",
@@ -215,7 +215,7 @@ const _BASE_DICT: Partial<Record<Lang, Record<string, string>>> = {
     needHelpToast: "Alert: {name} needs help",
     redDotHint: "Tap the red dot on the map to see their location.",
     sosToContacts: "🚨 SOS alert sent to your contacts",
-    gameTitle: "SafeTrack Runner",
+    gameTitle: "VoyContigo Runner",
     nextLevel: "Next level",
     levelDone: "Level completed!",
     gameDone: "Congrats, you finished the game!",
@@ -228,7 +228,7 @@ const _BASE_DICT: Partial<Record<Lang, Record<string, string>>> = {
     level: "Level",
   },
   qu: {
-    appTitle: "SafeTrack · Qhawana",
+    appTitle: "VoyContigo · Qhawana",
     back: "Kutiy",
     demoBadge: "QHAWANA",
     tabMap: "Mapa",
@@ -302,7 +302,7 @@ const _BASE_DICT: Partial<Record<Lang, Record<string, string>>> = {
     needHelpToast: "Willakuy: {name} yanapayta munan",
     redDotHint: "Mapapi puka muyuta ñit'iy k'itinta qhawanapaq.",
     sosToContacts: "🚨 SOS willakuy riqsisqaykiman apachisqa",
-    gameTitle: "SafeTrack Runner",
+    gameTitle: "VoyContigo Runner",
     nextLevel: "Hina nivel",
     levelDone: "¡Nivel atisqa!",
     gameDone: "¡Allinmi, pukllayta tukunki!",
@@ -317,10 +317,10 @@ const _BASE_DICT: Partial<Record<Lang, Record<string, string>>> = {
 };
 Object.assign(DICT, _BASE_DICT);
 // Fallback languages inherit from English until fully translated
-DICT.pt = { ...DICT.en, appTitle: "SafeTrack · Demo", back: "Voltar", tabMap: "Mapa", tabContacts: "Contatos", tabForum: "Fórum", tabGame: "Jogo", tabHistory: "Histórico", tabAdmin: "Admin", language: "Idioma", legend: "Legenda", you: "Você", contacts: "Contatos", sosAlert: "Alerta SOS", new: "Novo", close: "Fechar", addContact: "Adicionar contato", fullName: "Nome", phone: "Telefone", save: "Salvar contato", askHelp: "Pedir ajuda", emergencyBtn: "BOTÃO DE EMERGÊNCIA", alertSent: "Alerta enviada", safeZonesTitle: "Zonas seguras próximas", goNow: "Ir agora", forumTitle: "Fórum de avaliações", publish: "Publicar", published: "Avaliação publicada", profile: "Perfil", adminTitle: "Painel de admin", connected: "Conectados", alerts: "Alertas", online: "Online", follow: "Seguir ao vivo", needHelpToast: "Alerta: {name} precisa de ajuda", jump: "PULAR", level: "Nível", playAgain: "Jogar de novo", retry: "Tentar" };
-DICT.fr = { ...DICT.en, appTitle: "SafeTrack · Démo", back: "Retour", tabMap: "Carte", tabContacts: "Contacts", tabForum: "Forum", tabGame: "Jeu", tabHistory: "Historique", tabAdmin: "Admin", language: "Langue", legend: "Légende", you: "Toi", contacts: "Contacts", sosAlert: "Alerte SOS", new: "Nouveau", close: "Fermer", addContact: "Ajouter un contact", fullName: "Nom", phone: "Téléphone", save: "Enregistrer", askHelp: "Demander de l'aide", emergencyBtn: "BOUTON D'URGENCE", alertSent: "Alerte envoyée", safeZonesTitle: "Zones sûres à proximité", goNow: "Y aller", forumTitle: "Forum d'avis", publish: "Publier", published: "Avis publié", profile: "Profil", adminTitle: "Panneau admin", connected: "Connectés", alerts: "Alertes", online: "En ligne", follow: "Suivre en direct", needHelpToast: "Alerte : {name} a besoin d'aide", jump: "SAUTER", level: "Niveau", playAgain: "Rejouer", retry: "Réessayer" };
-DICT.it = { ...DICT.en, appTitle: "SafeTrack · Demo", back: "Indietro", tabMap: "Mappa", tabContacts: "Contatti", tabForum: "Forum", tabGame: "Gioco", tabHistory: "Cronologia", tabAdmin: "Admin", language: "Lingua", legend: "Legenda", you: "Tu", contacts: "Contatti", sosAlert: "Allarme SOS", new: "Nuovo", close: "Chiudi", addContact: "Aggiungi contatto", fullName: "Nome", phone: "Telefono", save: "Salva contatto", askHelp: "Chiedi aiuto", emergencyBtn: "PULSANTE DI EMERGENZA", alertSent: "Allarme inviato", safeZonesTitle: "Zone sicure vicine", goNow: "Vai ora", forumTitle: "Forum recensioni", publish: "Pubblica", published: "Recensione pubblicata", profile: "Profilo", adminTitle: "Pannello admin", connected: "Connessi", alerts: "Allarmi", online: "Online", follow: "Segui dal vivo", needHelpToast: "Allarme: {name} ha bisogno di aiuto", jump: "SALTA", level: "Livello", playAgain: "Rigioca", retry: "Riprova" };
-DICT.de = { ...DICT.en, appTitle: "SafeTrack · Demo", back: "Zurück", tabMap: "Karte", tabContacts: "Kontakte", tabForum: "Forum", tabGame: "Spiel", tabHistory: "Verlauf", tabAdmin: "Admin", language: "Sprache", legend: "Legende", you: "Du", contacts: "Kontakte", sosAlert: "SOS-Alarm", new: "Neu", close: "Schließen", addContact: "Kontakt hinzufügen", fullName: "Name", phone: "Telefon", save: "Kontakt speichern", askHelp: "Hilfe rufen", emergencyBtn: "NOTFALLKNOPF", alertSent: "Alarm gesendet", safeZonesTitle: "Sichere Zonen in der Nähe", goNow: "Jetzt hin", forumTitle: "Bewertungsforum", publish: "Veröffentlichen", published: "Bewertung veröffentlicht", profile: "Profil", adminTitle: "Admin-Panel", connected: "Verbunden", alerts: "Alarme", online: "Online", follow: "Live folgen", needHelpToast: "Alarm: {name} braucht Hilfe", jump: "SPRINGEN", level: "Level", playAgain: "Nochmal spielen", retry: "Erneut" };
+DICT.pt = { ...DICT.en, appTitle: "VoyContigo · Demo", back: "Voltar", tabMap: "Mapa", tabContacts: "Contatos", tabForum: "Fórum", tabGame: "Jogo", tabHistory: "Histórico", tabAdmin: "Admin", language: "Idioma", legend: "Legenda", you: "Você", contacts: "Contatos", sosAlert: "Alerta SOS", new: "Novo", close: "Fechar", addContact: "Adicionar contato", fullName: "Nome", phone: "Telefone", save: "Salvar contato", askHelp: "Pedir ajuda", emergencyBtn: "BOTÃO DE EMERGÊNCIA", alertSent: "Alerta enviada", safeZonesTitle: "Zonas seguras próximas", goNow: "Ir agora", forumTitle: "Fórum de avaliações", publish: "Publicar", published: "Avaliação publicada", profile: "Perfil", adminTitle: "Painel de admin", connected: "Conectados", alerts: "Alertas", online: "Online", follow: "Seguir ao vivo", needHelpToast: "Alerta: {name} precisa de ajuda", jump: "PULAR", level: "Nível", playAgain: "Jogar de novo", retry: "Tentar" };
+DICT.fr = { ...DICT.en, appTitle: "VoyContigo · Démo", back: "Retour", tabMap: "Carte", tabContacts: "Contacts", tabForum: "Forum", tabGame: "Jeu", tabHistory: "Historique", tabAdmin: "Admin", language: "Langue", legend: "Légende", you: "Toi", contacts: "Contacts", sosAlert: "Alerte SOS", new: "Nouveau", close: "Fermer", addContact: "Ajouter un contact", fullName: "Nom", phone: "Téléphone", save: "Enregistrer", askHelp: "Demander de l'aide", emergencyBtn: "BOUTON D'URGENCE", alertSent: "Alerte envoyée", safeZonesTitle: "Zones sûres à proximité", goNow: "Y aller", forumTitle: "Forum d'avis", publish: "Publier", published: "Avis publié", profile: "Profil", adminTitle: "Panneau admin", connected: "Connectés", alerts: "Alertes", online: "En ligne", follow: "Suivre en direct", needHelpToast: "Alerte : {name} a besoin d'aide", jump: "SAUTER", level: "Niveau", playAgain: "Rejouer", retry: "Réessayer" };
+DICT.it = { ...DICT.en, appTitle: "VoyContigo · Demo", back: "Indietro", tabMap: "Mappa", tabContacts: "Contatti", tabForum: "Forum", tabGame: "Gioco", tabHistory: "Cronologia", tabAdmin: "Admin", language: "Lingua", legend: "Legenda", you: "Tu", contacts: "Contatti", sosAlert: "Allarme SOS", new: "Nuovo", close: "Chiudi", addContact: "Aggiungi contatto", fullName: "Nome", phone: "Telefono", save: "Salva contatto", askHelp: "Chiedi aiuto", emergencyBtn: "PULSANTE DI EMERGENZA", alertSent: "Allarme inviato", safeZonesTitle: "Zone sicure vicine", goNow: "Vai ora", forumTitle: "Forum recensioni", publish: "Pubblica", published: "Recensione pubblicata", profile: "Profilo", adminTitle: "Pannello admin", connected: "Connessi", alerts: "Allarmi", online: "Online", follow: "Segui dal vivo", needHelpToast: "Allarme: {name} ha bisogno di aiuto", jump: "SALTA", level: "Livello", playAgain: "Rigioca", retry: "Riprova" };
+DICT.de = { ...DICT.en, appTitle: "VoyContigo · Demo", back: "Zurück", tabMap: "Karte", tabContacts: "Kontakte", tabForum: "Forum", tabGame: "Spiel", tabHistory: "Verlauf", tabAdmin: "Admin", language: "Sprache", legend: "Legende", you: "Du", contacts: "Kontakte", sosAlert: "SOS-Alarm", new: "Neu", close: "Schließen", addContact: "Kontakt hinzufügen", fullName: "Name", phone: "Telefon", save: "Kontakt speichern", askHelp: "Hilfe rufen", emergencyBtn: "NOTFALLKNOPF", alertSent: "Alarm gesendet", safeZonesTitle: "Sichere Zonen in der Nähe", goNow: "Jetzt hin", forumTitle: "Bewertungsforum", publish: "Veröffentlichen", published: "Bewertung veröffentlicht", profile: "Profil", adminTitle: "Admin-Panel", connected: "Verbunden", alerts: "Alarme", online: "Online", follow: "Live folgen", needHelpToast: "Alarm: {name} braucht Hilfe", jump: "SPRINGEN", level: "Level", playAgain: "Nochmal spielen", retry: "Erneut" };
 
 const LangCtx = React.createContext<{ lang: Lang; setLang: (l: Lang) => void; t: (k: string, vars?: Record<string, string | number>) => string }>({
   lang: "es",
@@ -593,7 +593,7 @@ function DemoPageInner() {
     });
     if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
       try {
-        new Notification("🚨 SOS SafeTrack", {
+        new Notification("🚨 SOS VoyContigo", {
           body: msg,
           tag: `sos-${contactId}`,
         });
@@ -704,7 +704,7 @@ function DemoPageInner() {
               toast.error(`🚨 ${from} pidió ayuda al grupo`);
               if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
                 try {
-                  new Notification("SafeTrack — Ayuda en el grupo", {
+                  new Notification("VoyContigo — Ayuda en el grupo", {
                     body: `${from} necesita ayuda. Toca para ver la ubicación.`,
                   });
                 } catch {}
@@ -1877,7 +1877,7 @@ function TrackingView({
   );
 }
 // ============================================================================
-// MINIJUEGO: SafeTrack Runner (plataformas con niveles)
+// MINIJUEGO: VoyContigo Runner (plataformas con niveles)
 // Funciona con teclado (←/→/Espacio/↑) y táctil (botones en pantalla)
 // ============================================================================
 type GameLevel = {
@@ -2294,7 +2294,7 @@ function GamePanel() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-semibold flex items-center gap-2">
-              <Gamepad2 className="w-5 h-5 text-primary" /> SafeTrack Runner
+              <Gamepad2 className="w-5 h-5 text-primary" /> VoyContigo Runner
             </h2>
             <p className="text-xs text-muted-foreground">{level.name}</p>
           </div>
@@ -2414,12 +2414,12 @@ type PremiumItem = {
 };
 
 const PREMIUM_ITEMS: PremiumItem[] = [
-  { id: "plush", name: "Peluche SafeTrack Guardián", desc: "Peluche oficial 25 cm con bolsillo interior para llavero GPS. Edición Perú.", price: 49.90, badge: "Nuevo", icon: ShoppingBag },
-  { id: "sticker", name: "Pack de stickers SafeTrack", desc: "12 stickers holográficos resistentes al agua para mochila y casco.", price: 12.90, icon: Sparkles },
+  { id: "plush", name: "Peluche VoyContigo Guardián", desc: "Peluche oficial 25 cm con bolsillo interior para llavero GPS. Edición Perú.", price: 49.90, badge: "Nuevo", icon: ShoppingBag },
+  { id: "sticker", name: "Pack de stickers VoyContigo", desc: "12 stickers holográficos resistentes al agua para mochila y casco.", price: 12.90, icon: Sparkles },
   { id: "band", name: "Pulsera Panic Band Pro", desc: "Pulsera con botón físico que activa SOS al presionar 3 segundos.", price: 89.90, badge: "Innovador", icon: Siren },
   { id: "keychain", name: "Llavero GPS mini", desc: "Localizador Bluetooth con alerta antipérdida y sonido.", price: 59.00, icon: MapPin },
-  { id: "family", name: "SafeTrack Familiar (mensual)", desc: "Hasta 8 miembros, historial 30 días y zonas seguras ilimitadas.", price: 9.90, badge: "Suscripción", icon: Crown },
-  { id: "pro", name: "SafeTrack Pro (anual)", desc: "Todo lo del plan familiar + soporte prioritario 24/7 y rutas seguras IA.", price: 79.00, badge: "Anual", icon: ShieldCheck },
+  { id: "family", name: "VoyContigo Familiar (mensual)", desc: "Hasta 8 miembros, historial 30 días y zonas seguras ilimitadas.", price: 9.90, badge: "Suscripción", icon: Crown },
+  { id: "pro", name: "VoyContigo Pro (anual)", desc: "Todo lo del plan familiar + soporte prioritario 24/7 y rutas seguras IA.", price: 79.00, badge: "Anual", icon: ShieldCheck },
 ];
 
 function formatSol(n: number) {
@@ -2593,7 +2593,7 @@ function GroupChatPanel({
     { id: "g2", author: "Carlos Pérez", kind: "review", text: "Reseña confiable ⭐⭐⭐⭐⭐ Cafetería Tostaduría Bisetti — segura y bien iluminada.", t: "hace 5 min" },
   ]);
   const [text, setText] = useState("");
-  const [groupName, setGroupName] = useState("Familia SafeTrack");
+  const [groupName, setGroupName] = useState("Familia VoyContigo");
 
   const now = () => new Date().toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" });
 
