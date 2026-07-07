@@ -586,15 +586,14 @@ function DemoPageInner() {
     const c = contacts.find((x) => x.id === contactId);
     if (!c) return;
     setSosContactId(contactId);
-    const msg = t("needHelpToast", { name: c.name });
-    toast.error(`🚨 ${msg}`, {
-      description: t("redDotHint"),
+    toast.error(`🚨 Alerta enviada a ${c.name}`, {
+      description: `Le llegó una notificación a su celular: "Necesito ayuda"`,
       duration: 8000,
     });
     if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
       try {
-        new Notification("🚨 SOS VoyContigo", {
-          body: msg,
+        new Notification(`📲 Notificación entregada a ${c.name}`, {
+          body: `${c.name} recibió en su celular: "Necesito ayuda — revisa mi ubicación en VoyContigo".`,
           tag: `sos-${contactId}`,
         });
       } catch {}
