@@ -2498,10 +2498,20 @@ function ChatSheet({ contact, onClose }: { contact: DemoMarker; onClose: () => v
     setMsgs((m) => [...m, { id: `m${Date.now()}`, from: "me", text: v, t: time }]);
     setText("");
     setTimeout(() => {
+      const replyText = "Recibido, gracias 🙌";
       setMsgs((m) => [
         ...m,
-        { id: `m${Date.now() + 1}`, from: "them", text: "Recibido, gracias 🙌", t: time },
+        { id: `m${Date.now() + 1}`, from: "them", text: replyText, t: time },
       ]);
+      toast(`💬 Nuevo mensaje de ${contact.name}`, { description: replyText });
+      if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+        try {
+          new Notification(`💬 Mensaje de ${contact.name}`, {
+            body: replyText,
+            tag: `chat-${contact.id}`,
+          });
+        } catch {}
+      }
     }, 900);
   };
 
