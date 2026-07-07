@@ -2594,37 +2594,89 @@ function GroupChatPanel({
   contacts: DemoMarker[];
   onGroupSos: (from: string) => void;
 }) {
-  const [msgs, setMsgs] = useState<GroupMsg[]>([
-    { id: "g1", author: "María López", kind: "text", text: "¡Hola grupo! Nos vemos hoy 7pm en Parque Kennedy 📍", t: "hace 10 min" },
-    { id: "g2", author: "Carlos Pérez", kind: "review", text: "Reseña confiable ⭐⭐⭐⭐⭐ Cafetería Tostaduría Bisetti — segura y bien iluminada.", t: "hace 5 min" },
+  type Group = { id: string; name: string; memberIds: string[] };
+  const [groups, setGroups] = useState<Group[]>([
+    { id: "grp-default", name: "Familia VoyContigo", memberIds: contacts.map((c) => c.id) },
   ]);
+  const [activeGroupId, setActiveGroupId] = useState("grp-default");
+  const [msgsByGroup, setMsgsByGroup] = useState<Record<string, GroupMsg[]>>({
+    "grp-default": [
+      { id: "g1", author: "María López", kind: "text", text: "¡Hola grupo! Nos vemos hoy 7pm en Parque Kennedy 📍", t: "hace 10 min" },
+      { id: "g2", author: "Carlos Pérez", kind: "review", text: "⭐⭐⭐⭐⭐ Tostaduría Bisetti — segura y bien iluminada.", t: "hace 5 min" },
+    ],
+  });
   const [text, setText] = useState("");
-  const [groupName, setGroupName] = useState("Familia VoyContigo");
+  const [showPlacePicker, setShowPlacePicker] = useState(false);
+  const [showReviewPicker, setShowReviewPicker] = useState(false);
+  const [showCreateGroup, setShowCreateGroup] = useState(false);
+  const [newGroupName, setNewGroupName] = useState("");
+  const [newGroupMembers, setNewGroupMembers] = useState<string[]>([]);
+
+  const MAX_GROUPS = 5;
+  const activeGroup = groups.find((g) => g.id === activeGroupId) ?? groups[0];
+  const activeMembers = contacts.filter((c) => activeGroup.memberIds.includes(c.id));
+  const msgs = msgsByGroup[activeGroup.id] ?? [];
+
+  const PLACE_OPTIONS = [
+    "📍 Parque Kennedy, Miraflores",
+    "📍 Plaza San Martín, Cercado de Lima",
+    "📍 Malecón de Barranco, Lima",
+    "📍 Larcomar, Miraflores",
+    "📍 Óvalo Gutiérrez, San Isidro",
+    "📍 Av. Larco 345, Miraflores",
+    "📍 Jr. de la Unión 880, Cercado de Lima",
+  ];
+  const REVIEW_OPTIONS = [
+    "⭐⭐⭐⭐⭐ Cafetería Tostaduría Bisetti — segura y bien iluminada.",
+    "⭐⭐⭐⭐ Farmacia Inkafarma San Isidro — atención rápida.",
+    "⭐⭐⭐⭐⭐ Parque Kennedy — muy seguro, con serenazgo.",
+    "⭐⭐⭐ Jr. de la Unión — mejor visitar de día.",
+    "⭐⭐⭐⭐ Bodega Don Pepe, Miraflores — confiable y cerca.",
+    "⭐⭐⭐⭐⭐ Malecón de Barranco — ambiente tranquilo y seguro.",
+  ];
 
   const now = () => new Date().toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" });
 
   const send = (kind: GroupMsg["kind"], overrideText?: string) => {
     const v = (overrideText ?? text).trim();
     if (!v) return;
-    setMsgs((m) => [...m, { id: `g${Date.now()}`, author: "Tú (Demo)", kind, text: v, t: now() }]);
+    const msg: GroupMsg = { id: `g${Date.now()}`, author: "Tú (Demo)", kind, text: v, t: now() };
+    setMsgsByGroup((prev) => ({ ...prev, [activeGroup.id]: [...(prev[activeGroup.id] ?? []), msg] }));
     setText("");
   };
 
-  const sendPlace = () => send("place", "📍 Ubicación compartida: Av. Larco 345, Miraflores");
-  const sendReview = () => send("review", "⭐⭐⭐⭐ Reseña: Farmacia Inkafarma San Isidro — atención rápida.");
-
   const askHelp = () => {
-    setMsgs((m) => [
-      ...m,
-      {
-        id: `g${Date.now()}`,
-        author: "Tú (Demo)",
-        kind: "sos",
-        text: "🚨 ¡Necesito ayuda! Estoy en mi ubicación actual.",
-        t: now(),
-      },
-    ]);
+    const msg: GroupMsg = {
+      id: `g${Date.now()}`,
+      author: "Tú (Demo)",
+      kind: "sos",
+      text: "🚨 ¡Necesito ayuda! Estoy en mi ubicación actual.",
+      t: now(),
+    };
+    setMsgsByGroup((prev) => ({ ...prev, [activeGroup.id]: [...(prev[activeGroup.id] ?? []), msg] }));
     onGroupSos("Tú (Demo)");
+  };
+
+  const toggleNewMember = (id: string) => {
+    setNewGroupMembers((m) => (m.includes(id) ? m.filter((x) => x !== id) : [...m, id]));
+  };
+
+  const createGroup = () => {
+    if (!newGroupName.trim()) return toast.error("Ponle un nombre al grupo");
+    if (newGroupMembers.length === 0) return toast.error("Selecciona al menos un contacto");
+    if (groups.length >= MAX_GROUPS) {
+      toast.error("Límite gratuito alcanzado (5 grupos)", {
+        description: "Pásate a Premium para crear grupos ilimitados.",
+      });
+      return;
+    }
+    const g: Group = { id: `grp-${Date.now()}`, name: newGroupName.trim(), memberIds: newGroupMembers };
+    setGroups((prev) => [...prev, g]);
+    setActiveGroupId(g.id);
+    setNewGroupName("");
+    setNewGroupMembers([]);
+    setShowCreateGroup(false);
+    toast.success(`Grupo "${g.name}" creado`);
   };
 
   return (
@@ -2633,14 +2685,26 @@ function GroupChatPanel({
         <div className="px-4 pt-4 pb-3 border-b border-border bg-card/70">
           <div className="flex items-center gap-2">
             <MessagesSquare className="w-5 h-5 text-primary" />
-            <Input
-              value={groupName}
-              onChange={(e) => setGroupName(e.target.value)}
-              className="h-8 font-semibold"
-            />
+            <select
+              value={activeGroup.id}
+              onChange={(e) => setActiveGroupId(e.target.value)}
+              className="flex-1 h-8 px-2 rounded-md bg-muted/50 border border-border text-sm font-semibold"
+            >
+              {groups.map((g) => (
+                <option key={g.id} value={g.id}>{g.name}</option>
+              ))}
+            </select>
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1 shrink-0"
+              onClick={() => setShowCreateGroup(true)}
+            >
+              <UserPlus className="w-3.5 h-3.5" /> Crear grupo
+            </Button>
           </div>
           <div className="text-[11px] text-muted-foreground mt-1">
-            {contacts.length + 1} miembros · {contacts.map((c) => c.name.split(" ")[0]).join(", ")}, Tú
+            {activeMembers.length + 1} miembros · {activeMembers.map((c) => c.name.split(" ")[0]).join(", ")}, Tú · {groups.length}/{MAX_GROUPS} grupos
           </div>
           <Button
             onClick={askHelp}
@@ -2678,10 +2742,10 @@ function GroupChatPanel({
 
         <div className="p-3 border-t border-border space-y-2 bg-card/70">
           <div className="flex gap-2">
-            <Button size="sm" variant="outline" className="flex-1 gap-1" onClick={sendPlace}>
+            <Button size="sm" variant="outline" className="flex-1 gap-1" onClick={() => setShowPlacePicker(true)}>
               <MapPin className="w-3.5 h-3.5" /> Lugar
             </Button>
-            <Button size="sm" variant="outline" className="flex-1 gap-1" onClick={sendReview}>
+            <Button size="sm" variant="outline" className="flex-1 gap-1" onClick={() => setShowReviewPicker(true)}>
               <Star className="w-3.5 h-3.5" /> Reseña
             </Button>
           </div>
@@ -2703,6 +2767,118 @@ function GroupChatPanel({
           </form>
         </div>
       </div>
+
+      {(showPlacePicker || showReviewPicker) && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm"
+          onClick={() => { setShowPlacePicker(false); setShowReviewPicker(false); }}
+        >
+          <div
+            className="w-full max-w-md bg-card border border-border rounded-t-3xl sm:rounded-3xl p-4 space-y-2 max-h-[70vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-semibold">
+                {showPlacePicker ? "Elige un lugar" : "Elige una reseña"}
+              </h3>
+              <button
+                onClick={() => { setShowPlacePicker(false); setShowReviewPicker(false); }}
+                className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            {(showPlacePicker ? PLACE_OPTIONS : REVIEW_OPTIONS).map((opt) => (
+              <button
+                key={opt}
+                onClick={() => {
+                  send(showPlacePicker ? "place" : "review", opt);
+                  setShowPlacePicker(false);
+                  setShowReviewPicker(false);
+                }}
+                className="w-full text-left p-3 rounded-xl bg-muted/50 hover:bg-primary/10 hover:text-primary text-sm"
+              >
+                {opt}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {showCreateGroup && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm"
+          onClick={() => setShowCreateGroup(false)}
+        >
+          <div
+            className="w-full max-w-md bg-card border border-border rounded-t-3xl sm:rounded-3xl p-4 space-y-3 max-h-[85vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold flex items-center gap-2">
+                <MessagesSquare className="w-4 h-4 text-primary" /> Crear nuevo grupo
+              </h3>
+              <button onClick={() => setShowCreateGroup(false)} className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="text-[11px] text-muted-foreground">
+              {groups.length}/{MAX_GROUPS} grupos usados. Máximo gratuito: 5. Pásate a Premium para más.
+            </div>
+            <Input
+              placeholder="Nombre del grupo (ej. Amigos del cole)"
+              value={newGroupName}
+              onChange={(e) => setNewGroupName(e.target.value)}
+            />
+            <div className="text-xs font-semibold text-muted-foreground uppercase pt-1">
+              Selecciona contactos
+            </div>
+            <div className="space-y-1 max-h-[40vh] overflow-y-auto">
+              {contacts.length === 0 && (
+                <div className="text-xs text-muted-foreground text-center py-4">
+                  Aún no tienes contactos registrados.
+                </div>
+              )}
+              {contacts.map((c) => {
+                const selected = newGroupMembers.includes(c.id);
+                return (
+                  <button
+                    key={c.id}
+                    onClick={() => toggleNewMember(c.id)}
+                    className={`w-full flex items-center gap-3 p-2.5 rounded-xl border text-left transition-colors ${
+                      selected ? "border-primary bg-primary/10" : "border-border bg-muted/30"
+                    }`}
+                  >
+                    <div
+                      className="w-9 h-9 rounded-full flex items-center justify-center text-white font-semibold"
+                      style={{ background: "var(--gradient-brand)" }}
+                    >
+                      {c.name[0]}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium truncate">{c.name}</div>
+                      <div className="text-[11px] text-muted-foreground truncate">
+                        {detailsFor(c.id).phone}
+                      </div>
+                    </div>
+                    <div
+                      className={`w-5 h-5 rounded-md border flex items-center justify-center ${
+                        selected ? "bg-primary border-primary text-primary-foreground" : "border-muted-foreground/30"
+                      }`}
+                    >
+                      {selected && <CheckCircle2 className="w-4 h-4" />}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+            <Button onClick={createGroup} className="w-full gap-2" disabled={groups.length >= MAX_GROUPS}>
+              <UserPlus className="w-4 h-4" />
+              {groups.length >= MAX_GROUPS ? "Límite alcanzado (Premium)" : "Crear grupo"}
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
