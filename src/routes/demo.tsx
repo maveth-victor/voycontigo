@@ -2411,12 +2411,11 @@ type PremiumItem = {
 };
 
 const PREMIUM_ITEMS: PremiumItem[] = [
-  { id: "plush", name: "Peluche VoyContigo Guardián", desc: "Peluche oficial 25 cm con bolsillo interior para llavero GPS. Edición Perú.", price: 49.90, badge: "Nuevo", icon: ShoppingBag },
-  { id: "sticker", name: "Pack de stickers VoyContigo", desc: "12 stickers holográficos resistentes al agua para mochila y casco.", price: 12.90, icon: Sparkles },
-  { id: "band", name: "Pulsera Panic Band Pro", desc: "Pulsera con botón físico que activa SOS al presionar 3 segundos.", price: 89.90, badge: "Innovador", icon: Siren },
-  { id: "keychain", name: "Llavero GPS mini", desc: "Localizador Bluetooth con alerta antipérdida y sonido.", price: 59.00, icon: MapPin },
-  { id: "family", name: "VoyContigo Familiar (mensual)", desc: "Hasta 8 miembros, historial 30 días y zonas seguras ilimitadas.", price: 9.90, badge: "Suscripción", icon: Crown },
-  { id: "pro", name: "VoyContigo Pro (anual)", desc: "Todo lo del plan familiar + soporte prioritario 24/7 y rutas seguras IA.", price: 79.00, badge: "Anual", icon: ShieldCheck },
+  { id: "voycontigo", name: "VoyContigo Premium (mensual)", desc: "Rastreo ilimitado, alertas prioritarias y zonas seguras extendidas.", price: 14.90, badge: "Recomendado", icon: ShieldCheck },
+  { id: "family", name: "VoyContigo Familiar", desc: "Hasta 8 miembros, historial de 30 días y grupos ilimitados.", price: 9.90, badge: "Familiar", icon: Crown },
+  { id: "keychain", name: "Llavero GPS mini", desc: "Localizador Bluetooth con alerta antipérdida y botón de auxilio.", price: 59.00, badge: "Dispositivo", icon: MapPin },
+  { id: "band", name: "Pulsera Panic Band Pro", desc: "Pulsera con botón físico que activa SOS al presionar 3 segundos.", price: 89.90, badge: "Dispositivo", icon: Siren },
+  { id: "moregroups", name: "Grupos ilimitados", desc: "Amplía tu límite gratuito de 5 grupos a ilimitados.", price: 4.90, badge: "Suscripción", icon: MessagesSquare },
 ];
 
 function formatSol(n: number) {
