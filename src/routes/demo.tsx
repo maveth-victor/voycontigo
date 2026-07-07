@@ -45,7 +45,7 @@ export const Route = createFileRoute("/demo")({
   component: DemoPage,
 });
 
-type Tab = "map" | "contacts" | "history" | "sos" | "forum" | "game" | "admin" | "premium" | "group";
+type Tab = "map" | "contacts" | "history" | "sos" | "forum" | "admin" | "premium" | "group";
 
 // ============================================================================
 // i18n: idiomas para TODA la app demo
