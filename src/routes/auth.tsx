@@ -33,7 +33,7 @@ function AuthPage() {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setBusy(false);
     if (error) return toast.error(error.message);
-    toast.success("Bienvenido a SafeTrack");
+    toast.success("Bienvenido a VoyContigo");
     navigate({ to: "/map" });
   };
 
@@ -60,7 +60,7 @@ function AuthPage() {
       }
     }
     setBusy(false);
-    toast.success("Cuenta creada. Bienvenido a SafeTrack");
+    toast.success("Cuenta creada. Bienvenido a VoyContigo");
     navigate({ to: "/map" });
   };
 
@@ -78,7 +78,7 @@ function AuthPage() {
             <Shield className="w-8 h-8 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">SafeTrack</h1>
+            <h1 className="text-3xl font-bold tracking-tight">VoyContigo</h1>
             <p className="text-sm text-muted-foreground mt-1">
               Seguridad y rastreo en tiempo real
             </p>

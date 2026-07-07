@@ -45,7 +45,7 @@ export const Route = createFileRoute("/demo")({
   component: DemoPage,
 });
 
-type Tab = "map" | "contacts" | "history" | "sos" | "forum" | "game" | "admin" | "premium" | "group";
+type Tab = "map" | "contacts" | "history" | "sos" | "forum" | "admin" | "premium" | "group";
 
 // ============================================================================
 // i18n: idiomas para TODA la app demo
@@ -54,7 +54,7 @@ type Lang = "es" | "en" | "qu" | "pt" | "fr" | "it" | "de";
 const DICT: Record<Lang, Record<string, string>> = {} as Record<Lang, Record<string, string>>;
 const _BASE_DICT: Partial<Record<Lang, Record<string, string>>> = {
   es: {
-    appTitle: "SafeTrack · Demo",
+    appTitle: "VoyContigo · Demo",
     back: "Volver",
     demoBadge: "DEMO",
     tabMap: "Mapa",
@@ -128,7 +128,7 @@ const _BASE_DICT: Partial<Record<Lang, Record<string, string>>> = {
     needHelpToast: "Alerta: {name} necesita ayuda",
     redDotHint: "Toca el punto rojo en el mapa para ver su ubicación.",
     sosToContacts: "🚨 Alerta SOS enviada a tus contactos",
-    gameTitle: "SafeTrack Runner",
+    gameTitle: "VoyContigo Runner",
     nextLevel: "Siguiente nivel",
     levelDone: "¡Nivel superado!",
     gameDone: "¡Felicidades, completaste el juego!",
@@ -141,7 +141,7 @@ const _BASE_DICT: Partial<Record<Lang, Record<string, string>>> = {
     level: "Nivel",
   },
   en: {
-    appTitle: "SafeTrack · Demo",
+    appTitle: "VoyContigo · Demo",
     back: "Back",
     demoBadge: "DEMO",
     tabMap: "Map",
@@ -215,7 +215,7 @@ const _BASE_DICT: Partial<Record<Lang, Record<string, string>>> = {
     needHelpToast: "Alert: {name} needs help",
     redDotHint: "Tap the red dot on the map to see their location.",
     sosToContacts: "🚨 SOS alert sent to your contacts",
-    gameTitle: "SafeTrack Runner",
+    gameTitle: "VoyContigo Runner",
     nextLevel: "Next level",
     levelDone: "Level completed!",
     gameDone: "Congrats, you finished the game!",
@@ -228,7 +228,7 @@ const _BASE_DICT: Partial<Record<Lang, Record<string, string>>> = {
     level: "Level",
   },
   qu: {
-    appTitle: "SafeTrack · Qhawana",
+    appTitle: "VoyContigo · Qhawana",
     back: "Kutiy",
     demoBadge: "QHAWANA",
     tabMap: "Mapa",
@@ -302,7 +302,7 @@ const _BASE_DICT: Partial<Record<Lang, Record<string, string>>> = {
     needHelpToast: "Willakuy: {name} yanapayta munan",
     redDotHint: "Mapapi puka muyuta ñit'iy k'itinta qhawanapaq.",
     sosToContacts: "🚨 SOS willakuy riqsisqaykiman apachisqa",
-    gameTitle: "SafeTrack Runner",
+    gameTitle: "VoyContigo Runner",
     nextLevel: "Hina nivel",
     levelDone: "¡Nivel atisqa!",
     gameDone: "¡Allinmi, pukllayta tukunki!",
@@ -317,10 +317,10 @@ const _BASE_DICT: Partial<Record<Lang, Record<string, string>>> = {
 };
 Object.assign(DICT, _BASE_DICT);
 // Fallback languages inherit from English until fully translated
-DICT.pt = { ...DICT.en, appTitle: "SafeTrack · Demo", back: "Voltar", tabMap: "Mapa", tabContacts: "Contatos", tabForum: "Fórum", tabGame: "Jogo", tabHistory: "Histórico", tabAdmin: "Admin", language: "Idioma", legend: "Legenda", you: "Você", contacts: "Contatos", sosAlert: "Alerta SOS", new: "Novo", close: "Fechar", addContact: "Adicionar contato", fullName: "Nome", phone: "Telefone", save: "Salvar contato", askHelp: "Pedir ajuda", emergencyBtn: "BOTÃO DE EMERGÊNCIA", alertSent: "Alerta enviada", safeZonesTitle: "Zonas seguras próximas", goNow: "Ir agora", forumTitle: "Fórum de avaliações", publish: "Publicar", published: "Avaliação publicada", profile: "Perfil", adminTitle: "Painel de admin", connected: "Conectados", alerts: "Alertas", online: "Online", follow: "Seguir ao vivo", needHelpToast: "Alerta: {name} precisa de ajuda", jump: "PULAR", level: "Nível", playAgain: "Jogar de novo", retry: "Tentar" };
-DICT.fr = { ...DICT.en, appTitle: "SafeTrack · Démo", back: "Retour", tabMap: "Carte", tabContacts: "Contacts", tabForum: "Forum", tabGame: "Jeu", tabHistory: "Historique", tabAdmin: "Admin", language: "Langue", legend: "Légende", you: "Toi", contacts: "Contacts", sosAlert: "Alerte SOS", new: "Nouveau", close: "Fermer", addContact: "Ajouter un contact", fullName: "Nom", phone: "Téléphone", save: "Enregistrer", askHelp: "Demander de l'aide", emergencyBtn: "BOUTON D'URGENCE", alertSent: "Alerte envoyée", safeZonesTitle: "Zones sûres à proximité", goNow: "Y aller", forumTitle: "Forum d'avis", publish: "Publier", published: "Avis publié", profile: "Profil", adminTitle: "Panneau admin", connected: "Connectés", alerts: "Alertes", online: "En ligne", follow: "Suivre en direct", needHelpToast: "Alerte : {name} a besoin d'aide", jump: "SAUTER", level: "Niveau", playAgain: "Rejouer", retry: "Réessayer" };
-DICT.it = { ...DICT.en, appTitle: "SafeTrack · Demo", back: "Indietro", tabMap: "Mappa", tabContacts: "Contatti", tabForum: "Forum", tabGame: "Gioco", tabHistory: "Cronologia", tabAdmin: "Admin", language: "Lingua", legend: "Legenda", you: "Tu", contacts: "Contatti", sosAlert: "Allarme SOS", new: "Nuovo", close: "Chiudi", addContact: "Aggiungi contatto", fullName: "Nome", phone: "Telefono", save: "Salva contatto", askHelp: "Chiedi aiuto", emergencyBtn: "PULSANTE DI EMERGENZA", alertSent: "Allarme inviato", safeZonesTitle: "Zone sicure vicine", goNow: "Vai ora", forumTitle: "Forum recensioni", publish: "Pubblica", published: "Recensione pubblicata", profile: "Profilo", adminTitle: "Pannello admin", connected: "Connessi", alerts: "Allarmi", online: "Online", follow: "Segui dal vivo", needHelpToast: "Allarme: {name} ha bisogno di aiuto", jump: "SALTA", level: "Livello", playAgain: "Rigioca", retry: "Riprova" };
-DICT.de = { ...DICT.en, appTitle: "SafeTrack · Demo", back: "Zurück", tabMap: "Karte", tabContacts: "Kontakte", tabForum: "Forum", tabGame: "Spiel", tabHistory: "Verlauf", tabAdmin: "Admin", language: "Sprache", legend: "Legende", you: "Du", contacts: "Kontakte", sosAlert: "SOS-Alarm", new: "Neu", close: "Schließen", addContact: "Kontakt hinzufügen", fullName: "Name", phone: "Telefon", save: "Kontakt speichern", askHelp: "Hilfe rufen", emergencyBtn: "NOTFALLKNOPF", alertSent: "Alarm gesendet", safeZonesTitle: "Sichere Zonen in der Nähe", goNow: "Jetzt hin", forumTitle: "Bewertungsforum", publish: "Veröffentlichen", published: "Bewertung veröffentlicht", profile: "Profil", adminTitle: "Admin-Panel", connected: "Verbunden", alerts: "Alarme", online: "Online", follow: "Live folgen", needHelpToast: "Alarm: {name} braucht Hilfe", jump: "SPRINGEN", level: "Level", playAgain: "Nochmal spielen", retry: "Erneut" };
+DICT.pt = { ...DICT.en, appTitle: "VoyContigo · Demo", back: "Voltar", tabMap: "Mapa", tabContacts: "Contatos", tabForum: "Fórum", tabGame: "Jogo", tabHistory: "Histórico", tabAdmin: "Admin", language: "Idioma", legend: "Legenda", you: "Você", contacts: "Contatos", sosAlert: "Alerta SOS", new: "Novo", close: "Fechar", addContact: "Adicionar contato", fullName: "Nome", phone: "Telefone", save: "Salvar contato", askHelp: "Pedir ajuda", emergencyBtn: "BOTÃO DE EMERGÊNCIA", alertSent: "Alerta enviada", safeZonesTitle: "Zonas seguras próximas", goNow: "Ir agora", forumTitle: "Fórum de avaliações", publish: "Publicar", published: "Avaliação publicada", profile: "Perfil", adminTitle: "Painel de admin", connected: "Conectados", alerts: "Alertas", online: "Online", follow: "Seguir ao vivo", needHelpToast: "Alerta: {name} precisa de ajuda", jump: "PULAR", level: "Nível", playAgain: "Jogar de novo", retry: "Tentar" };
+DICT.fr = { ...DICT.en, appTitle: "VoyContigo · Démo", back: "Retour", tabMap: "Carte", tabContacts: "Contacts", tabForum: "Forum", tabGame: "Jeu", tabHistory: "Historique", tabAdmin: "Admin", language: "Langue", legend: "Légende", you: "Toi", contacts: "Contacts", sosAlert: "Alerte SOS", new: "Nouveau", close: "Fermer", addContact: "Ajouter un contact", fullName: "Nom", phone: "Téléphone", save: "Enregistrer", askHelp: "Demander de l'aide", emergencyBtn: "BOUTON D'URGENCE", alertSent: "Alerte envoyée", safeZonesTitle: "Zones sûres à proximité", goNow: "Y aller", forumTitle: "Forum d'avis", publish: "Publier", published: "Avis publié", profile: "Profil", adminTitle: "Panneau admin", connected: "Connectés", alerts: "Alertes", online: "En ligne", follow: "Suivre en direct", needHelpToast: "Alerte : {name} a besoin d'aide", jump: "SAUTER", level: "Niveau", playAgain: "Rejouer", retry: "Réessayer" };
+DICT.it = { ...DICT.en, appTitle: "VoyContigo · Demo", back: "Indietro", tabMap: "Mappa", tabContacts: "Contatti", tabForum: "Forum", tabGame: "Gioco", tabHistory: "Cronologia", tabAdmin: "Admin", language: "Lingua", legend: "Legenda", you: "Tu", contacts: "Contatti", sosAlert: "Allarme SOS", new: "Nuovo", close: "Chiudi", addContact: "Aggiungi contatto", fullName: "Nome", phone: "Telefono", save: "Salva contatto", askHelp: "Chiedi aiuto", emergencyBtn: "PULSANTE DI EMERGENZA", alertSent: "Allarme inviato", safeZonesTitle: "Zone sicure vicine", goNow: "Vai ora", forumTitle: "Forum recensioni", publish: "Pubblica", published: "Recensione pubblicata", profile: "Profilo", adminTitle: "Pannello admin", connected: "Connessi", alerts: "Allarmi", online: "Online", follow: "Segui dal vivo", needHelpToast: "Allarme: {name} ha bisogno di aiuto", jump: "SALTA", level: "Livello", playAgain: "Rigioca", retry: "Riprova" };
+DICT.de = { ...DICT.en, appTitle: "VoyContigo · Demo", back: "Zurück", tabMap: "Karte", tabContacts: "Kontakte", tabForum: "Forum", tabGame: "Spiel", tabHistory: "Verlauf", tabAdmin: "Admin", language: "Sprache", legend: "Legende", you: "Du", contacts: "Kontakte", sosAlert: "SOS-Alarm", new: "Neu", close: "Schließen", addContact: "Kontakt hinzufügen", fullName: "Name", phone: "Telefon", save: "Kontakt speichern", askHelp: "Hilfe rufen", emergencyBtn: "NOTFALLKNOPF", alertSent: "Alarm gesendet", safeZonesTitle: "Sichere Zonen in der Nähe", goNow: "Jetzt hin", forumTitle: "Bewertungsforum", publish: "Veröffentlichen", published: "Bewertung veröffentlicht", profile: "Profil", adminTitle: "Admin-Panel", connected: "Verbunden", alerts: "Alarme", online: "Online", follow: "Live folgen", needHelpToast: "Alarm: {name} braucht Hilfe", jump: "SPRINGEN", level: "Level", playAgain: "Nochmal spielen", retry: "Erneut" };
 
 const LangCtx = React.createContext<{ lang: Lang; setLang: (l: Lang) => void; t: (k: string, vars?: Record<string, string | number>) => string }>({
   lang: "es",
@@ -586,15 +586,14 @@ function DemoPageInner() {
     const c = contacts.find((x) => x.id === contactId);
     if (!c) return;
     setSosContactId(contactId);
-    const msg = t("needHelpToast", { name: c.name });
-    toast.error(`🚨 ${msg}`, {
-      description: t("redDotHint"),
+    toast.error(`🚨 Alerta enviada a ${c.name}`, {
+      description: `Le llegó una notificación a su celular: "Necesito ayuda"`,
       duration: 8000,
     });
     if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
       try {
-        new Notification("🚨 SOS SafeTrack", {
-          body: msg,
+        new Notification(`📲 Notificación entregada a ${c.name}`, {
+          body: `${c.name} recibió en su celular: "Necesito ayuda — revisa mi ubicación en VoyContigo".`,
           tag: `sos-${contactId}`,
         });
       } catch {}
@@ -695,7 +694,6 @@ function DemoPageInner() {
         {tab === "history" && <HistoryPanel />}
         {tab === "sos" && <SosPanel me={me} onTriggerSos={triggerSos} sosActive={!!sos} />}
         {tab === "forum" && <ForumPanel />}
-        {tab === "game" && <GamePanel />}
         {tab === "premium" && <PremiumPanel />}
         {tab === "group" && (
           <GroupChatPanel
@@ -704,7 +702,7 @@ function DemoPageInner() {
               toast.error(`🚨 ${from} pidió ayuda al grupo`);
               if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
                 try {
-                  new Notification("SafeTrack — Ayuda en el grupo", {
+                  new Notification("VoyContigo — Ayuda en el grupo", {
                     body: `${from} necesita ayuda. Toca para ver la ubicación.`,
                   });
                 } catch {}
@@ -737,7 +735,6 @@ function DemoPageInner() {
             { id: "group" as Tab, icon: MessagesSquare, label: "Grupo" },
             { id: "sos" as Tab, icon: Siren, label: t("tabSos") },
             { id: "forum" as Tab, icon: MessageSquare, label: t("tabForum") },
-            { id: "game" as Tab, icon: Gamepad2, label: t("tabGame") },
             { id: "premium" as Tab, icon: Crown, label: "Premium" },
             { id: "history" as Tab, icon: HistoryIcon, label: t("tabHistory") },
             { id: "admin" as Tab, icon: ShieldCheck, label: t("tabAdmin") },
@@ -1877,7 +1874,7 @@ function TrackingView({
   );
 }
 // ============================================================================
-// MINIJUEGO: SafeTrack Runner (plataformas con niveles)
+// MINIJUEGO: VoyContigo Runner (plataformas con niveles)
 // Funciona con teclado (←/→/Espacio/↑) y táctil (botones en pantalla)
 // ============================================================================
 type GameLevel = {
@@ -2294,7 +2291,7 @@ function GamePanel() {
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-lg font-semibold flex items-center gap-2">
-              <Gamepad2 className="w-5 h-5 text-primary" /> SafeTrack Runner
+              <Gamepad2 className="w-5 h-5 text-primary" /> VoyContigo Runner
             </h2>
             <p className="text-xs text-muted-foreground">{level.name}</p>
           </div>
@@ -2414,12 +2411,11 @@ type PremiumItem = {
 };
 
 const PREMIUM_ITEMS: PremiumItem[] = [
-  { id: "plush", name: "Peluche SafeTrack Guardián", desc: "Peluche oficial 25 cm con bolsillo interior para llavero GPS. Edición Perú.", price: 49.90, badge: "Nuevo", icon: ShoppingBag },
-  { id: "sticker", name: "Pack de stickers SafeTrack", desc: "12 stickers holográficos resistentes al agua para mochila y casco.", price: 12.90, icon: Sparkles },
-  { id: "band", name: "Pulsera Panic Band Pro", desc: "Pulsera con botón físico que activa SOS al presionar 3 segundos.", price: 89.90, badge: "Innovador", icon: Siren },
-  { id: "keychain", name: "Llavero GPS mini", desc: "Localizador Bluetooth con alerta antipérdida y sonido.", price: 59.00, icon: MapPin },
-  { id: "family", name: "SafeTrack Familiar (mensual)", desc: "Hasta 8 miembros, historial 30 días y zonas seguras ilimitadas.", price: 9.90, badge: "Suscripción", icon: Crown },
-  { id: "pro", name: "SafeTrack Pro (anual)", desc: "Todo lo del plan familiar + soporte prioritario 24/7 y rutas seguras IA.", price: 79.00, badge: "Anual", icon: ShieldCheck },
+  { id: "voycontigo", name: "VoyContigo Premium (mensual)", desc: "Rastreo ilimitado, alertas prioritarias y zonas seguras extendidas.", price: 14.90, badge: "Recomendado", icon: ShieldCheck },
+  { id: "family", name: "VoyContigo Familiar", desc: "Hasta 8 miembros, historial de 30 días y grupos ilimitados.", price: 9.90, badge: "Familiar", icon: Crown },
+  { id: "keychain", name: "Llavero GPS mini", desc: "Localizador Bluetooth con alerta antipérdida y botón de auxilio.", price: 59.00, badge: "Dispositivo", icon: MapPin },
+  { id: "band", name: "Pulsera Panic Band Pro", desc: "Pulsera con botón físico que activa SOS al presionar 3 segundos.", price: 89.90, badge: "Dispositivo", icon: Siren },
+  { id: "moregroups", name: "Grupos ilimitados", desc: "Amplía tu límite gratuito de 5 grupos a ilimitados.", price: 4.90, badge: "Suscripción", icon: MessagesSquare },
 ];
 
 function formatSol(n: number) {
@@ -2502,10 +2498,20 @@ function ChatSheet({ contact, onClose }: { contact: DemoMarker; onClose: () => v
     setMsgs((m) => [...m, { id: `m${Date.now()}`, from: "me", text: v, t: time }]);
     setText("");
     setTimeout(() => {
+      const replyText = "Recibido, gracias 🙌";
       setMsgs((m) => [
         ...m,
-        { id: `m${Date.now() + 1}`, from: "them", text: "Recibido, gracias 🙌", t: time },
+        { id: `m${Date.now() + 1}`, from: "them", text: replyText, t: time },
       ]);
+      toast(`💬 Nuevo mensaje de ${contact.name}`, { description: replyText });
+      if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+        try {
+          new Notification(`💬 Mensaje de ${contact.name}`, {
+            body: replyText,
+            tag: `chat-${contact.id}`,
+          });
+        } catch {}
+      }
     }, 900);
   };
 
@@ -2588,37 +2594,89 @@ function GroupChatPanel({
   contacts: DemoMarker[];
   onGroupSos: (from: string) => void;
 }) {
-  const [msgs, setMsgs] = useState<GroupMsg[]>([
-    { id: "g1", author: "María López", kind: "text", text: "¡Hola grupo! Nos vemos hoy 7pm en Parque Kennedy 📍", t: "hace 10 min" },
-    { id: "g2", author: "Carlos Pérez", kind: "review", text: "Reseña confiable ⭐⭐⭐⭐⭐ Cafetería Tostaduría Bisetti — segura y bien iluminada.", t: "hace 5 min" },
+  type Group = { id: string; name: string; memberIds: string[] };
+  const [groups, setGroups] = useState<Group[]>([
+    { id: "grp-default", name: "Familia VoyContigo", memberIds: contacts.map((c) => c.id) },
   ]);
+  const [activeGroupId, setActiveGroupId] = useState("grp-default");
+  const [msgsByGroup, setMsgsByGroup] = useState<Record<string, GroupMsg[]>>({
+    "grp-default": [
+      { id: "g1", author: "María López", kind: "text", text: "¡Hola grupo! Nos vemos hoy 7pm en Parque Kennedy 📍", t: "hace 10 min" },
+      { id: "g2", author: "Carlos Pérez", kind: "review", text: "⭐⭐⭐⭐⭐ Tostaduría Bisetti — segura y bien iluminada.", t: "hace 5 min" },
+    ],
+  });
   const [text, setText] = useState("");
-  const [groupName, setGroupName] = useState("Familia SafeTrack");
+  const [showPlacePicker, setShowPlacePicker] = useState(false);
+  const [showReviewPicker, setShowReviewPicker] = useState(false);
+  const [showCreateGroup, setShowCreateGroup] = useState(false);
+  const [newGroupName, setNewGroupName] = useState("");
+  const [newGroupMembers, setNewGroupMembers] = useState<string[]>([]);
+
+  const MAX_GROUPS = 5;
+  const activeGroup = groups.find((g) => g.id === activeGroupId) ?? groups[0];
+  const activeMembers = contacts.filter((c) => activeGroup.memberIds.includes(c.id));
+  const msgs = msgsByGroup[activeGroup.id] ?? [];
+
+  const PLACE_OPTIONS = [
+    "📍 Parque Kennedy, Miraflores",
+    "📍 Plaza San Martín, Cercado de Lima",
+    "📍 Malecón de Barranco, Lima",
+    "📍 Larcomar, Miraflores",
+    "📍 Óvalo Gutiérrez, San Isidro",
+    "📍 Av. Larco 345, Miraflores",
+    "📍 Jr. de la Unión 880, Cercado de Lima",
+  ];
+  const REVIEW_OPTIONS = [
+    "⭐⭐⭐⭐⭐ Cafetería Tostaduría Bisetti — segura y bien iluminada.",
+    "⭐⭐⭐⭐ Farmacia Inkafarma San Isidro — atención rápida.",
+    "⭐⭐⭐⭐⭐ Parque Kennedy — muy seguro, con serenazgo.",
+    "⭐⭐⭐ Jr. de la Unión — mejor visitar de día.",
+    "⭐⭐⭐⭐ Bodega Don Pepe, Miraflores — confiable y cerca.",
+    "⭐⭐⭐⭐⭐ Malecón de Barranco — ambiente tranquilo y seguro.",
+  ];
 
   const now = () => new Date().toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" });
 
   const send = (kind: GroupMsg["kind"], overrideText?: string) => {
     const v = (overrideText ?? text).trim();
     if (!v) return;
-    setMsgs((m) => [...m, { id: `g${Date.now()}`, author: "Tú (Demo)", kind, text: v, t: now() }]);
+    const msg: GroupMsg = { id: `g${Date.now()}`, author: "Tú (Demo)", kind, text: v, t: now() };
+    setMsgsByGroup((prev) => ({ ...prev, [activeGroup.id]: [...(prev[activeGroup.id] ?? []), msg] }));
     setText("");
   };
 
-  const sendPlace = () => send("place", "📍 Ubicación compartida: Av. Larco 345, Miraflores");
-  const sendReview = () => send("review", "⭐⭐⭐⭐ Reseña: Farmacia Inkafarma San Isidro — atención rápida.");
-
   const askHelp = () => {
-    setMsgs((m) => [
-      ...m,
-      {
-        id: `g${Date.now()}`,
-        author: "Tú (Demo)",
-        kind: "sos",
-        text: "🚨 ¡Necesito ayuda! Estoy en mi ubicación actual.",
-        t: now(),
-      },
-    ]);
+    const msg: GroupMsg = {
+      id: `g${Date.now()}`,
+      author: "Tú (Demo)",
+      kind: "sos",
+      text: "🚨 ¡Necesito ayuda! Estoy en mi ubicación actual.",
+      t: now(),
+    };
+    setMsgsByGroup((prev) => ({ ...prev, [activeGroup.id]: [...(prev[activeGroup.id] ?? []), msg] }));
     onGroupSos("Tú (Demo)");
+  };
+
+  const toggleNewMember = (id: string) => {
+    setNewGroupMembers((m) => (m.includes(id) ? m.filter((x) => x !== id) : [...m, id]));
+  };
+
+  const createGroup = () => {
+    if (!newGroupName.trim()) return toast.error("Ponle un nombre al grupo");
+    if (newGroupMembers.length === 0) return toast.error("Selecciona al menos un contacto");
+    if (groups.length >= MAX_GROUPS) {
+      toast.error("Límite gratuito alcanzado (5 grupos)", {
+        description: "Pásate a Premium para crear grupos ilimitados.",
+      });
+      return;
+    }
+    const g: Group = { id: `grp-${Date.now()}`, name: newGroupName.trim(), memberIds: newGroupMembers };
+    setGroups((prev) => [...prev, g]);
+    setActiveGroupId(g.id);
+    setNewGroupName("");
+    setNewGroupMembers([]);
+    setShowCreateGroup(false);
+    toast.success(`Grupo "${g.name}" creado`);
   };
 
   return (
@@ -2627,14 +2685,26 @@ function GroupChatPanel({
         <div className="px-4 pt-4 pb-3 border-b border-border bg-card/70">
           <div className="flex items-center gap-2">
             <MessagesSquare className="w-5 h-5 text-primary" />
-            <Input
-              value={groupName}
-              onChange={(e) => setGroupName(e.target.value)}
-              className="h-8 font-semibold"
-            />
+            <select
+              value={activeGroup.id}
+              onChange={(e) => setActiveGroupId(e.target.value)}
+              className="flex-1 h-8 px-2 rounded-md bg-muted/50 border border-border text-sm font-semibold"
+            >
+              {groups.map((g) => (
+                <option key={g.id} value={g.id}>{g.name}</option>
+              ))}
+            </select>
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1 shrink-0"
+              onClick={() => setShowCreateGroup(true)}
+            >
+              <UserPlus className="w-3.5 h-3.5" /> Crear grupo
+            </Button>
           </div>
           <div className="text-[11px] text-muted-foreground mt-1">
-            {contacts.length + 1} miembros · {contacts.map((c) => c.name.split(" ")[0]).join(", ")}, Tú
+            {activeMembers.length + 1} miembros · {activeMembers.map((c) => c.name.split(" ")[0]).join(", ")}, Tú · {groups.length}/{MAX_GROUPS} grupos
           </div>
           <Button
             onClick={askHelp}
@@ -2672,10 +2742,10 @@ function GroupChatPanel({
 
         <div className="p-3 border-t border-border space-y-2 bg-card/70">
           <div className="flex gap-2">
-            <Button size="sm" variant="outline" className="flex-1 gap-1" onClick={sendPlace}>
+            <Button size="sm" variant="outline" className="flex-1 gap-1" onClick={() => setShowPlacePicker(true)}>
               <MapPin className="w-3.5 h-3.5" /> Lugar
             </Button>
-            <Button size="sm" variant="outline" className="flex-1 gap-1" onClick={sendReview}>
+            <Button size="sm" variant="outline" className="flex-1 gap-1" onClick={() => setShowReviewPicker(true)}>
               <Star className="w-3.5 h-3.5" /> Reseña
             </Button>
           </div>
@@ -2697,6 +2767,118 @@ function GroupChatPanel({
           </form>
         </div>
       </div>
+
+      {(showPlacePicker || showReviewPicker) && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm"
+          onClick={() => { setShowPlacePicker(false); setShowReviewPicker(false); }}
+        >
+          <div
+            className="w-full max-w-md bg-card border border-border rounded-t-3xl sm:rounded-3xl p-4 space-y-2 max-h-[70vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-semibold">
+                {showPlacePicker ? "Elige un lugar" : "Elige una reseña"}
+              </h3>
+              <button
+                onClick={() => { setShowPlacePicker(false); setShowReviewPicker(false); }}
+                className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            {(showPlacePicker ? PLACE_OPTIONS : REVIEW_OPTIONS).map((opt) => (
+              <button
+                key={opt}
+                onClick={() => {
+                  send(showPlacePicker ? "place" : "review", opt);
+                  setShowPlacePicker(false);
+                  setShowReviewPicker(false);
+                }}
+                className="w-full text-left p-3 rounded-xl bg-muted/50 hover:bg-primary/10 hover:text-primary text-sm"
+              >
+                {opt}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {showCreateGroup && (
+        <div
+          className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm"
+          onClick={() => setShowCreateGroup(false)}
+        >
+          <div
+            className="w-full max-w-md bg-card border border-border rounded-t-3xl sm:rounded-3xl p-4 space-y-3 max-h-[85vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between">
+              <h3 className="font-semibold flex items-center gap-2">
+                <MessagesSquare className="w-4 h-4 text-primary" /> Crear nuevo grupo
+              </h3>
+              <button onClick={() => setShowCreateGroup(false)} className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="text-[11px] text-muted-foreground">
+              {groups.length}/{MAX_GROUPS} grupos usados. Máximo gratuito: 5. Pásate a Premium para más.
+            </div>
+            <Input
+              placeholder="Nombre del grupo (ej. Amigos del cole)"
+              value={newGroupName}
+              onChange={(e) => setNewGroupName(e.target.value)}
+            />
+            <div className="text-xs font-semibold text-muted-foreground uppercase pt-1">
+              Selecciona contactos
+            </div>
+            <div className="space-y-1 max-h-[40vh] overflow-y-auto">
+              {contacts.length === 0 && (
+                <div className="text-xs text-muted-foreground text-center py-4">
+                  Aún no tienes contactos registrados.
+                </div>
+              )}
+              {contacts.map((c) => {
+                const selected = newGroupMembers.includes(c.id);
+                return (
+                  <button
+                    key={c.id}
+                    onClick={() => toggleNewMember(c.id)}
+                    className={`w-full flex items-center gap-3 p-2.5 rounded-xl border text-left transition-colors ${
+                      selected ? "border-primary bg-primary/10" : "border-border bg-muted/30"
+                    }`}
+                  >
+                    <div
+                      className="w-9 h-9 rounded-full flex items-center justify-center text-white font-semibold"
+                      style={{ background: "var(--gradient-brand)" }}
+                    >
+                      {c.name[0]}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium truncate">{c.name}</div>
+                      <div className="text-[11px] text-muted-foreground truncate">
+                        {detailsFor(c.id).phone}
+                      </div>
+                    </div>
+                    <div
+                      className={`w-5 h-5 rounded-md border flex items-center justify-center ${
+                        selected ? "bg-primary border-primary text-primary-foreground" : "border-muted-foreground/30"
+                      }`}
+                    >
+                      {selected && <CheckCircle2 className="w-4 h-4" />}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+            <Button onClick={createGroup} className="w-full gap-2" disabled={groups.length >= MAX_GROUPS}>
+              <UserPlus className="w-4 h-4" />
+              {groups.length >= MAX_GROUPS ? "Límite alcanzado (Premium)" : "Crear grupo"}
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

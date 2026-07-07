@@ -69,7 +69,7 @@ function SosNotifier() {
             "Notification" in window &&
             Notification.permission === "granted"
           ) {
-            new Notification("SafeTrack SOS", { body: msg });
+            new Notification("VoyContigo SOS", { body: msg });
           }
         },
       )
@@ -177,7 +177,7 @@ function PermissionsGate({ onGranted }: { onGranted: () => void }) {
           <div>
             <h1 className="text-lg font-bold leading-tight">Permisos necesarios</h1>
             <p className="text-xs text-muted-foreground">
-              SafeTrack necesita los siguientes accesos para protegerte.
+              VoyContigo necesita los siguientes accesos para protegerte.
             </p>
           </div>
         </div>
@@ -225,7 +225,7 @@ function PermissionsGate({ onGranted }: { onGranted: () => void }) {
             <AlertTriangle className="w-4 h-4 mt-0.5 shrink-0" />
             <div>
               <div className="font-semibold">Permisos necesarios</div>
-              Sin estos accesos no podrás usar SafeTrack. Acéptalos desde la
+              Sin estos accesos no podrás usar VoyContigo. Acéptalos desde la
               configuración del dispositivo y vuelve a intentarlo.
             </div>
           </div>
@@ -238,7 +238,7 @@ function PermissionsGate({ onGranted }: { onGranted: () => void }) {
         >
           {allGranted ? (
             <>
-              <CheckCircle2 className="w-5 h-5" /> Entrar a SafeTrack
+              <CheckCircle2 className="w-5 h-5" /> Entrar a VoyContigo
             </>
           ) : (
             "Conceda los permisos necesarios"
