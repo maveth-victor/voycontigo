@@ -92,6 +92,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
+      {
+        rel: "icon",
+        type: "image/png",
+        href: "/__l5e/assets-v1/2d358592-5984-4fc9-b9a6-db57eaa71c3d/voycontigo-logo.png",
+      },
     ],
   }),
   shellComponent: RootShell,

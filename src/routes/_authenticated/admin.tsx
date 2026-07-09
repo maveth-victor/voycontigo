@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { BottomNav } from "@/components/BottomNav";
-import { Users, MapPin, AlertTriangle } from "lucide-react";
+import { Users, MapPin, AlertTriangle, History, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -93,6 +93,43 @@ function AdminPage() {
                   </div>
                 );
               })
+          )}
+        </Section>
+
+        <Section title="Historial de alertas SOS">
+          {alerts.length === 0 ? (
+            <Empty text="Aún no se han registrado alertas" />
+          ) : (
+            alerts.map((a) => {
+              const p = profiles.find((p) => p.id === a.user_id);
+              return (
+                <div key={`h-${a.id}`} className="p-3 flex items-center gap-3">
+                  <div
+                    className={`w-9 h-9 rounded-xl flex items-center justify-center ${a.resolved ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"}`}
+                  >
+                    {a.resolved ? (
+                      <CheckCircle2 className="w-4 h-4" />
+                    ) : (
+                      <History className="w-4 h-4" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium truncate">
+                      {p?.full_name ?? "Usuario"}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {new Date(a.created_at).toLocaleString()} ·{" "}
+                      {a.resolved ? "Resuelta" : "Activa"}
+                    </div>
+                    {typeof a.latitude === "number" && typeof a.longitude === "number" && (
+                      <div className="text-[11px] text-muted-foreground">
+                        {a.latitude.toFixed(4)}, {a.longitude.toFixed(4)}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })
           )}
         </Section>
 
