@@ -81,11 +81,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "VoyContigo — Seguridad y rastreo de ubicación" },
       { name: "description", content: "VoyContigo: app móvil de seguridad para compartir ubicación en tiempo real con tus contactos de confianza." },
-      { property: "og:title", content: "VoyContigo" },
-      { property: "og:description", content: "VoyContigo — Seguridad y rastreo de ubicación en tiempo real." },
+      { property: "og:title", content: "VoyContigo — Seguridad y rastreo de ubicación" },
+      { property: "og:description", content: "VoyContigo: app móvil de seguridad para compartir ubicación en tiempo real con tus contactos de confianza." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "VoyContigo — Seguridad y rastreo de ubicación" },
+      { name: "twitter:description", content: "VoyContigo: app móvil de seguridad para compartir ubicación en tiempo real con tus contactos de confianza." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/9b69d04c-7e36-49c8-912c-99c519c2f6cc/id-preview-09120070--ac891609-7aec-41dc-b54d-a9626b7d4dc6.lovable.app-1783614634692.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/9b69d04c-7e36-49c8-912c-99c519c2f6cc/id-preview-09120070--ac891609-7aec-41dc-b54d-a9626b7d4dc6.lovable.app-1783614634692.png" },
     ],
     links: [
       {
