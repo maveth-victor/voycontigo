@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Shield, PlayCircle } from "lucide-react";
+import { PlayCircle } from "lucide-react";
+import logo from "@/assets/voycontigo-logo.png.asset.json";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 
@@ -71,12 +72,11 @@ function AuthPage() {
     >
       <div className="w-full max-w-md space-y-6">
         <div className="text-center space-y-3">
-          <div
-            className="mx-auto w-16 h-16 rounded-2xl flex items-center justify-center"
-            style={{ background: "var(--gradient-brand)", boxShadow: "var(--shadow-glow)" }}
-          >
-            <Shield className="w-8 h-8 text-primary-foreground" />
-          </div>
+          <img
+            src={logo.url}
+            alt="VoyContigo"
+            className="mx-auto w-24 h-24 object-contain"
+          />
           <div>
             <h1 className="text-3xl font-bold tracking-tight">VoyContigo</h1>
             <p className="text-sm text-muted-foreground mt-1">
