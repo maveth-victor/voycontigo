@@ -38,13 +38,22 @@ function AuthPage() {
   const linkInviter = async (newUserId: string) => {
     const inviter = getRefId();
     if (!inviter || inviter === newUserId) return;
-    // Mutual auto-accepted contact
-    await supabase.from("contacts").insert({
-      requester_id: inviter,
-      addressee_id: newUserId,
+    // RLS: requester_id debe ser auth.uid(). Se inserta como el nuevo usuario
+    // aceptando al invitador; ambos aparecen mutuamente en /contacts.
+    const { error } = await supabase.from("contacts").insert({
+      requester_id: newUserId,
+      addressee_id: inviter,
       status: "accepted",
     });
-    toast.success("Te agregamos automáticamente a tu contacto de VoyContigo");
+    if (!error) {
+      toast.success("Te conectamos automáticamente con quien te invitó");
+      // Limpiar ?ref del URL
+      if (typeof window !== "undefined") {
+        const url = new URL(window.location.href);
+        url.searchParams.delete("ref");
+        window.history.replaceState({}, "", url.toString());
+      }
+    }
   };
 
   const handleLogin = async (e: React.FormEvent) => {
