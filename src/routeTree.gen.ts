@@ -16,6 +16,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedPremiumRouteImport } from './routes/_authenticated/premium'
 import { Route as AuthenticatedMapRouteImport } from './routes/_authenticated/map'
 import { Route as AuthenticatedHistoryRouteImport } from './routes/_authenticated/history'
+import { Route as AuthenticatedGrupoRouteImport } from './routes/_authenticated/grupo'
 import { Route as AuthenticatedForoRouteImport } from './routes/_authenticated/foro'
 import { Route as AuthenticatedContactsRouteImport } from './routes/_authenticated/contacts'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -54,6 +55,11 @@ const AuthenticatedHistoryRoute = AuthenticatedHistoryRouteImport.update({
   path: '/history',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedGrupoRoute = AuthenticatedGrupoRouteImport.update({
+  id: '/grupo',
+  path: '/grupo',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedForoRoute = AuthenticatedForoRouteImport.update({
   id: '/foro',
   path: '/foro',
@@ -77,6 +83,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/contacts': typeof AuthenticatedContactsRoute
   '/foro': typeof AuthenticatedForoRoute
+  '/grupo': typeof AuthenticatedGrupoRoute
   '/history': typeof AuthenticatedHistoryRoute
   '/map': typeof AuthenticatedMapRoute
   '/premium': typeof AuthenticatedPremiumRoute
@@ -88,6 +95,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/contacts': typeof AuthenticatedContactsRoute
   '/foro': typeof AuthenticatedForoRoute
+  '/grupo': typeof AuthenticatedGrupoRoute
   '/history': typeof AuthenticatedHistoryRoute
   '/map': typeof AuthenticatedMapRoute
   '/premium': typeof AuthenticatedPremiumRoute
@@ -101,6 +109,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/contacts': typeof AuthenticatedContactsRoute
   '/_authenticated/foro': typeof AuthenticatedForoRoute
+  '/_authenticated/grupo': typeof AuthenticatedGrupoRoute
   '/_authenticated/history': typeof AuthenticatedHistoryRoute
   '/_authenticated/map': typeof AuthenticatedMapRoute
   '/_authenticated/premium': typeof AuthenticatedPremiumRoute
@@ -114,6 +123,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/contacts'
     | '/foro'
+    | '/grupo'
     | '/history'
     | '/map'
     | '/premium'
@@ -125,6 +135,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/contacts'
     | '/foro'
+    | '/grupo'
     | '/history'
     | '/map'
     | '/premium'
@@ -137,6 +148,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/contacts'
     | '/_authenticated/foro'
+    | '/_authenticated/grupo'
     | '/_authenticated/history'
     | '/_authenticated/map'
     | '/_authenticated/premium'
@@ -200,6 +212,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedHistoryRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/grupo': {
+      id: '/_authenticated/grupo'
+      path: '/grupo'
+      fullPath: '/grupo'
+      preLoaderRoute: typeof AuthenticatedGrupoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/foro': {
       id: '/_authenticated/foro'
       path: '/foro'
@@ -228,6 +247,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedContactsRoute: typeof AuthenticatedContactsRoute
   AuthenticatedForoRoute: typeof AuthenticatedForoRoute
+  AuthenticatedGrupoRoute: typeof AuthenticatedGrupoRoute
   AuthenticatedHistoryRoute: typeof AuthenticatedHistoryRoute
   AuthenticatedMapRoute: typeof AuthenticatedMapRoute
   AuthenticatedPremiumRoute: typeof AuthenticatedPremiumRoute
@@ -237,6 +257,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedContactsRoute: AuthenticatedContactsRoute,
   AuthenticatedForoRoute: AuthenticatedForoRoute,
+  AuthenticatedGrupoRoute: AuthenticatedGrupoRoute,
   AuthenticatedHistoryRoute: AuthenticatedHistoryRoute,
   AuthenticatedMapRoute: AuthenticatedMapRoute,
   AuthenticatedPremiumRoute: AuthenticatedPremiumRoute,
