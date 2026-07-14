@@ -13,8 +13,12 @@ import { Route as DemoRouteImport } from './routes/demo'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedSosRouteImport } from './routes/_authenticated/sos'
+import { Route as AuthenticatedPremiumRouteImport } from './routes/_authenticated/premium'
 import { Route as AuthenticatedMapRouteImport } from './routes/_authenticated/map'
 import { Route as AuthenticatedHistoryRouteImport } from './routes/_authenticated/history'
+import { Route as AuthenticatedGrupoRouteImport } from './routes/_authenticated/grupo'
+import { Route as AuthenticatedForoRouteImport } from './routes/_authenticated/foro'
 import { Route as AuthenticatedContactsRouteImport } from './routes/_authenticated/contacts'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 
@@ -37,6 +41,16 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedSosRoute = AuthenticatedSosRouteImport.update({
+  id: '/sos',
+  path: '/sos',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPremiumRoute = AuthenticatedPremiumRouteImport.update({
+  id: '/premium',
+  path: '/premium',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedMapRoute = AuthenticatedMapRouteImport.update({
   id: '/map',
   path: '/map',
@@ -45,6 +59,16 @@ const AuthenticatedMapRoute = AuthenticatedMapRouteImport.update({
 const AuthenticatedHistoryRoute = AuthenticatedHistoryRouteImport.update({
   id: '/history',
   path: '/history',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedGrupoRoute = AuthenticatedGrupoRouteImport.update({
+  id: '/grupo',
+  path: '/grupo',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedForoRoute = AuthenticatedForoRouteImport.update({
+  id: '/foro',
+  path: '/foro',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedContactsRoute = AuthenticatedContactsRouteImport.update({
@@ -64,8 +88,12 @@ export interface FileRoutesByFullPath {
   '/demo': typeof DemoRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/contacts': typeof AuthenticatedContactsRoute
+  '/foro': typeof AuthenticatedForoRoute
+  '/grupo': typeof AuthenticatedGrupoRoute
   '/history': typeof AuthenticatedHistoryRoute
   '/map': typeof AuthenticatedMapRoute
+  '/premium': typeof AuthenticatedPremiumRoute
+  '/sos': typeof AuthenticatedSosRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -73,8 +101,12 @@ export interface FileRoutesByTo {
   '/demo': typeof DemoRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/contacts': typeof AuthenticatedContactsRoute
+  '/foro': typeof AuthenticatedForoRoute
+  '/grupo': typeof AuthenticatedGrupoRoute
   '/history': typeof AuthenticatedHistoryRoute
   '/map': typeof AuthenticatedMapRoute
+  '/premium': typeof AuthenticatedPremiumRoute
+  '/sos': typeof AuthenticatedSosRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -84,8 +116,12 @@ export interface FileRoutesById {
   '/demo': typeof DemoRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/contacts': typeof AuthenticatedContactsRoute
+  '/_authenticated/foro': typeof AuthenticatedForoRoute
+  '/_authenticated/grupo': typeof AuthenticatedGrupoRoute
   '/_authenticated/history': typeof AuthenticatedHistoryRoute
   '/_authenticated/map': typeof AuthenticatedMapRoute
+  '/_authenticated/premium': typeof AuthenticatedPremiumRoute
+  '/_authenticated/sos': typeof AuthenticatedSosRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -95,10 +131,25 @@ export interface FileRouteTypes {
     | '/demo'
     | '/admin'
     | '/contacts'
+    | '/foro'
+    | '/grupo'
     | '/history'
     | '/map'
+    | '/premium'
+    | '/sos'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/demo' | '/admin' | '/contacts' | '/history' | '/map'
+  to:
+    | '/'
+    | '/auth'
+    | '/demo'
+    | '/admin'
+    | '/contacts'
+    | '/foro'
+    | '/grupo'
+    | '/history'
+    | '/map'
+    | '/premium'
+    | '/sos'
   id:
     | '__root__'
     | '/'
@@ -107,8 +158,12 @@ export interface FileRouteTypes {
     | '/demo'
     | '/_authenticated/admin'
     | '/_authenticated/contacts'
+    | '/_authenticated/foro'
+    | '/_authenticated/grupo'
     | '/_authenticated/history'
     | '/_authenticated/map'
+    | '/_authenticated/premium'
+    | '/_authenticated/sos'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -148,6 +203,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/sos': {
+      id: '/_authenticated/sos'
+      path: '/sos'
+      fullPath: '/sos'
+      preLoaderRoute: typeof AuthenticatedSosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/premium': {
+      id: '/_authenticated/premium'
+      path: '/premium'
+      fullPath: '/premium'
+      preLoaderRoute: typeof AuthenticatedPremiumRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/map': {
       id: '/_authenticated/map'
       path: '/map'
@@ -160,6 +229,20 @@ declare module '@tanstack/react-router' {
       path: '/history'
       fullPath: '/history'
       preLoaderRoute: typeof AuthenticatedHistoryRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/grupo': {
+      id: '/_authenticated/grupo'
+      path: '/grupo'
+      fullPath: '/grupo'
+      preLoaderRoute: typeof AuthenticatedGrupoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/foro': {
+      id: '/_authenticated/foro'
+      path: '/foro'
+      fullPath: '/foro'
+      preLoaderRoute: typeof AuthenticatedForoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/contacts': {
@@ -182,15 +265,23 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedContactsRoute: typeof AuthenticatedContactsRoute
+  AuthenticatedForoRoute: typeof AuthenticatedForoRoute
+  AuthenticatedGrupoRoute: typeof AuthenticatedGrupoRoute
   AuthenticatedHistoryRoute: typeof AuthenticatedHistoryRoute
   AuthenticatedMapRoute: typeof AuthenticatedMapRoute
+  AuthenticatedPremiumRoute: typeof AuthenticatedPremiumRoute
+  AuthenticatedSosRoute: typeof AuthenticatedSosRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedContactsRoute: AuthenticatedContactsRoute,
+  AuthenticatedForoRoute: AuthenticatedForoRoute,
+  AuthenticatedGrupoRoute: AuthenticatedGrupoRoute,
   AuthenticatedHistoryRoute: AuthenticatedHistoryRoute,
   AuthenticatedMapRoute: AuthenticatedMapRoute,
+  AuthenticatedPremiumRoute: AuthenticatedPremiumRoute,
+  AuthenticatedSosRoute: AuthenticatedSosRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -205,13 +296,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

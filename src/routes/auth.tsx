@@ -28,18 +28,50 @@ function AuthPage() {
 
   if (!loading && user) return <Navigate to="/map" />;
 
+  const getRefId = () => {
+    if (typeof window === "undefined") return null;
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
+    return ref && ref.length > 10 ? ref : null;
+  };
+
+  const linkInviter = async (newUserId: string) => {
+    const inviter = getRefId();
+    if (!inviter || inviter === newUserId) return;
+    // RLS: requester_id debe ser auth.uid(). Se inserta como el nuevo usuario
+    // aceptando al invitador; ambos aparecen mutuamente en /contacts.
+    const { error } = await supabase.from("contacts").insert({
+      requester_id: newUserId,
+      addressee_id: inviter,
+      status: "accepted",
+    });
+    if (!error) {
+      toast.success("Te conectamos automáticamente con quien te invitó");
+      // Limpiar ?ref del URL
+      if (typeof window !== "undefined") {
+        const url = new URL(window.location.href);
+        url.searchParams.delete("ref");
+        window.history.replaceState({}, "", url.toString());
+      }
+    }
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     setBusy(false);
     if (error) return toast.error(error.message);
+    if (data.user) await linkInviter(data.user.id);
     toast.success("Bienvenido a VoyContigo");
     navigate({ to: "/map" });
   };
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!phone.trim()) {
+      return toast.error("Ingresa tu número telefónico");
+    }
     setBusy(true);
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -54,11 +86,14 @@ function AuthPage() {
       return toast.error(error.message);
     }
     if (!data.session) {
-      const { error: signInErr } = await supabase.auth.signInWithPassword({ email, password });
+      const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({ email, password });
       if (signInErr) {
         setBusy(false);
         return toast.error(signInErr.message);
       }
+      if (signInData.user) await linkInviter(signInData.user.id);
+    } else if (data.user) {
+      await linkInviter(data.user.id);
     }
     setBusy(false);
     toast.success("Cuenta creada. Bienvenido a VoyContigo");
@@ -115,8 +150,15 @@ function AuthPage() {
                   <Input id="fullname" required value={fullName} onChange={(e) => setFullName(e.target.value)} />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="phone">Teléfono</Label>
-                  <Input id="phone" type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} />
+                  <Label htmlFor="phone">Número telefónico (obligatorio)</Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    required
+                    placeholder="Ej. 987654321"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="email2">Correo</Label>
