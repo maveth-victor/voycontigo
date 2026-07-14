@@ -97,7 +97,7 @@ function ContactsPage() {
     typeof window !== "undefined" ? window.location.origin : "https://voycontigo.app";
   const inviteText = (inviterName: string) =>
     `Hola! ${inviterName} te invita a VoyContigo, una app para cuidarse entre familia y amigos. ` +
-    `Ábrelo aquí para instalarlo y registrarte: ${appUrl}/auth ` +
+    `Ábrelo aquí para instalarlo y registrarte: ${appUrl}/auth?ref=${user?.id ?? ""} ` +
     `Al registrarte podrás aceptar los permisos y agregarme como contacto de confianza.`;
 
   const sendWhatsappInvite = (phoneRaw?: string) => {
@@ -118,7 +118,7 @@ function ContactsPage() {
     const text = inviteText(inviter);
     if (typeof navigator !== "undefined" && "share" in navigator) {
       try {
-        await navigator.share({ title: "VoyContigo", text, url: `${appUrl}/auth` });
+        await navigator.share({ title: "VoyContigo", text, url: `${appUrl}/auth?ref=${user?.id ?? ""}` });
         return;
       } catch {}
     }
