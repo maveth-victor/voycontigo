@@ -38,15 +38,13 @@ function AuthPage() {
   const linkInviter = async (newUserId: string) => {
     const inviter = getRefId();
     if (!inviter || inviter === newUserId) return;
-    // RLS: requester_id debe ser auth.uid(). Se inserta como el nuevo usuario
-    // aceptando al invitador; ambos aparecen mutuamente en /contacts.
-    const { error } = await supabase.from("contacts").insert({
-      requester_id: newUserId,
-      addressee_id: inviter,
-      status: "accepted",
+    // Crea una solicitud PENDIENTE del invitador hacia el nuevo usuario
+    // usando una función SECURITY DEFINER que valida auth.uid().
+    const { error } = await supabase.rpc("create_contact_invite", {
+      _inviter_id: inviter,
     });
     if (!error) {
-      toast.success("Te conectamos automáticamente con quien te invitó");
+      toast.success("Tienes una nueva solicitud de contacto en Historial");
       // Limpiar ?ref del URL
       if (typeof window !== "undefined") {
         const url = new URL(window.location.href);
