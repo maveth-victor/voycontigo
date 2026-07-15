@@ -38,6 +38,48 @@ export type Database = {
         }
         Relationships: []
       }
+      forum_reviews: {
+        Row: {
+          category: string | null
+          created_at: string
+          id: string
+          image_url: string | null
+          latitude: number | null
+          longitude: number | null
+          place: string
+          rating: number
+          risk_level: string | null
+          text: string
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          place: string
+          rating: number
+          risk_level?: string | null
+          text: string
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          place?: string
+          rating?: number
+          risk_level?: string | null
+          text?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       location_history: {
         Row: {
           id: number
@@ -164,6 +206,7 @@ export type Database = {
     }
     Functions: {
       are_contacts: { Args: { _a: string; _b: string }; Returns: boolean }
+      create_contact_invite: { Args: { _inviter_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
