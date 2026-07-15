@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.create_contact_invite(uuid) FROM PUBLIC, anon;
