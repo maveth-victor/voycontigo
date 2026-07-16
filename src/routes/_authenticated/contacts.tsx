@@ -62,27 +62,47 @@ function ContactsPage() {
 
   const sendRequest = async () => {
     if (!user || !email.trim()) return;
+    const target = email.trim().toLowerCase();
+    if (target === (user.email ?? "").toLowerCase()) {
+      return toast.error("No puedes agregarte a ti mismo");
+    }
     setBusy(true);
     const { data: profile } = await supabase
       .from("profiles")
       .select("id")
-      .eq("email", email.trim().toLowerCase())
+      .ilike("email", target)
       .maybeSingle();
     if (!profile) {
       setBusy(false);
-      return toast.error("No se encontró un usuario con ese correo");
+      return toast.error("Este correo no pertenece a ningún usuario registrado.");
     }
     if (profile.id === user.id) {
       setBusy(false);
       return toast.error("No puedes agregarte a ti mismo");
     }
+    // Validar duplicados: ya son contactos o ya existe solicitud
+    const { data: existing } = await supabase
+      .from("contacts")
+      .select("id,status,requester_id,addressee_id")
+      .or(
+        `and(requester_id.eq.${user.id},addressee_id.eq.${profile.id}),` +
+          `and(requester_id.eq.${profile.id},addressee_id.eq.${user.id})`,
+      )
+      .maybeSingle();
+    if (existing) {
+      setBusy(false);
+      if (existing.status === "accepted") {
+        return toast.error("Este usuario ya forma parte de tus contactos.");
+      }
+      return toast.error("Ya existe una solicitud enviada a este usuario.");
+    }
     const { error } = await supabase
       .from("contacts")
       .insert({ requester_id: user.id, addressee_id: profile.id });
     setBusy(false);
-    if (error) return toast.error("Ya existe una solicitud con ese contacto");
+    if (error) return toast.error("No se pudo enviar la solicitud");
     setEmail("");
-    toast.success("Solicitud enviada");
+    toast.success("Solicitud enviada. La verá en su Historial.");
   };
 
   const accept = async (id: string) => {

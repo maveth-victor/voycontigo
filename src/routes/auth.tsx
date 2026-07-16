@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate, Navigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
@@ -26,14 +26,45 @@ function AuthPage() {
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
 
-  if (!loading && user) return <Navigate to="/map" />;
+  // Persistir el ref del enlace de invitación para que sobreviva a
+  // recargas, confirmación de email o cambio de pestaña login/signup.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const ref = params.get("ref");
+    if (ref && ref.length > 10) {
+      try {
+        localStorage.setItem("voycontigo:invite_ref", ref);
+      } catch {}
+    }
+  }, []);
 
   const getRefId = () => {
     if (typeof window === "undefined") return null;
     const params = new URLSearchParams(window.location.search);
     const ref = params.get("ref");
-    return ref && ref.length > 10 ? ref : null;
+    if (ref && ref.length > 10) return ref;
+    try {
+      const saved = localStorage.getItem("voycontigo:invite_ref");
+      return saved && saved.length > 10 ? saved : null;
+    } catch {
+      return null;
+    }
   };
+
+  if (!loading && user) {
+    // Si el usuario ya está autenticado y llega con ?ref, procesar antes de salir
+    const ref = getRefId();
+    if (ref && ref !== user.id) {
+      supabase.rpc("create_contact_invite", { _inviter_id: ref }).then(({ error }) => {
+        if (!error) {
+          try { localStorage.removeItem("voycontigo:invite_ref"); } catch {}
+          toast.success("Tienes una nueva solicitud de contacto en Historial");
+        }
+      });
+    }
+    return <Navigate to="/map" />;
+  }
 
   const linkInviter = async (newUserId: string) => {
     const inviter = getRefId();
@@ -45,11 +76,12 @@ function AuthPage() {
     });
     if (!error) {
       toast.success("Tienes una nueva solicitud de contacto en Historial");
-      // Limpiar ?ref del URL
+      // Limpiar ?ref del URL y del almacenamiento
       if (typeof window !== "undefined") {
         const url = new URL(window.location.href);
         url.searchParams.delete("ref");
         window.history.replaceState({}, "", url.toString());
+        try { localStorage.removeItem("voycontigo:invite_ref"); } catch {}
       }
     }
   };
