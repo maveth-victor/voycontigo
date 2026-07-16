@@ -12,13 +12,7 @@ export const Route = createFileRoute("/_authenticated/history")({
 });
 
 type HistRow = { id: number; latitude: number; longitude: number; recorded_at: string };
-
-type PendingReq = {
-  id: string;
-  requester_id: string;
-  created_at: string;
-  requester?: { full_name: string | null; email: string | null };
-};
+type PendingReq = { id: string; sender_id: string; created_at: string; requester?: { full_name: string | null; email: string | null } };
 
 function HistoryPage() {
   const { user } = useAuth();
@@ -28,23 +22,19 @@ function HistoryPage() {
   const loadPending = async () => {
     if (!user) return;
     const { data } = await supabase
-      .from("contacts")
-      .select("id,requester_id,created_at")
-      .eq("addressee_id", user.id)
+      .from("contact_requests")
+      .select("id,sender_id,created_at")
+      .eq("receiver_id", user.id)
       .eq("status", "pending")
       .order("created_at", { ascending: false });
     if (!data) return setPending([]);
-    const enriched = await Promise.all(
-      data.map(async (c) => {
-        const { data: p } = await supabase
-          .from("profiles")
-          .select("full_name,email")
-          .eq("id", c.requester_id)
-          .maybeSingle();
-        return { ...c, requester: p ?? undefined } as PendingReq;
-      }),
-    );
-    setPending(enriched);
+    const ids = data.map((c) => c.sender_id);
+    const map = new Map<string, { full_name: string | null; email: string | null }>();
+    if (ids.length) {
+      const { data: profs } = await supabase.from("profiles").select("id,full_name,email").in("id", ids);
+      (profs ?? []).forEach((p) => map.set(p.id, { full_name: p.full_name, email: p.email }));
+    }
+    setPending(data.map((r) => ({ ...r, requester: map.get(r.sender_id) })));
   };
 
   useEffect(() => {
@@ -60,26 +50,20 @@ function HistoryPage() {
       .then(({ data }) => setRows((data as HistRow[]) ?? []));
     loadPending();
     const ch = supabase
-      .channel("history-contacts-rt")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "contacts" },
-        () => loadPending(),
-      )
+      .channel("history-rt")
+      .on("postgres_changes", { event: "*", schema: "public", table: "contact_requests" }, () => loadPending())
       .subscribe();
-    return () => {
-      supabase.removeChannel(ch);
-    };
+    return () => { supabase.removeChannel(ch); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
   const accept = async (id: string, name: string) => {
-    const { error } = await supabase.from("contacts").update({ status: "accepted" }).eq("id", id);
+    const { error } = await supabase.from("contact_requests").update({ status: "accepted" }).eq("id", id);
     if (error) return toast.error("No se pudo aceptar");
     toast.success(`Ahora eres contacto de ${name}`);
   };
   const reject = async (id: string) => {
-    const { error } = await supabase.from("contacts").delete().eq("id", id);
+    const { error } = await supabase.from("contact_requests").update({ status: "rejected" }).eq("id", id);
     if (error) return toast.error("No se pudo rechazar");
     toast.success("Solicitud rechazada");
   };
@@ -100,15 +84,8 @@ function HistoryPage() {
               {pending.map((p) => {
                 const name = p.requester?.full_name ?? p.requester?.email ?? "Alguien";
                 return (
-                  <div
-                    key={p.id}
-                    className="bg-card rounded-2xl p-3 flex items-center gap-3"
-                    style={{ boxShadow: "var(--shadow-card)" }}
-                  >
-                    <div
-                      className="w-11 h-11 rounded-full flex items-center justify-center text-white font-semibold shrink-0"
-                      style={{ background: "var(--gradient-brand)" }}
-                    >
+                  <div key={p.id} className="bg-card rounded-2xl p-3 flex items-center gap-3" style={{ boxShadow: "var(--shadow-card)" }}>
+                    <div className="w-11 h-11 rounded-full flex items-center justify-center text-white font-semibold shrink-0" style={{ background: "var(--gradient-brand)" }}>
                       {name.charAt(0).toUpperCase()}
                     </div>
                     <div className="flex-1 min-w-0">
@@ -120,12 +97,8 @@ function HistoryPage() {
                       </div>
                     </div>
                     <div className="flex gap-1">
-                      <Button size="icon" onClick={() => accept(p.id, name)}>
-                        <Check className="w-4 h-4" />
-                      </Button>
-                      <Button size="icon" variant="outline" onClick={() => reject(p.id)}>
-                        <X className="w-4 h-4" />
-                      </Button>
+                      <Button size="icon" onClick={() => accept(p.id, name)}><Check className="w-4 h-4" /></Button>
+                      <Button size="icon" variant="outline" onClick={() => reject(p.id)}><X className="w-4 h-4" /></Button>
                     </div>
                   </div>
                 );
@@ -138,26 +111,24 @@ function HistoryPage() {
           <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 px-1">
             Ubicaciones (últimos 7 días)
           </h2>
-        <div className="bg-card rounded-2xl divide-y divide-border" style={{ boxShadow: "var(--shadow-card)" }}>
-          {rows.length === 0 && (
-            <div className="p-8 text-center text-sm text-muted-foreground">Sin registros aún</div>
-          )}
-          {rows.map((r) => (
-            <div key={r.id} className="flex items-center gap-3 p-3">
-              <div className="w-9 h-9 rounded-xl bg-accent flex items-center justify-center">
-                <MapPin className="w-4 h-4 text-accent-foreground" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium">
-                  {r.latitude.toFixed(5)}, {r.longitude.toFixed(5)}
+          <div className="bg-card rounded-2xl divide-y divide-border" style={{ boxShadow: "var(--shadow-card)" }}>
+            {rows.length === 0 && (
+              <div className="p-8 text-center text-sm text-muted-foreground">Sin registros aún</div>
+            )}
+            {rows.map((r) => (
+              <div key={r.id} className="flex items-center gap-3 p-3">
+                <div className="w-9 h-9 rounded-xl bg-accent flex items-center justify-center">
+                  <MapPin className="w-4 h-4 text-accent-foreground" />
                 </div>
-                <div className="text-xs text-muted-foreground flex items-center gap-1">
-                  <Clock className="w-3 h-3" /> {new Date(r.recorded_at).toLocaleString()}
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium">{r.latitude.toFixed(5)}, {r.longitude.toFixed(5)}</div>
+                  <div className="text-xs text-muted-foreground flex items-center gap-1">
+                    <Clock className="w-3 h-3" /> {new Date(r.recorded_at).toLocaleString()}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
         </section>
       </div>
       <BottomNav />

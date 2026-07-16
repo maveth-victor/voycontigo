@@ -14,26 +14,74 @@ export type Database = {
   }
   public: {
     Tables: {
-      contacts: {
+      contact_requests: {
         Row: {
-          addressee_id: string
           created_at: string
           id: string
-          requester_id: string
+          receiver_id: string
+          sender_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          receiver_id: string
+          sender_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          receiver_id?: string
+          sender_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      contacts: {
+        Row: {
+          contact_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      email_invites: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          inviter_id: string
           status: string
         }
         Insert: {
-          addressee_id: string
           created_at?: string
+          email: string
           id?: string
-          requester_id: string
+          inviter_id: string
           status?: string
         }
         Update: {
-          addressee_id?: string
           created_at?: string
+          email?: string
           id?: string
-          requester_id?: string
+          inviter_id?: string
           status?: string
         }
         Relationships: []
@@ -202,7 +250,24 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      profiles_lookup: {
+        Row: {
+          email: string | null
+          full_name: string | null
+          id: string | null
+        }
+        Insert: {
+          email?: string | null
+          full_name?: string | null
+          id?: string | null
+        }
+        Update: {
+          email?: string | null
+          full_name?: string | null
+          id?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       are_contacts: { Args: { _a: string; _b: string }; Returns: boolean }
@@ -214,6 +279,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      send_contact_request_by_email: { Args: { _email: string }; Returns: Json }
     }
     Enums: {
       app_role: "admin" | "user"
