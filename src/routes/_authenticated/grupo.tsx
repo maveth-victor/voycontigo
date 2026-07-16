@@ -26,13 +26,9 @@ function GrupoPage() {
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const { data } = await supabase
-        .from("contacts")
-        .select("*")
-        .eq("status", "accepted")
-        .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`);
+      const { data } = await supabase.from("contacts").select("contact_id");
       if (!data) return;
-      const ids = data.map((c) => (c.requester_id === user.id ? c.addressee_id : c.requester_id));
+      const ids = data.map((c) => c.contact_id);
       if (ids.length === 0) return;
       const { data: profs } = await supabase.from("profiles").select("id,full_name").in("id", ids);
       setContacts((profs ?? []).map((p) => ({ id: p.id, name: p.full_name ?? "?" })));
