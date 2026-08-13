@@ -17,6 +17,25 @@ export const Route = createFileRoute("/auth")({
 });
 
 function AuthPage() {
+  const authErrorMessage = (error: { message?: string; code?: string; status?: number } | null) => {
+    const code = error?.code ?? "";
+    const msg = (error?.message ?? "").toLowerCase();
+    if (code === "invalid_credentials" || msg.includes("invalid login credentials"))
+      return "Correo o contraseña incorrectos. Verifica tus datos o usa \"¿Olvidaste tu contraseña?\".";
+    if (code === "email_not_confirmed" || msg.includes("email not confirmed"))
+      return "Tu correo aún no está confirmado. Revisa tu bandeja de entrada.";
+    if (code === "user_not_found" || msg.includes("user not found"))
+      return "No existe una cuenta con ese correo. Regístrate primero.";
+    if (code === "user_already_exists" || msg.includes("already registered"))
+      return "Ese correo ya tiene una cuenta. Inicia sesión con tu contraseña.";
+    if (code === "over_email_send_rate_limit" || msg.includes("rate limit"))
+      return "Demasiados intentos. Espera unos minutos e inténtalo de nuevo.";
+    if (msg.includes("failed to fetch") || msg.includes("network") || error?.status === 0)
+      return "Error de conexión. Revisa tu internet e inténtalo otra vez.";
+    if (error?.status && error.status >= 500)
+      return "El servicio de autenticación no responde. Inténtalo en unos segundos.";
+    return error?.message ?? "No se pudo iniciar sesión.";
+  };
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [busy, setBusy] = useState(false);
@@ -71,10 +90,11 @@ function AuthPage() {
     if (!inviter || inviter === newUserId) return;
     // Crea una solicitud PENDIENTE del invitador hacia el nuevo usuario
     // usando una función SECURITY DEFINER que valida auth.uid().
-    const { error } = await supabase.rpc("create_contact_invite", {
-      _inviter_id: inviter,
-    });
-    if (!error) {
+    try {
+      const { error } = await supabase.rpc("create_contact_invite", {
+        _inviter_id: inviter,
+      });
+      if (error) return;
       toast.success("Tienes una nueva solicitud de contacto en Historial");
       // Limpiar ?ref del URL y del almacenamiento
       if (typeof window !== "undefined") {
@@ -83,15 +103,33 @@ function AuthPage() {
         window.history.replaceState({}, "", url.toString());
         try { localStorage.removeItem("voycontigo:invite_ref"); } catch {}
       }
+    } catch {
+      // Un fallo al vincular la invitación nunca debe bloquear el acceso.
     }
   };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    let data: Awaited<ReturnType<typeof supabase.auth.signInWithPassword>>["data"] | null = null;
+    try {
+      const res = await supabase.auth.signInWithPassword({
+        email: email.trim().toLowerCase(),
+        password,
+      });
+      if (res.error) {
+        setBusy(false);
+        return toast.error(authErrorMessage(res.error as any));
+      }
+      data = res.data;
+    } catch (err: any) {
+      setBusy(false);
+      return toast.error(authErrorMessage({ message: err?.message }));
+    }
     setBusy(false);
-    if (error) return toast.error(error.message);
+    if (!data?.session) {
+      return toast.error("No se pudo crear la sesión. Vuelve a intentarlo.");
+    }
     if (data.user) await linkInviter(data.user.id);
     toast.success("Bienvenido a VoyContigo");
     navigate({ to: "/map" });
@@ -104,7 +142,7 @@ function AuthPage() {
     }
     setBusy(true);
     const { data, error } = await supabase.auth.signUp({
-      email,
+      email: email.trim().toLowerCase(),
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/map`,
@@ -113,13 +151,16 @@ function AuthPage() {
     });
     if (error) {
       setBusy(false);
-      return toast.error(error.message);
+      return toast.error(authErrorMessage(error as any));
     }
     if (!data.session) {
-      const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({ email, password });
+      const { data: signInData, error: signInErr } = await supabase.auth.signInWithPassword({
+        email: email.trim().toLowerCase(),
+        password,
+      });
       if (signInErr) {
         setBusy(false);
-        return toast.error(signInErr.message);
+        return toast.error(authErrorMessage(signInErr as any));
       }
       if (signInData.user) await linkInviter(signInData.user.id);
     } else if (data.user) {
