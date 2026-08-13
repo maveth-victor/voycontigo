@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { createFileRoute, Outlet, redirect, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -49,6 +49,7 @@ function AuthenticatedLayout() {
 }
 
 function SosNotifier() {
+  const router = useRouter();
   useEffect(() => {
     const ch = supabase
       .channel("sos-notify")
@@ -66,13 +67,26 @@ function SosNotifier() {
             .maybeSingle();
           const name = p?.full_name ?? "Un contacto";
           const msg = `Alerta: ${name} necesita ayuda`;
-          toast.error(msg);
+          const openMap = () => router.navigate({ to: "/map" });
+          toast.error(msg, {
+            description: "Emergencia activa. Abre el mapa para ver su ubicación.",
+            duration: 15000,
+            action: { label: "Ver mapa", onClick: openMap },
+          });
           if (
             typeof window !== "undefined" &&
             "Notification" in window &&
             Notification.permission === "granted"
           ) {
-            new Notification("VoyContigo SOS", { body: msg });
+            const n = new Notification("VoyContigo SOS", {
+              body: `${msg}. Toca para ver su ubicación en el mapa.`,
+              tag: `sos-${row.user_id}`,
+            });
+            n.onclick = () => {
+              window.focus();
+              openMap();
+              n.close();
+            };
           }
         },
       )
@@ -80,7 +94,7 @@ function SosNotifier() {
     return () => {
       supabase.removeChannel(ch);
     };
-  }, []);
+  }, [router]);
   return null;
 }
 

@@ -3,13 +3,23 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
 
-export type Coords = { latitude: number; longitude: number } | null;
+export type Coords = { latitude: number; longitude: number; accuracy?: number } | null;
+
+const isValidCoord = (lat: number, lng: number) =>
+  Number.isFinite(lat) &&
+  Number.isFinite(lng) &&
+  !(lat === 0 && lng === 0) &&
+  lat >= -90 &&
+  lat <= 90 &&
+  lng >= -180 &&
+  lng <= 180;
 
 export function useLocationTracker() {
   const { user } = useAuth();
   const [coords, setCoords] = useState<Coords>(null);
   const [permission, setPermission] = useState<"granted" | "denied" | "prompt" | "unknown">("unknown");
   const lastPushRef = useRef<number>(0);
+  const bestRef = useRef<{ accuracy: number; time: number } | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -51,8 +61,17 @@ export function useLocationTracker() {
 
     const handleSuccess = (pos: GeolocationPosition) => {
       setPermission("granted");
-      const { latitude, longitude } = pos.coords;
-      setCoords({ latitude, longitude });
+      const { latitude, longitude, accuracy } = pos.coords;
+      if (!isValidCoord(latitude, longitude)) return;
+
+      const acc = Number.isFinite(accuracy) ? accuracy : 9999;
+      const now = Date.now();
+      const best = bestRef.current;
+      // Descarta lecturas mucho menos precisas (p. ej. IP/wifi) si ya tenemos un fix reciente y mejor
+      if (best && now - best.time < 30000 && acc > best.accuracy * 2.5 && acc > 100) return;
+      bestRef.current = { accuracy: acc, time: now };
+
+      setCoords({ latitude, longitude, accuracy: acc });
       pushLocation(latitude, longitude);
     };
 
@@ -65,17 +84,21 @@ export function useLocationTracker() {
 
     navigator.geolocation.getCurrentPosition(handleSuccess, handleError, {
       enableHighAccuracy: true,
+      maximumAge: 0,
+      timeout: 20000,
     });
 
     watchId = navigator.geolocation.watchPosition(handleSuccess, handleError, {
       enableHighAccuracy: true,
-      maximumAge: 5000,
+      maximumAge: 0,
+      timeout: 30000,
     });
 
     intervalId = setInterval(() => {
       navigator.geolocation.getCurrentPosition(handleSuccess, handleError, {
         enableHighAccuracy: true,
-        maximumAge: 5000,
+        maximumAge: 0,
+        timeout: 20000,
       });
     }, 10000);
 

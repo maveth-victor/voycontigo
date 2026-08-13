@@ -14,7 +14,7 @@ const COLOR_OFF = "#d4d4d8";
 const dot = (color: string, size: number, pulse = false) =>
   new L.DivIcon({
     className: "",
-    html: `<div style="width:${size}px;height:${size}px;border-radius:9999px;background:${color};border:3px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,.45)${pulse ? `,0 0 0 8px ${color}55` : ""}"></div>`,
+    html: `<div style="box-sizing:border-box;width:${size}px;height:${size}px;border-radius:9999px;background:${color};border:3px solid #fff;box-shadow:0 2px 10px rgba(0,0,0,.45)${pulse ? `,0 0 0 8px ${color}55` : ""}"></div>`,
     iconSize: [size, size],
     iconAnchor: [size / 2, size / 2],
     popupAnchor: [0, -size / 2],

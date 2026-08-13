@@ -22,12 +22,28 @@ export function SosButton({ coords }: { coords: { latitude: number; longitude: n
   const trigger = async () => {
     if (!user) return;
     setSending(true);
+    // Toma una lectura GPS fresca en el momento de confirmar la alerta
+    const fresh = await new Promise<{ latitude: number; longitude: number } | null>((resolve) => {
+      if (typeof navigator === "undefined" || !("geolocation" in navigator)) return resolve(null);
+      navigator.geolocation.getCurrentPosition(
+        (p) => resolve({ latitude: p.coords.latitude, longitude: p.coords.longitude }),
+        () => resolve(null),
+        { enableHighAccuracy: true, maximumAge: 0, timeout: 8000 },
+      );
+    });
+    const pos = fresh ?? coords;
     const { error } = await supabase.from("sos_alerts").insert({
       user_id: user.id,
-      latitude: coords?.latitude,
-      longitude: coords?.longitude,
+      latitude: pos?.latitude,
+      longitude: pos?.longitude,
       message: "Alerta de emergencia activada",
     });
+    if (pos) {
+      await supabase
+        .from("locations")
+        .update({ latitude: pos.latitude, longitude: pos.longitude, updated_at: new Date().toISOString() })
+        .eq("user_id", user.id);
+    }
     setSending(false);
     if (error) return toast.error(error.message);
     toast.success("Alerta SOS enviada");
