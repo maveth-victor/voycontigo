@@ -2,7 +2,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { Crosshair } from "lucide-react";
+import { Crosshair, Phone, MessageCircle, Navigation, X, MapPin, Footprints, User } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -32,6 +34,39 @@ type Loc = {
   updated_at: string;
 };
 
+type Person = {
+  id: string;
+  full_name: string | null;
+  phone: string | null;
+  email: string | null;
+};
+
+const ONLINE_MS = 2 * 60 * 1000;
+
+const haversine = (a: [number, number], b: [number, number]) => {
+  const R = 6371000;
+  const dLat = ((b[0] - a[0]) * Math.PI) / 180;
+  const dLng = ((b[1] - a[1]) * Math.PI) / 180;
+  const la1 = (a[0] * Math.PI) / 180;
+  const la2 = (b[0] * Math.PI) / 180;
+  const h =
+    Math.sin(dLat / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+};
+
+const fmtDist = (m: number) => (m >= 1000 ? `${(m / 1000).toFixed(2)} km` : `${Math.round(m)} m`);
+
+const bearingLabel = (a: [number, number], b: [number, number]) => {
+  const dLng = ((b[1] - a[1]) * Math.PI) / 180;
+  const la1 = (a[0] * Math.PI) / 180;
+  const la2 = (b[0] * Math.PI) / 180;
+  const y = Math.sin(dLng) * Math.cos(la2);
+  const x = Math.cos(la1) * Math.sin(la2) - Math.sin(la1) * Math.cos(la2) * Math.cos(dLng);
+  const deg = (Math.atan2(y, x) * 180) / Math.PI;
+  const dirs = ["N", "NE", "E", "SE", "S", "SO", "O", "NO"];
+  return dirs[Math.round((((deg % 360) + 360) % 360) / 45) % 8];
+};
+
 const isValid = (lat: unknown, lng: unknown): boolean =>
   typeof lat === "number" &&
   typeof lng === "number" &&
@@ -46,9 +81,11 @@ const isValid = (lat: unknown, lng: unknown): boolean =>
 function MapController({
   center,
   recenterKey,
+  followTarget,
 }: {
   center: [number, number] | null;
   recenterKey: number;
+  followTarget: [number, number] | null;
 }) {
   const map = useMap();
   const [followed, setFollowed] = useState(false);
@@ -60,6 +97,10 @@ function MapController({
       setFollowed(true);
     }
   }, [center, followed, map]);
+
+  useEffect(() => {
+    if (followTarget) map.setView(followTarget, Math.max(map.getZoom(), 16), { animate: true });
+  }, [followTarget?.[0], followTarget?.[1], map]);
 
   useEffect(() => {
     if (recenterKey > 0 && center) map.setView(center, 16, { animate: true });
@@ -75,10 +116,14 @@ function MapController({
 
 export function MapView({ center }: { center: [number, number] | null }) {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [locations, setLocations] = useState<Loc[]>([]);
-  const [contactNames, setContactNames] = useState<Record<string, string>>({});
+  const [contactProfiles, setContactProfiles] = useState<Record<string, Person>>({});
   const [sosUserIds, setSosUserIds] = useState<Set<string>>(new Set());
   const [recenterKey, setRecenterKey] = useState(0);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [followId, setFollowId] = useState<string | null>(null);
+  const [dailyMeters, setDailyMeters] = useState<Record<string, number>>({});
 
   const load = useCallback(async () => {
     if (!user) return;
@@ -93,15 +138,15 @@ export function MapView({ center }: { center: [number, number] | null }) {
     if (contactIds.length > 0) {
       const { data: profs } = await supabase
         .from("profiles")
-        .select("id,full_name")
+        .select("id,full_name,phone,email")
         .in("id", contactIds);
-      const map: Record<string, string> = {};
+      const map: Record<string, Person> = {};
       (profs ?? []).forEach((p) => {
-        map[p.id] = p.full_name ?? "Contacto";
+        map[p.id] = p as Person;
       });
-      setContactNames(map);
+      setContactProfiles(map);
     } else {
-      setContactNames({});
+      setContactProfiles({});
     }
 
     const ids = [user.id, ...contactIds];
