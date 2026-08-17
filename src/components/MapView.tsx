@@ -218,6 +218,46 @@ export function MapView({ center }: { center: [number, number] | null }) {
 
   const noContactLocations = contactLocs.length === 0;
 
+  const followLoc = useMemo(
+    () => (followId ? contactLocs.find((l) => l.user_id === followId) ?? null : null),
+    [followId, contactLocs],
+  );
+  const followTarget: [number, number] | null = followLoc
+    ? [followLoc.latitude, followLoc.longitude]
+    : null;
+
+  const selectedLoc = selectedId ? contactLocs.find((l) => l.user_id === selectedId) ?? null : null;
+  const selectedProfile = selectedId ? contactProfiles[selectedId] : undefined;
+
+  // Distancia recorrida hoy: solo si el historial del contacto está disponible
+  useEffect(() => {
+    if (!selectedId) return;
+    let cancel = false;
+    (async () => {
+      const since = new Date();
+      since.setHours(0, 0, 0, 0);
+      const { data } = await supabase
+        .from("location_history")
+        .select("latitude,longitude,recorded_at")
+        .eq("user_id", selectedId)
+        .gte("recorded_at", since.toISOString())
+        .order("recorded_at", { ascending: true });
+      if (cancel || !data || data.length < 2) return;
+      let total = 0;
+      for (let i = 1; i < data.length; i++) {
+        const a = data[i - 1];
+        const b = data[i];
+        if (!isValid(a.latitude, a.longitude) || !isValid(b.latitude, b.longitude)) continue;
+        const d = haversine([a.latitude, a.longitude], [b.latitude, b.longitude]);
+        if (d < 5000) total += d;
+      }
+      setDailyMeters((prev) => ({ ...prev, [selectedId]: total }));
+    })();
+    return () => {
+      cancel = true;
+    };
+  }, [selectedId]);
+
   return (
     <div className="relative h-full w-full">
       <MapContainer
@@ -230,7 +270,7 @@ export function MapView({ center }: { center: [number, number] | null }) {
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-        <MapController center={myPos} recenterKey={recenterKey} />
+        <MapController center={myPos} recenterKey={recenterKey} followTarget={followTarget} />
 
         {myPos && (
           <Marker
@@ -252,7 +292,7 @@ export function MapView({ center }: { center: [number, number] | null }) {
         )}
 
         {contactLocs.map((l) => {
-          const online = Date.now() - new Date(l.updated_at).getTime() < 2 * 60 * 1000;
+          const online = Date.now() - new Date(l.updated_at).getTime() < ONLINE_MS;
           const isSos = sosUserIds.has(l.user_id);
           return (
             <Marker
@@ -260,28 +300,210 @@ export function MapView({ center }: { center: [number, number] | null }) {
               position={[l.latitude, l.longitude]}
               icon={isSos ? sosIcon : contactIcon}
               zIndexOffset={isSos ? 900 : 500}
+              eventHandlers={{ click: () => setSelectedId(l.user_id) }}
             >
               <Popup>
                 <div className="text-sm space-y-1">
                   <div className="font-semibold">
-                    👤 {contactNames[l.user_id] ?? l.username ?? "Contacto"}
+                    👤 {contactProfiles[l.user_id]?.full_name ?? l.username ?? "Contacto"}
                   </div>
-                  <div className="text-xs" style={{ color: online ? COLOR_CONTACT : COLOR_SOS }}>
-                    {online ? "🟢 En línea" : "⚪ Desconectado"}
+                  <div className="text-xs" style={{ color: online ? COLOR_CONTACT : COLOR_OFF }}>
+                    {online ? "🟢 En línea" : "⚪ Última ubicación conocida"}
                   </div>
-                  {isSos && <div className="text-xs font-semibold" style={{ color: COLOR_SOS }}>🚨 Alerta SOS activa</div>}
+                  {isSos && (
+                    <div className="text-xs font-semibold" style={{ color: COLOR_SOS }}>
+                      🚨 Alerta SOS activa
+                    </div>
+                  )}
                   <div className="text-xs">
                     📍 {l.latitude.toFixed(5)}, {l.longitude.toFixed(5)}
                   </div>
                   <div className="text-xs opacity-70">
                     🕐 {new Date(l.updated_at).toLocaleString()}
                   </div>
+                  <button
+                    type="button"
+                    className="text-xs font-semibold text-primary underline"
+                    onClick={() => setSelectedId(l.user_id)}
+                  >
+                    Ver detalle
+                  </button>
                 </div>
               </Popup>
             </Marker>
           );
         })}
       </MapContainer>
+
+      {followId && (
+        <div
+          className="absolute z-[1100] left-1/2 -translate-x-1/2 flex items-center gap-2 rounded-full bg-card/95 backdrop-blur border border-border px-3 py-1.5 shadow-lg"
+          style={{ top: 90 }}
+        >
+          <Navigation className="w-3.5 h-3.5 text-primary" />
+          <span className="text-[11px] font-medium">
+            Siguiendo a {contactProfiles[followId]?.full_name ?? "contacto"}
+            {!followLoc && " · Ubicación no disponible"}
+          </span>
+          <button
+            type="button"
+            className="text-[11px] font-semibold text-destructive"
+            onClick={() => setFollowId(null)}
+          >
+            Dejar de seguir
+          </button>
+        </div>
+      )}
+
+      {selectedId && (
+        <div className="absolute inset-0 z-[1200] flex items-center justify-center p-4">
+          <button
+            type="button"
+            aria-label="Cerrar"
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setSelectedId(null)}
+          />
+          <div
+            className="relative w-full max-w-sm rounded-3xl bg-card p-4 space-y-3"
+            style={{ boxShadow: "var(--shadow-card)" }}
+          >
+            <div className="flex items-center gap-3">
+              <div
+                className="w-12 h-12 rounded-full flex items-center justify-center text-primary-foreground text-lg font-semibold"
+                style={{ background: "var(--gradient-brand)" }}
+              >
+                {(selectedProfile?.full_name ?? selectedLoc?.username ?? "C").charAt(0).toUpperCase()}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold truncate">
+                  {selectedProfile?.full_name ?? selectedLoc?.username ?? "Contacto"}
+                </div>
+                <div className="text-xs text-muted-foreground">Contacto autorizado</div>
+              </div>
+              <button
+                type="button"
+                aria-label="Cerrar"
+                onClick={() => setSelectedId(null)}
+                className="w-8 h-8 rounded-full bg-muted flex items-center justify-center"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div className="rounded-2xl bg-muted/60 p-3 text-center">
+                <div className="text-[10px] font-semibold tracking-wider text-muted-foreground">
+                  LEJOS DE TI
+                </div>
+                <div className="text-xl font-bold text-primary">
+                  {myPos && selectedLoc
+                    ? fmtDist(haversine(myPos, [selectedLoc.latitude, selectedLoc.longitude]))
+                    : "—"}
+                </div>
+                <div className="text-[10px] text-muted-foreground">
+                  {myPos && selectedLoc
+                    ? `rumbo ${bearingLabel(myPos, [selectedLoc.latitude, selectedLoc.longitude])}`
+                    : "Ubicación no disponible"}
+                </div>
+              </div>
+              <div className="rounded-2xl bg-muted/60 p-3">
+                <div className="text-[10px] font-semibold tracking-wider text-muted-foreground">
+                  ÚLTIMA UBICACIÓN CONOCIDA
+                </div>
+                {selectedLoc ? (
+                  <>
+                    <div className="text-xs font-semibold text-primary flex items-center gap-1">
+                      <MapPin className="w-3 h-3 shrink-0" />
+                      {selectedLoc.latitude.toFixed(5)}, {selectedLoc.longitude.toFixed(5)}
+                    </div>
+                    <div className="text-[10px] text-muted-foreground mt-1">
+                      {Date.now() - new Date(selectedLoc.updated_at).getTime() < ONLINE_MS
+                        ? "🟢 En línea"
+                        : `⚪ ${new Date(selectedLoc.updated_at).toLocaleString()}`}
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-xs text-muted-foreground">Sin ubicación</div>
+                )}
+              </div>
+            </div>
+
+            {dailyMeters[selectedId] !== undefined && (
+              <div className="rounded-2xl bg-muted/60 p-3">
+                <div className="text-[10px] font-semibold tracking-wider text-muted-foreground flex items-center gap-1">
+                  <Footprints className="w-3 h-3" /> DISTANCIA RECORRIDA HOY
+                </div>
+                <div className="text-xl font-bold text-primary">
+                  {fmtDist(dailyMeters[selectedId])}
+                </div>
+              </div>
+            )}
+
+            <div className="rounded-2xl bg-muted/60 p-3 space-y-1">
+              <div className="text-[10px] font-semibold tracking-wider text-muted-foreground">
+                PERFIL
+              </div>
+              <div className="text-xs flex items-center gap-2">
+                <User className="w-3.5 h-3.5 text-muted-foreground" /> Relación:{" "}
+                <span className="font-medium">Contacto autorizado</span>
+              </div>
+              {selectedProfile?.phone && (
+                <div className="text-xs flex items-center gap-2">
+                  <Phone className="w-3.5 h-3.5 text-muted-foreground" /> Teléfono:{" "}
+                  <span className="font-medium">{selectedProfile.phone}</span>
+                </div>
+              )}
+              {selectedProfile?.email && (
+                <div className="text-xs flex items-center gap-2">
+                  <MessageCircle className="w-3.5 h-3.5 text-muted-foreground" /> Email:{" "}
+                  <span className="font-medium truncate">{selectedProfile.email}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                type="button"
+                className="flex-1 h-10 rounded-xl border border-border text-xs font-medium flex items-center justify-center gap-1"
+                onClick={() => {
+                  if (!selectedProfile?.phone) {
+                    toast.error("Este contacto no tiene número registrado");
+                    return;
+                  }
+                  window.location.href = `tel:${selectedProfile.phone.replace(/\s/g, "")}`;
+                }}
+              >
+                <Phone className="w-4 h-4" /> Llamar
+              </button>
+              <button
+                type="button"
+                className="flex-1 h-10 rounded-xl border border-border text-xs font-medium flex items-center justify-center gap-1"
+                onClick={() => {
+                  setSelectedId(null);
+                  navigate({ to: "/grupo" });
+                }}
+              >
+                <MessageCircle className="w-4 h-4" /> Mensaje
+              </button>
+              <button
+                type="button"
+                className="flex-1 h-10 rounded-xl text-xs font-medium text-primary-foreground flex items-center justify-center gap-1"
+                style={{ background: "var(--gradient-brand)" }}
+                onClick={() => {
+                  if (!selectedLoc) {
+                    toast.error("Ubicación no disponible");
+                    return;
+                  }
+                  setFollowId(selectedId);
+                  setSelectedId(null);
+                }}
+              >
+                <Navigation className="w-4 h-4" /> Seguir en vivo
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <button
         type="button"
