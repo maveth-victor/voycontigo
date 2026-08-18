@@ -14,6 +14,98 @@ export type Database = {
   }
   public: {
     Tables: {
+      call_candidates: {
+        Row: {
+          call_id: string
+          candidate: Json
+          created_at: string
+          id: string
+          sender_id: string
+        }
+        Insert: {
+          call_id: string
+          candidate: Json
+          created_at?: string
+          id?: string
+          sender_id: string
+        }
+        Update: {
+          call_id?: string
+          candidate?: Json
+          created_at?: string
+          id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "call_candidates_call_id_fkey"
+            columns: ["call_id"]
+            isOneToOne: false
+            referencedRelation: "calls"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calls: {
+        Row: {
+          answer: Json | null
+          callee_id: string
+          caller_id: string
+          created_at: string
+          id: string
+          offer: Json | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          answer?: Json | null
+          callee_id: string
+          caller_id: string
+          created_at?: string
+          id?: string
+          offer?: Json | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          answer?: Json | null
+          callee_id?: string
+          caller_id?: string
+          created_at?: string
+          id?: string
+          offer?: Json | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      chat_groups: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          id: string
+          name: string
+          owner_id: string
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          owner_id: string
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          owner_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       contact_requests: {
         Row: {
           created_at: string
@@ -128,6 +220,73 @@ export type Database = {
         }
         Relationships: []
       }
+      group_members: {
+        Row: {
+          created_at: string
+          group_id: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          group_id: string
+          id?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          group_id?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "chat_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      group_messages: {
+        Row: {
+          body: string
+          created_at: string
+          group_id: string
+          id: string
+          kind: string
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          group_id: string
+          id?: string
+          kind?: string
+          sender_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          group_id?: string
+          id?: string
+          kind?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_messages_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "chat_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       location_history: {
         Row: {
           id: number
@@ -173,6 +332,33 @@ export type Database = {
           updated_at?: string
           user_id?: string
           username?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          read_at: string | null
+          receiver_id: string
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          receiver_id: string
+          sender_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          receiver_id?: string
+          sender_id?: string
         }
         Relationships: []
       }
@@ -272,11 +458,20 @@ export type Database = {
     Functions: {
       are_contacts: { Args: { _a: string; _b: string }; Returns: boolean }
       create_contact_invite: { Args: { _inviter_id: string }; Returns: string }
+      group_owner: { Args: { _group_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_call_participant: {
+        Args: { _call_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_group_member: {
+        Args: { _group_id: string; _user_id: string }
         Returns: boolean
       }
       send_contact_request_by_email: { Args: { _email: string }; Returns: Json }
