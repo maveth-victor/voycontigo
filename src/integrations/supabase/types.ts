@@ -178,6 +178,33 @@ export type Database = {
         }
         Relationships: []
       }
+      emergency_profiles: {
+        Row: {
+          birth_date: string | null
+          blood_type: string | null
+          created_at: string
+          medical_notes: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          birth_date?: string | null
+          blood_type?: string | null
+          created_at?: string
+          medical_notes?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          birth_date?: string | null
+          blood_type?: string | null
+          created_at?: string
+          medical_notes?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       forum_reviews: {
         Row: {
           category: string | null
@@ -364,6 +391,8 @@ export type Database = {
       }
       profiles: {
         Row: {
+          address: string | null
+          avatar_url: string | null
           created_at: string
           email: string | null
           full_name: string
@@ -371,6 +400,8 @@ export type Database = {
           phone: string | null
         }
         Insert: {
+          address?: string | null
+          avatar_url?: string | null
           created_at?: string
           email?: string | null
           full_name: string
@@ -378,6 +409,8 @@ export type Database = {
           phone?: string | null
         }
         Update: {
+          address?: string | null
+          avatar_url?: string | null
           created_at?: string
           email?: string | null
           full_name?: string
