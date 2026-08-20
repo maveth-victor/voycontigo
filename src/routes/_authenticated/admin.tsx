@@ -3,8 +3,10 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { BottomNav } from "@/components/BottomNav";
-import { Users, MapPin, AlertTriangle, History, CheckCircle2 } from "lucide-react";
+import { Users, MapPin, AlertTriangle, History, CheckCircle2, Settings, Languages } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ProfileSettingsSheet } from "@/components/ProfileSettingsSheet";
+import { useT, LANGS } from "@/hooks/use-lang";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminPage,
@@ -12,9 +14,11 @@ export const Route = createFileRoute("/_authenticated/admin")({
 
 function AdminPage() {
   const { role, loading } = useAuth();
+  const { t, lang, setLang } = useT();
   const [profiles, setProfiles] = useState<any[]>([]);
   const [locations, setLocations] = useState<any[]>([]);
   const [alerts, setAlerts] = useState<any[]>([]);
+  const [showProfile, setShowProfile] = useState(false);
 
   const load = async () => {
     const [p, l, a] = await Promise.all([
@@ -54,11 +58,78 @@ function AdminPage() {
   return (
     <div className="min-h-[100dvh] pb-24" style={{ background: "var(--gradient-soft)" }}>
       <header className="px-4 pt-6 pb-4 max-w-md mx-auto">
-        <h1 className="text-2xl font-bold">Panel administrativo</h1>
-        <p className="text-sm text-muted-foreground">Monitoreo global</p>
+        <h1 className="text-2xl font-bold">{t("adminTitle")}</h1>
+        <p className="text-sm text-muted-foreground">{t("adminSubtitle")}</p>
       </header>
 
       <div className="max-w-md mx-auto px-4 space-y-6">
+        <Button onClick={() => setShowProfile(true)} className="w-full gap-2">
+          <Settings className="w-4 h-4" /> {t("configureProfile")}
+        </Button>
+
+        <section>
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 px-1">
+            {t("language")}
+          </h2>
+          <div className="bg-card rounded-2xl p-3 space-y-2" style={{ boxShadow: "var(--shadow-card)" }}>
+            <div className="flex flex-wrap gap-2">
+              {LANGS.map((l) => (
+                <button
+                  key={l.code}
+                  onClick={() => setLang(l.code)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-semibold border transition-colors ${
+                    lang === l.code
+                      ? "bg-primary text-primary-foreground border-primary"
+                      : "bg-muted/50 text-muted-foreground border-border"
+                  }`}
+                >
+                  <span className="flex items-center gap-1">
+                    <Languages className="w-3 h-3" /> {l.label}
+                  </span>
+                </button>
+              ))}
+            </div>
+            <div className="text-[11px] text-muted-foreground">
+              {LANGS.find((l) => l.code === lang)?.name} · {t("languageHint")}
+            </div>
+          </div>
+        </section>
+
+        <Section title={t("activeUsers")}>
+          {profiles.length === 0 ? (
+            <Empty text="Sin usuarios" />
+          ) : (
+            profiles.map((p) => {
+              const loc = locations.find((l) => l.user_id === p.id);
+              const online = loc ? Date.now() - new Date(loc.updated_at).getTime() < 60_000 : false;
+              return (
+                <div key={`act-${p.id}`} className="p-3 flex items-center gap-3">
+                  {p.avatar_url ? (
+                    <img src={p.avatar_url} alt={p.full_name ?? "Usuario"} className="w-9 h-9 rounded-full object-cover" />
+                  ) : (
+                    <div
+                      className="w-9 h-9 rounded-full flex items-center justify-center text-primary-foreground font-semibold"
+                      style={{ background: "var(--gradient-brand)" }}
+                    >
+                      {(p.full_name ?? "?").charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium truncate">{p.full_name ?? "Usuario"}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {online ? t("active") : t("inactive")}
+                    </div>
+                  </div>
+                  <span
+                    className={`w-2.5 h-2.5 rounded-full ${online ? "bg-primary" : "bg-muted-foreground/40"}`}
+                    aria-hidden
+                  />
+                </div>
+              );
+            })
+          )}
+        </Section>
+
         <div className="grid grid-cols-3 gap-3">
           <Stat icon={Users} label="Usuarios" value={profiles.length} />
           <Stat icon={MapPin} label="En línea" value={connected.length} />
@@ -174,6 +245,7 @@ function AdminPage() {
           ))}
         </Section>
       </div>
+      {showProfile && <ProfileSettingsSheet onClose={() => setShowProfile(false)} />}
       <BottomNav />
     </div>
   );

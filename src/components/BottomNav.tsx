@@ -1,21 +1,23 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { Map, Users, History, Shield, LogOut, MessagesSquare, AlertTriangle, MessageSquare, Crown } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { useT } from "@/hooks/use-lang";
 
 export function BottomNav() {
   const path = useRouterState({ select: (s) => s.location.pathname });
   const { role, signOut } = useAuth();
+  const { t } = useT();
 
   const items: Array<{ to: string; icon: typeof Map; label: string }> = [
-    { to: "/map", icon: Map, label: "Mapa" },
-    { to: "/contacts", icon: Users, label: "Contactos" },
-    { to: "/grupo", icon: MessagesSquare, label: "Grupo" },
-    { to: "/sos", icon: AlertTriangle, label: "SOS" },
-    { to: "/foro", icon: MessageSquare, label: "Foro" },
-    { to: "/premium", icon: Crown, label: "Premium" },
-    { to: "/history", icon: History, label: "Historial" },
+    { to: "/map", icon: Map, label: t("tabMap") },
+    { to: "/contacts", icon: Users, label: t("tabContacts") },
+    { to: "/grupo", icon: MessagesSquare, label: t("tabGroup") },
+    { to: "/sos", icon: AlertTriangle, label: t("tabSos") },
+    { to: "/foro", icon: MessageSquare, label: t("tabForum") },
+    { to: "/premium", icon: Crown, label: t("tabPremium") },
+    { to: "/history", icon: History, label: t("tabHistory") },
   ];
-  if (role === "admin") items.push({ to: "/admin", icon: Shield, label: "Admin" });
+  if (role === "admin") items.push({ to: "/admin", icon: Shield, label: t("tabAdmin") });
 
   return (
     <nav
@@ -43,7 +45,7 @@ export function BottomNav() {
           className="flex flex-col items-center gap-1 px-2 py-1.5 rounded-xl text-muted-foreground shrink-0"
         >
           <LogOut className="w-5 h-5" />
-          <span className="text-[10px] font-medium">Salir</span>
+          <span className="text-[10px] font-medium">{t("logout")}</span>
         </button>
       </div>
     </nav>
