@@ -7,6 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import type { Json } from "@/integrations/supabase/types";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { toast } from "sonner";
@@ -96,7 +97,7 @@ export function CallProvider({ children }: { children: ReactNode }) {
       supabase.from("call_candidates").insert({
         call_id: callId,
         sender_id: user.id,
-        candidate: ev.candidate.toJSON() as unknown as Record<string, unknown>,
+        candidate: ev.candidate.toJSON() as unknown as Json,
       });
     };
     pc.ontrack = (ev) => {
@@ -129,7 +130,10 @@ export function CallProvider({ children }: { children: ReactNode }) {
   const startCall = useCallback(
     async (peerId: string, peerName: string) => {
       if (!user) return;
-      if (status !== "idle") return toast.error("Ya tienes una llamada en curso");
+      if (status !== "idle") {
+        toast.error("Ya tienes una llamada en curso");
+        return;
+      }
       try {
         const { data: row, error } = await supabase
           .from("calls")
@@ -273,7 +277,7 @@ export function CallProvider({ children }: { children: ReactNode }) {
         .from("calls").select("status,offer,answer").eq("id", call.id).maybeSingle();
       if (!data) return;
       if (call.role === "callee" && data.offer && !remoteDescSetRef.current) {
-        setPendingOffer(data.offer as RTCSessionDescriptionInit);
+        setPendingOffer(data.offer as unknown as RTCSessionDescriptionInit);
       }
     })();
 
