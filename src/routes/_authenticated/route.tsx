@@ -21,12 +21,25 @@ import logo from "@/assets/voycontigo-logo.png.asset.json";
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   beforeLoad: async () => {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) throw redirect({ to: "/auth" });
-    return { user: data.user };
+    // Nunca lanzar errores crudos aquí: cualquier fallo de red o de token
+    // haría aparecer la pantalla de "esta página no cargó".
+    try {
+      const { data } = await supabase.auth.getSession();
+      if (data.session?.user) return { user: data.session.user };
+    } catch {
+      /* ignorar y reintentar con getUser */
+    }
+    try {
+      const { data, error } = await supabase.auth.getUser();
+      if (!error && data.user) return { user: data.user };
+    } catch {
+      /* sin sesión válida */
+    }
+    throw redirect({ to: "/auth" });
   },
   component: AuthenticatedLayout,
 });
+
 
 type PermState = "idle" | "checking" | "granted" | "denied" | "postponed";
 
