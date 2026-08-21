@@ -226,9 +226,14 @@ function PermissionsGate({ onGranted }: { onGranted: () => void }) {
       toast.error("GPS e internet son obligatorios para usar VoyContigo");
       return;
     }
-    localStorage.setItem("safetrack-perms", "1");
+    try {
+      localStorage.setItem("safetrack-perms", "1");
+    } catch {
+      /* modo privado: continuar igual */
+    }
     onGranted();
   };
+
 
   return (
     <div
