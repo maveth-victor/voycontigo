@@ -138,13 +138,21 @@ function PermissionsGate({ onGranted }: { onGranted: () => void }) {
   }, []);
 
   const askLocation = () => {
-    if (!("geolocation" in navigator)) return setLoc("denied");
-    setLoc("checking");
-    navigator.geolocation.getCurrentPosition(
-      () => setLoc("granted"),
-      () => setLoc("denied"),
-      { enableHighAccuracy: true, timeout: 8000 },
-    );
+    try {
+      if (typeof navigator === "undefined" || !("geolocation" in navigator)) {
+        setLoc("denied");
+        return;
+      }
+      setLoc("checking");
+      navigator.geolocation.getCurrentPosition(
+        () => setLoc("granted"),
+        () => setLoc("denied"),
+        { enableHighAccuracy: true, timeout: 8000 },
+      );
+    } catch {
+      setLoc("denied");
+      toast.error("No se pudo acceder al GPS en este dispositivo");
+    }
   };
 
   const askCamera = async () => {
@@ -163,19 +171,31 @@ function PermissionsGate({ onGranted }: { onGranted: () => void }) {
 
   const askNotif = async () => {
     if (typeof window === "undefined" || !("Notification" in window)) {
-      setNotif("denied");
-      toast.error("Este dispositivo no soporta notificaciones");
+      setNotif("postponed");
+      toast.message("Este dispositivo no soporta notificaciones");
       return;
     }
     setNotif("checking");
     try {
-      const r = await Notification.requestPermission();
-      if (r === "granted") {
+      // Algunos navegadores solo soportan la versión con callback.
+      const result = await new Promise<NotificationPermission>((resolve) => {
+        try {
+          const maybe = Notification.requestPermission((r) => resolve(r));
+          if (maybe && typeof (maybe as Promise<NotificationPermission>).then === "function") {
+            (maybe as Promise<NotificationPermission>).then(resolve).catch(() => resolve("default"));
+          }
+        } catch {
+          resolve("default");
+        }
+      });
+      if (result === "granted") {
         setNotif("granted");
         toast.success("Notificaciones activadas");
         try {
           new Notification("VoyContigo", { body: "Notificaciones activadas correctamente" });
-        } catch {}
+        } catch {
+          /* Android exige service worker para mostrar notificaciones */
+        }
       } else {
         setNotif("denied");
         toast.error("Notificaciones denegadas (opcional)");
@@ -191,6 +211,7 @@ function PermissionsGate({ onGranted }: { onGranted: () => void }) {
       toast.error("Sin internet. Activa los datos móviles o reinicia la señal Wi-Fi.");
     }
   };
+
 
   // Solo GPS e Internet son obligatorios. Cámara y notificaciones son opcionales
   // y se pueden posponer para entrar directamente al aplicativo.
