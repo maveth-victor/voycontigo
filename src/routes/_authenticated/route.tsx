@@ -46,8 +46,13 @@ type PermState = "idle" | "checking" | "granted" | "denied" | "postponed";
 function AuthenticatedLayout() {
   const [permsGranted, setPermsGranted] = useState(() => {
     if (typeof window === "undefined") return false;
-    return localStorage.getItem("safetrack-perms") === "1";
+    try {
+      return localStorage.getItem("safetrack-perms") === "1";
+    } catch {
+      return false;
+    }
   });
+
 
   if (!permsGranted) {
     return <PermissionsGate onGranted={() => setPermsGranted(true)} />;
