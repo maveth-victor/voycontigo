@@ -21,20 +21,38 @@ import logo from "@/assets/voycontigo-logo.png.asset.json";
 export const Route = createFileRoute("/_authenticated")({
   ssr: false,
   beforeLoad: async () => {
-    const { data, error } = await supabase.auth.getUser();
-    if (error || !data.user) throw redirect({ to: "/auth" });
-    return { user: data.user };
+    // Nunca lanzar errores crudos aquí: cualquier fallo de red o de token
+    // haría aparecer la pantalla de "esta página no cargó".
+    try {
+      const { data } = await supabase.auth.getSession();
+      if (data.session?.user) return { user: data.session.user };
+    } catch {
+      /* ignorar y reintentar con getUser */
+    }
+    try {
+      const { data, error } = await supabase.auth.getUser();
+      if (!error && data.user) return { user: data.user };
+    } catch {
+      /* sin sesión válida */
+    }
+    throw redirect({ to: "/auth" });
   },
   component: AuthenticatedLayout,
 });
+
 
 type PermState = "idle" | "checking" | "granted" | "denied" | "postponed";
 
 function AuthenticatedLayout() {
   const [permsGranted, setPermsGranted] = useState(() => {
     if (typeof window === "undefined") return false;
-    return localStorage.getItem("safetrack-perms") === "1";
+    try {
+      return localStorage.getItem("safetrack-perms") === "1";
+    } catch {
+      return false;
+    }
   });
+
 
   if (!permsGranted) {
     return <PermissionsGate onGranted={() => setPermsGranted(true)} />;
@@ -78,16 +96,21 @@ function SosNotifier() {
             "Notification" in window &&
             Notification.permission === "granted"
           ) {
-            const n = new Notification("VoyContigo SOS", {
-              body: `${msg}. Toca para ver su ubicación en el mapa.`,
-              tag: `sos-${row.user_id}`,
-            });
-            n.onclick = () => {
-              window.focus();
-              openMap();
-              n.close();
-            };
+            try {
+              const n = new Notification("VoyContigo SOS", {
+                body: `${msg}. Toca para ver su ubicación en el mapa.`,
+                tag: `sos-${row.user_id}`,
+              });
+              n.onclick = () => {
+                window.focus();
+                openMap();
+                n.close();
+              };
+            } catch {
+              /* el navegador puede exigir service worker */
+            }
           }
+
         },
       )
       .subscribe();
@@ -102,13 +125,16 @@ function PermissionsGate({ onGranted }: { onGranted: () => void }) {
   const [loc, setLoc] = useState<PermState>("idle");
   const [cam, setCam] = useState<PermState>("idle");
   const [notif, setNotif] = useState<PermState>(() => {
-    if (typeof window === "undefined" || !("Notification" in window)) return "denied";
-    return Notification.permission === "granted"
-      ? "granted"
-      : Notification.permission === "denied"
-        ? "denied"
-        : "idle";
+    try {
+      if (typeof window === "undefined" || !("Notification" in window)) return "postponed";
+      if (Notification.permission === "granted") return "granted";
+      if (Notification.permission === "denied") return "denied";
+      return "idle";
+    } catch {
+      return "postponed";
+    }
   });
+
   const [net, setNet] = useState<PermState>(
     typeof navigator !== "undefined" && navigator.onLine ? "granted" : "denied",
   );
@@ -125,13 +151,21 @@ function PermissionsGate({ onGranted }: { onGranted: () => void }) {
   }, []);
 
   const askLocation = () => {
-    if (!("geolocation" in navigator)) return setLoc("denied");
-    setLoc("checking");
-    navigator.geolocation.getCurrentPosition(
-      () => setLoc("granted"),
-      () => setLoc("denied"),
-      { enableHighAccuracy: true, timeout: 8000 },
-    );
+    try {
+      if (typeof navigator === "undefined" || !("geolocation" in navigator)) {
+        setLoc("denied");
+        return;
+      }
+      setLoc("checking");
+      navigator.geolocation.getCurrentPosition(
+        () => setLoc("granted"),
+        () => setLoc("denied"),
+        { enableHighAccuracy: true, timeout: 8000 },
+      );
+    } catch {
+      setLoc("denied");
+      toast.error("No se pudo acceder al GPS en este dispositivo");
+    }
   };
 
   const askCamera = async () => {
@@ -150,19 +184,31 @@ function PermissionsGate({ onGranted }: { onGranted: () => void }) {
 
   const askNotif = async () => {
     if (typeof window === "undefined" || !("Notification" in window)) {
-      setNotif("denied");
-      toast.error("Este dispositivo no soporta notificaciones");
+      setNotif("postponed");
+      toast.message("Este dispositivo no soporta notificaciones");
       return;
     }
     setNotif("checking");
     try {
-      const r = await Notification.requestPermission();
-      if (r === "granted") {
+      // Algunos navegadores solo soportan la versión con callback.
+      const result = await new Promise<NotificationPermission>((resolve) => {
+        try {
+          const maybe = Notification.requestPermission((r) => resolve(r));
+          if (maybe && typeof (maybe as Promise<NotificationPermission>).then === "function") {
+            (maybe as Promise<NotificationPermission>).then(resolve).catch(() => resolve("default"));
+          }
+        } catch {
+          resolve("default");
+        }
+      });
+      if (result === "granted") {
         setNotif("granted");
         toast.success("Notificaciones activadas");
         try {
           new Notification("VoyContigo", { body: "Notificaciones activadas correctamente" });
-        } catch {}
+        } catch {
+          /* Android exige service worker para mostrar notificaciones */
+        }
       } else {
         setNotif("denied");
         toast.error("Notificaciones denegadas (opcional)");
@@ -179,6 +225,7 @@ function PermissionsGate({ onGranted }: { onGranted: () => void }) {
     }
   };
 
+
   // Solo GPS e Internet son obligatorios. Cámara y notificaciones son opcionales
   // y se pueden posponer para entrar directamente al aplicativo.
   const requiredReady = loc === "granted" && net === "granted";
@@ -192,9 +239,14 @@ function PermissionsGate({ onGranted }: { onGranted: () => void }) {
       toast.error("GPS e internet son obligatorios para usar VoyContigo");
       return;
     }
-    localStorage.setItem("safetrack-perms", "1");
+    try {
+      localStorage.setItem("safetrack-perms", "1");
+    } catch {
+      /* modo privado: continuar igual */
+    }
     onGranted();
   };
+
 
   return (
     <div
