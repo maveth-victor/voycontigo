@@ -125,13 +125,16 @@ function PermissionsGate({ onGranted }: { onGranted: () => void }) {
   const [loc, setLoc] = useState<PermState>("idle");
   const [cam, setCam] = useState<PermState>("idle");
   const [notif, setNotif] = useState<PermState>(() => {
-    if (typeof window === "undefined" || !("Notification" in window)) return "denied";
-    return Notification.permission === "granted"
-      ? "granted"
-      : Notification.permission === "denied"
-        ? "denied"
-        : "idle";
+    try {
+      if (typeof window === "undefined" || !("Notification" in window)) return "postponed";
+      if (Notification.permission === "granted") return "granted";
+      if (Notification.permission === "denied") return "denied";
+      return "idle";
+    } catch {
+      return "postponed";
+    }
   });
+
   const [net, setNet] = useState<PermState>(
     typeof navigator !== "undefined" && navigator.onLine ? "granted" : "denied",
   );
