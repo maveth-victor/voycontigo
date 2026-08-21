@@ -91,16 +91,21 @@ function SosNotifier() {
             "Notification" in window &&
             Notification.permission === "granted"
           ) {
-            const n = new Notification("VoyContigo SOS", {
-              body: `${msg}. Toca para ver su ubicación en el mapa.`,
-              tag: `sos-${row.user_id}`,
-            });
-            n.onclick = () => {
-              window.focus();
-              openMap();
-              n.close();
-            };
+            try {
+              const n = new Notification("VoyContigo SOS", {
+                body: `${msg}. Toca para ver su ubicación en el mapa.`,
+                tag: `sos-${row.user_id}`,
+              });
+              n.onclick = () => {
+                window.focus();
+                openMap();
+                n.close();
+              };
+            } catch {
+              /* el navegador puede exigir service worker */
+            }
           }
+
         },
       )
       .subscribe();
